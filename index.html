@@ -80,9 +80,10 @@
         }
     </style>
 
-    <!-- Firebase SDK Integration with Fallback System -->
+    <!-- Updated Firebase SDK Integration with Firestore and Analytics -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-analytics.js";
         import { 
             getFirestore, 
             collection, 
@@ -92,7 +93,7 @@
             setDoc, 
             deleteDoc, 
             onSnapshot 
-        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
         // Web app's Firebase configuration
         const firebaseConfig = {
@@ -101,17 +102,24 @@
             projectId: "demoproject01-54df0",
             storageBucket: "demoproject01-54df0.firebasestorage.app",
             messagingSenderId: "279987467751",
-            appId: "1:279987467751:web:9b08866255201557c33942"
+            appId: "1:279987467751:web:9b08866255201557c33942",
+            measurementId: "G-FEF29BCW9S"
         };
 
         try {
+            // Initialize Firebase
             const app = initializeApp(firebaseConfig);
+            const analytics = getAnalytics(app);
             const db = getFirestore(app);
+
+            window.app = app;
+            window.analytics = analytics;
             window.db = db;
             window.fbFS = { collection, addDoc, getDocs, doc, setDoc, deleteDoc, onSnapshot };
+
             window.dispatchEvent(new Event('firebase-initialized'));
         } catch (e) {
-            console.warn("Firebase initialized in fallback offline mode.");
+            console.warn("Firebase initialized in fallback offline mode.", e);
         }
     </script>
 </head>
@@ -238,7 +246,7 @@
                         <p class="text-xs text-sky-100">নিয়মিত ফ্রি কুইজ, মডেল টেস্ট আপডেট ও কোর্স এনরোলমেন্টের জন্য যুক্ত থাকুন।</p>
                     </div>
                 </div>
-                <a href="https://t.me/your_telegram_channel" target="_blank" class="bg-white text-sky-600 hover:bg-sky-50 font-bold px-5 py-2.5 rounded-xl shadow transition whitespace-nowrap text-xs sm:text-sm flex items-center gap-2">
+                <a href="https://t.me/your_telegram_channel" target="_blank" class="bg-white text-sky-600 hover:bg-sky-600 font-bold px-5 py-2.5 rounded-xl shadow transition whitespace-nowrap text-xs sm:text-sm flex items-center gap-2">
                     <i class="fa-solid fa-paper-plane"></i> চ্যানেলে যোগ দিন
                 </a>
             </div>
