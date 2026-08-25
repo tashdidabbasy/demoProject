@@ -1275,7 +1275,18 @@
 
                     document.getElementById("student-dash-exams-list").innerHTML = studentSubs.map((sub, sIdx) => {
                         let mistakesHtml = "";
-                        if (sub.mistakes && sub.mistakes.length > 0) {
+                        const examObj = appData.exams[sub.examKey];
+                        let canShowAnswers = true;
+                        if (examObj && examObj.answerReleaseTime) {
+                            if (new Date() < new Date(examObj.answerReleaseTime)) {
+                                canShowAnswers = false;
+                            }
+                        }
+
+                        if (!canShowAnswers) {
+                            const releaseDateStr = new Date(examObj.answerReleaseTime).toLocaleString('bn-BD', { dateStyle: 'full', timeStyle: 'short' });
+                            mistakesHtml = `<div class="mt-3 pt-3 border-t border-slate-200 text-xs text-amber-700 font-medium bg-amber-50 p-2.5 rounded-xl"><i class="fa-solid fa-lock mr-1"></i> এই পরীক্ষার উত্তর ও ভুলত্রুটি ${releaseDateStr} তারিখের পর স্টুডেন্ট পোর্টালে প্রদর্শিত হবে।</div>`;
+                        } else if (sub.mistakes && sub.mistakes.length > 0) {
                             mistakesHtml = `
                                 <div class="mt-3 pt-3 border-t border-slate-200 space-y-2">
                                     <h5 class="text-xs font-bold text-rose-700"><i class="fa-solid fa-triangle-exclamation mr-1"></i> ভুল হওয়া প্রশ্ন ও ব্যাখ্যা (${sub.mistakes.length}টি):</h5>
