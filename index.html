@@ -29,8 +29,9 @@
         }
     </script>
     
-    <!-- FontAwesome Icons & Fonts -->
+    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Font Hind Siliguri -->
     <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
@@ -38,20 +39,48 @@
             font-family: 'Hind Siliguri', sans-serif; 
             -webkit-tap-highlight-color: transparent;
         }
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 8px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        /* Custom scrollbars */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
 
+        /* Printable CSS rules for Leaderboard */
         @media print {
-            body * { visibility: hidden; }
-            #printable-leaderboard, #printable-leaderboard * { visibility: visible; }
-            #printable-leaderboard { position: absolute; left: 0; top: 0; width: 100%; background: white; color: black; padding: 20px; }
-            .no-print { display: none !important; }
+            body * { 
+                visibility: hidden; 
+            }
+            #printable-leaderboard, #printable-leaderboard * { 
+                visibility: visible; 
+            }
+            #printable-leaderboard { 
+                position: absolute; 
+                left: 0; 
+                top: 0; 
+                width: 100%; 
+                background: white;
+                color: black;
+                padding: 20px;
+            }
+            .no-print {
+                display: none !important;
+            }
         }
     </style>
 
-    <!-- Connected Firebase SDK Integration -->
+    <!-- Firebase SDK Integration with Firestore and Analytics -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-analytics.js";
@@ -59,7 +88,6 @@
             getFirestore, 
             collection, 
             addDoc, 
-            getDocs, 
             doc, 
             setDoc, 
             deleteDoc, 
@@ -84,18 +112,17 @@
             window.app = app;
             window.analytics = analytics;
             window.db = db;
-            window.fbFS = { collection, addDoc, getDocs, doc, setDoc, deleteDoc, onSnapshot };
+            window.fbFS = { collection, addDoc, doc, setDoc, deleteDoc, onSnapshot };
 
             window.dispatchEvent(new Event('firebase-initialized'));
-            console.log("Firebase Connection Established Successfully.");
         } catch (e) {
-            console.warn("Firebase initialized in fallback offline mode.", e);
+            console.error("Firebase Initialization Error:", e);
         }
     </script>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col overflow-x-hidden">
 
-    <!-- Header Navigation -->
+    <!-- Navigation Header -->
     <header class="bg-indigo-700 text-white shadow-md sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col sm:flex-row justify-between items-center gap-3">
             <div class="flex items-center space-x-3 w-full sm:w-auto justify-between sm:justify-start">
@@ -110,6 +137,7 @@
                 </div>
             </div>
 
+            <!-- Header Action Buttons -->
             <div id="nav-actions" class="flex flex-wrap items-center justify-center gap-2 w-full sm:w-auto text-xs sm:text-sm">
                 <button onclick="switchView('dashboard')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-xl font-medium transition flex items-center gap-1.5 shadow-sm">
                     <i class="fa-solid fa-house"></i> হোম
@@ -130,10 +158,12 @@
         </div>
     </header>
 
-    <!-- Main Content Body -->
+    <!-- Main Content Container -->
     <main class="flex-grow max-w-5xl w-full mx-auto p-3 sm:p-5 md:p-6">
-        <!-- 1. DASHBOARD VIEW -->
+        
+        <!-- ================= 1. DASHBOARD / HOME VIEW ================= -->
         <div id="view-dashboard" class="space-y-6">
+            <!-- Hero Banner -->
             <div class="bg-gradient-to-r from-indigo-700 via-indigo-600 to-violet-700 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
                 <div class="absolute right-0 top-0 bottom-0 w-1/3 opacity-10 flex items-center justify-center pointer-events-none">
                     <i class="fa-solid fa-graduation-cap text-9xl"></i>
@@ -162,6 +192,7 @@
                 </div>
             </div>
 
+            <!-- Exam Information Cards -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center space-x-4">
                     <div class="bg-indigo-50 text-indigo-600 p-4 rounded-2xl text-xl flex items-center justify-center w-12 h-12">
@@ -192,6 +223,7 @@
                 </div>
             </div>
 
+            <!-- Exam Availability Schedule Notice Box -->
             <div id="dash-exam-schedule-box" class="hidden bg-amber-50 border border-amber-200 rounded-2xl p-4 text-amber-900 text-xs sm:text-sm space-y-1">
                 <div class="font-bold flex items-center">
                     <i class="fa-solid fa-calendar-days text-amber-600 mr-2"></i>
@@ -200,6 +232,7 @@
                 <p id="dash-schedule-detail" class="text-amber-800 text-xs"></p>
             </div>
 
+            <!-- Telegram Channel Banner -->
             <div class="bg-gradient-to-r from-sky-500 to-blue-600 rounded-2xl p-5 text-white shadow-md flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div class="flex items-center space-x-3 text-center sm:text-left">
                     <div class="bg-white text-sky-600 p-3.5 rounded-2xl text-2xl shadow shrink-0">
@@ -216,7 +249,7 @@
             </div>
         </div>
 
-        <!-- 2. STUDENT REGISTRATION VIEW -->
+        <!-- ================= 2. STUDENT REGISTRATION VIEW ================= -->
         <div id="view-student-reg" class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200 hidden max-w-lg mx-auto space-y-5">
             <div class="text-center">
                 <div class="bg-indigo-50 text-indigo-600 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-3 text-2xl shadow-inner">
@@ -247,8 +280,9 @@
             </form>
         </div>
 
-        <!-- 3. EXAM RUNNING VIEW -->
+        <!-- ================= 3. EXAM RUNNING VIEW ================= -->
         <div id="view-exam" class="bg-white rounded-3xl p-5 sm:p-8 shadow-sm border border-slate-200 hidden space-y-6">
+            <!-- Exam Header Bar -->
             <div class="flex flex-col sm:flex-row justify-between items-center pb-4 border-b border-slate-200 gap-3 sticky top-16 bg-white/95 backdrop-blur-md z-30 py-2">
                 <div>
                     <span id="quiz-exam-heading" class="text-xs sm:text-sm font-bold text-indigo-700 bg-indigo-50 px-3 py-1 rounded-full uppercase border border-indigo-100">
@@ -262,8 +296,11 @@
                 </div>
             </div>
 
-            <div id="all-questions-container" class="space-y-6"></div>
+            <!-- Questions Container -->
+            <div id="all-questions-container" class="space-y-6">
+            </div>
 
+            <!-- Exam Submit Bar -->
             <div class="pt-4 border-t border-slate-200 flex justify-end">
                 <button onclick="confirmFinishQuiz()" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-8 py-3.5 rounded-xl text-xs sm:text-sm transition shadow-lg flex items-center justify-center gap-2">
                     <i class="fa-solid fa-paper-plane"></i> উত্তরপত্র জমা দিন (Submit)
@@ -271,7 +308,7 @@
             </div>
         </div>
 
-        <!-- 4. RESULT VIEW -->
+        <!-- ================= 4. RESULT SUMMARY & REVIEW VIEW ================= -->
         <div id="view-result" class="bg-white rounded-3xl p-5 sm:p-8 shadow-sm border border-slate-200 hidden space-y-6">
             <div class="text-center bg-gradient-to-br from-indigo-50 to-violet-50 p-6 rounded-2xl border border-indigo-100 space-y-2">
                 <div class="w-16 h-16 bg-indigo-600 text-white rounded-2xl flex items-center justify-center mx-auto text-3xl shadow">
@@ -281,6 +318,7 @@
                 <p id="result-student-info" class="text-xs sm:text-sm text-slate-600 font-medium"></p>
             </div>
 
+            <!-- Score Stats Grid -->
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-center">
                     <span class="text-[11px] sm:text-xs text-slate-500 block mb-1">মোট প্রশ্ন</span>
@@ -300,6 +338,7 @@
                 </div>
             </div>
 
+            <!-- Actions Row -->
             <div class="flex flex-col sm:flex-row gap-3 pt-1">
                 <button id="btn-toggle-review" onclick="toggleReviewSection()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl transition text-xs sm:text-sm flex items-center justify-center gap-2 shadow">
                     <i class="fa-solid fa-list-check"></i> উত্তর পর্যালোচনা (Review)
@@ -312,6 +351,7 @@
                 </button>
             </div>
 
+            <!-- Review Release Time Warning Box (if applicable) -->
             <div id="review-lock-notice" class="hidden bg-amber-50 border border-amber-200 rounded-2xl p-4 text-amber-800 text-xs sm:text-sm space-y-1">
                 <div class="font-bold flex items-center">
                     <i class="fa-solid fa-lock text-amber-600 mr-2"></i> সঠিক উত্তর ও ব্যাখ্যা স্থগিত আছে
@@ -319,6 +359,7 @@
                 <p id="review-lock-time-text" class="text-xs text-amber-700"></p>
             </div>
 
+            <!-- Detailed Answer Review List -->
             <div id="review-container" class="hidden space-y-4 pt-3 border-t border-slate-200">
                 <h3 class="font-bold text-slate-900 text-sm sm:text-base flex items-center gap-2">
                     <i class="fa-solid fa-check-double text-indigo-600"></i> সকল প্রশ্নের সঠিক উত্তর ও ব্যাখ্যা:
@@ -327,7 +368,7 @@
             </div>
         </div>
 
-        <!-- 5. TEACHER PANEL VIEW -->
+        <!-- ================= 5. TEACHER PANEL VIEW ================= -->
         <div id="view-teacher" class="bg-white rounded-3xl p-5 sm:p-8 shadow-sm border border-slate-200 hidden space-y-6">
             <div class="flex justify-between items-center pb-3 border-b border-slate-200">
                 <div>
@@ -341,6 +382,7 @@
                 </button>
             </div>
 
+            <!-- Tabs Header -->
             <div class="flex border-b border-slate-200 space-x-1 sm:space-x-2 overflow-x-auto custom-scrollbar pb-px">
                 <button onclick="switchTeacherTab('exams')" id="tab-btn-exams" class="py-2.5 px-3 sm:px-4 font-bold text-xs sm:text-sm border-b-2 border-indigo-600 text-indigo-600 whitespace-nowrap">এক্সাম সেট</button>
                 <button onclick="switchTeacherTab('subjects')" id="tab-btn-subjects" class="py-2.5 px-3 sm:px-4 font-semibold text-xs sm:text-sm text-slate-500 hover:text-slate-800 border-b-2 border-transparent whitespace-nowrap">সাবজেক্ট</button>
@@ -350,8 +392,9 @@
                 <button onclick="switchTeacherTab('security')" id="tab-btn-security" class="py-2.5 px-3 sm:px-4 font-semibold text-xs sm:text-sm text-slate-500 hover:text-slate-800 border-b-2 border-transparent whitespace-nowrap">পাসওয়ার্ড</button>
             </div>
 
-            <!-- Tab 1: Exams -->
+            <!-- Tab 1: Exam Sets Management -->
             <div id="teacher-tab-exams" class="space-y-6">
+                <!-- Shareable Link Card -->
                 <div class="bg-indigo-50 p-4 sm:p-5 rounded-2xl border border-indigo-100 space-y-2">
                     <h3 class="font-bold text-indigo-900 text-xs sm:text-sm"><i class="fa-solid fa-share-nodes mr-1.5"></i> শেয়ারেবল পরীক্ষার লিংক</h3>
                     <p class="text-[11px] sm:text-xs text-indigo-700">নির্বাচিত পরীক্ষার ডিরেক্ট লিংক আপনার শিক্ষার্থীদের কাছে পাঠাতে কপি করুন:</p>
@@ -363,6 +406,7 @@
                     </div>
                 </div>
 
+                <!-- Create Exam Form -->
                 <div class="bg-slate-50 p-4 sm:p-5 rounded-2xl border border-slate-200 space-y-4">
                     <h3 class="font-bold text-slate-800 text-xs sm:text-sm"><i class="fa-solid fa-circle-plus text-indigo-600 mr-1.5"></i> নতুন এক্সাম তৈরি করুন</h3>
                     <form onsubmit="handleCreateExam(event)" class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
@@ -400,13 +444,14 @@
                     </form>
                 </div>
 
+                <!-- Exam Sets List -->
                 <div>
                     <h4 class="font-bold text-slate-800 text-xs sm:text-sm mb-3">সকল এক্সাম সেটসমূহ:</h4>
                     <div id="exam-sets-list-container" class="space-y-3"></div>
                 </div>
             </div>
 
-            <!-- Tab 2: Subjects -->
+            <!-- Tab 2: Subject Management -->
             <div id="teacher-tab-subjects" class="hidden space-y-5">
                 <div class="bg-indigo-50 p-4 sm:p-5 rounded-2xl border border-indigo-100 space-y-3">
                     <h3 class="font-bold text-indigo-900 text-xs sm:text-sm"><i class="fa-solid fa-book mr-1.5"></i> নতুন সাবজেক্ট যোগ করুন</h3>
@@ -423,7 +468,7 @@
                 </div>
             </div>
 
-            <!-- Tab 3: Student IDs -->
+            <!-- Tab 3: Allowed Student IDs Management -->
             <div id="teacher-tab-student-ids" class="hidden space-y-5">
                 <div class="bg-indigo-50 p-4 sm:p-5 rounded-2xl border border-indigo-100 space-y-3">
                     <h3 class="font-bold text-indigo-900 text-xs sm:text-sm"><i class="fa-solid fa-user-plus mr-1.5"></i> অনুমোদিত শিক্ষার্থী (আইডি ও নাম) যোগ করুন</h3>
@@ -537,7 +582,7 @@
                 </div>
             </div>
 
-            <!-- Tab 6: Security -->
+            <!-- Tab 6: Security / Password Update -->
             <div id="teacher-tab-security" class="hidden space-y-4">
                 <div class="max-w-md bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-4">
                     <h3 class="font-bold text-slate-800 text-xs sm:text-sm">শিক্ষক প্যানেলের পাসওয়ার্ড পরিবর্তন করুন</h3>
@@ -559,7 +604,7 @@
         </div>
     </main>
 
-    <!-- Modals -->
+    <!-- Custom Notification/Message Modal -->
     <div id="custom-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-white rounded-3xl max-w-sm sm:max-w-md w-full p-6 shadow-2xl transform transition-all text-center">
             <div id="modal-icon" class="text-4xl sm:text-5xl mb-3 text-indigo-600">
@@ -573,6 +618,7 @@
         </div>
     </div>
 
+    <!-- Confirmation Modal (Replaces standard confirm) -->
     <div id="confirm-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-white rounded-3xl max-w-sm sm:max-w-md w-full p-6 shadow-2xl transform transition-all text-center">
             <div class="text-4xl sm:text-5xl mb-3 text-amber-500">
@@ -591,6 +637,7 @@
         </div>
     </div>
 
+    <!-- Teacher Login Modal -->
     <div id="teacher-login-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-white rounded-3xl max-w-sm sm:max-w-md w-full p-6 shadow-2xl">
             <div class="text-center mb-4">
@@ -612,6 +659,7 @@
         </div>
     </div>
 
+    <!-- Student Portal Login Modal -->
     <div id="student-portal-login-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-white rounded-3xl max-w-sm sm:max-w-md w-full p-6 shadow-2xl">
             <div class="text-center mb-4">
@@ -633,6 +681,7 @@
         </div>
     </div>
 
+    <!-- Dedicated Student Dashboard & Analytics Modal -->
     <div id="student-dashboard-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 hidden">
         <div class="bg-white rounded-3xl max-w-3xl w-full p-5 sm:p-6 shadow-2xl max-h-[90vh] flex flex-col">
             <div class="flex justify-between items-center pb-3 border-b border-slate-200 mb-4">
@@ -648,6 +697,7 @@
             </div>
 
             <div class="overflow-y-auto custom-scrollbar space-y-5 pr-1 flex-grow">
+                <!-- Summary Stats Card -->
                 <div class="grid grid-cols-3 gap-3">
                     <div class="bg-violet-50 p-3.5 rounded-2xl text-center border border-violet-100">
                         <span class="text-[11px] text-violet-600 block">মোট পরীক্ষা</span>
@@ -663,6 +713,7 @@
                     </div>
                 </div>
 
+                <!-- Submissions History Table -->
                 <div>
                     <h4 class="font-bold text-slate-800 text-xs sm:text-sm mb-2.5">অংশগ্রহণকৃত পরীক্ষার তালিকা:</h4>
                     <div id="student-history-container" class="space-y-3"></div>
@@ -671,6 +722,7 @@
         </div>
     </div>
 
+    <!-- Leaderboard Modal (Printable) -->
     <div id="leaderboard-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 hidden">
         <div id="printable-leaderboard" class="bg-white rounded-3xl max-w-2xl w-full p-5 sm:p-6 shadow-2xl max-h-[90vh] flex flex-col">
             <div class="flex justify-between items-center pb-3 border-b border-slate-200 mb-4 no-print">
@@ -693,6 +745,7 @@
                 </div>
             </div>
 
+            <!-- Header only visible in Print -->
             <div class="hidden print:block mb-4 text-center">
                 <h1 class="text-2xl font-bold">BCS One - মেধা তালিকা</h1>
                 <p id="print-exam-title" class="text-sm text-gray-600 mt-1"></p>
@@ -719,8 +772,9 @@
         </div>
     </div>
 
-    <!-- Application Logic Script Connected with Firebase Firestore -->
+    <!-- Application Logic Script with Firestore Integration -->
     <script>
+        // Default Sample Data
         const defaultExamsData = {
             "exam-bcs-01": {
                 key: "exam-bcs-01",
@@ -742,26 +796,63 @@
                         options: ["বৈদিক ভাষা", "সংস্কৃত ভাষা", "প্রাকৃত ভাষা", "অপভ্রংশ"],
                         correct: 2,
                         explanation: "বাংলা ভাষার প্রাচীনতম নিদর্শন ও মূল উৎস প্রাকৃত ভাষা থেকে উদ্ভূত।"
+                    },
+                    {
+                        q: "কাজী নজরুল ইসলামের ‘অগ্নিবীণা’ কাব্যের প্রথম কবিতা কোনটি?",
+                        options: ["বিদ্রোহী", "প্রলয়োল্লাস", "ধুমকেতু", "রক্তাম্বরধারিণী মা"],
+                        correct: 1,
+                        explanation: "‘অগ্নিবীণা’ কাব্যের প্রথম কবিতা ‘প্রলয়োল্লাস’ এবং দ্বিতীয় কবিতা ‘বিদ্রোহী’।"
+                    }
+                ]
+            },
+            "exam-eng-01": {
+                key: "exam-eng-01",
+                subject: "English",
+                title: "English Grammar & Vocabulary Practice Test",
+                duration: 10,
+                isFree: true,
+                startTime: "",
+                answerTime: "",
+                questions: [
+                    {
+                        q: "Choose the correct synonym of 'Prudent':",
+                        options: ["Rash", "Wise", "Foolish", "Careless"],
+                        correct: 1,
+                        explanation: "Prudent means showing care and thought for the future (Wise/বিচক্ষণ)."
+                    },
+                    {
+                        q: "Identify the correct sentence:",
+                        options: [
+                            "He is senior than me.",
+                            "He is senior to me.",
+                            "He is senior from me.",
+                            "He is senior with me."
+                        ],
+                        correct: 1,
+                        explanation: "Latin adjectives like Senior, Junior, Superior take 'to' instead of 'than'."
                     }
                 ]
             }
         };
 
         const defaultSubjects = ["সবগুলো", "বাংলা", "English", "সাধারণ জ্ঞান", "গণিত"];
+        
         const defaultStudentIds = [
             { id: "202601", name: "আব্দুর রহিম" },
-            { id: "202602", name: "নাসরিন সুলতানা" }
+            { id: "202602", name: "নাসরিন সুলতানা" },
+            { id: "202603", name: "তানভীর আহমেদ" }
         ];
 
-        let exams = JSON.parse(localStorage.getItem('bcs_one_exams_v2')) || defaultExamsData;
-        let subjects = JSON.parse(localStorage.getItem('bcs_one_subjects_v2')) || defaultSubjects;
-        let allowedStudentIds = JSON.parse(localStorage.getItem('bcs_one_allowed_ids_v2')) || defaultStudentIds;
-        let submissions = JSON.parse(localStorage.getItem('bcs_one_submissions_v2')) || [];
-        let teacherPassword = localStorage.getItem('bcs_one_teacher_pass') || "123456";
+        // Global State - Pure Cloud Sync
+        let exams = {};
+        let subjects = [];
+        let allowedStudentIds = [];
+        let submissions = [];
+        let teacherPassword = "123456";
 
-        let activeExamKey = Object.keys(exams)[0] || "";
+        let activeExamKey = "";
         let activeSubjectFilter = "সবগুলো";
-        let activeTeacherExamKey = activeExamKey;
+        let activeTeacherExamKey = "";
         
         let currentUser = { id: "", name: "" };
         let currentExamRunning = null;
@@ -771,52 +862,103 @@
         let currentSubmission = null;
         let pendingConfirmCallback = null;
 
-        // Firebase Sync Helpers
-        function saveState() {
-            localStorage.setItem('bcs_one_exams_v2', JSON.stringify(exams));
-            localStorage.setItem('bcs_one_subjects_v2', JSON.stringify(subjects));
-            localStorage.setItem('bcs_one_allowed_ids_v2', JSON.stringify(allowedStudentIds));
-            localStorage.setItem('bcs_one_submissions_v2', JSON.stringify(submissions));
-            localStorage.setItem('bcs_one_teacher_pass', teacherPassword);
-
-            if (window.db && window.fbFS) {
-                try {
-                    window.fbFS.setDoc(window.fbFS.doc(window.db, "config", "appData"), {
-                        exams,
-                        subjects,
-                        allowedStudentIds,
-                        teacherPassword
-                    });
-                } catch (err) {
-                    console.log("Firebase sync fallback:", err);
-                }
-            }
-        }
-
+        // Firebase Sync Listeners
         window.addEventListener('firebase-initialized', () => {
-            if (window.db && window.fbFS) {
-                window.fbFS.onSnapshot(window.fbFS.doc(window.db, "config", "appData"), (snapshot) => {
-                    if (snapshot.exists()) {
-                        const data = snapshot.data();
-                        if (data.exams) exams = data.exams;
-                        if (data.subjects) subjects = data.subjects;
-                        if (data.allowedStudentIds) allowedStudentIds = data.allowedStudentIds;
-                        if (data.teacherPassword) teacherPassword = data.teacherPassword;
-                        renderHomeSubjectFilter();
-                        renderHomeExamSelect();
-                    }
-                });
-
-                window.fbFS.onSnapshot(window.fbFS.collection(window.db, "submissions"), (querySnapshot) => {
-                    const loadedSubs = [];
-                    querySnapshot.forEach((doc) => loadedSubs.push(doc.data()));
-                    if (loadedSubs.length > 0) {
-                        submissions = loadedSubs.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
-                    }
-                });
-            }
+            setupFirestoreListeners();
         });
 
+        function setupFirestoreListeners() {
+            const { db, fbFS } = window;
+            if (!db || !fbFS) return;
+
+            // Sync Exams
+            fbFS.onSnapshot(fbFS.collection(db, "exams"), (snapshot) => {
+                let fetchedExams = {};
+                snapshot.forEach((doc) => {
+                    fetchedExams[doc.id] = doc.data();
+                });
+                
+                if (Object.keys(fetchedExams).length === 0) {
+                    Object.keys(defaultExamsData).forEach((key) => {
+                        fbFS.setDoc(fbFS.doc(db, "exams", key), defaultExamsData[key]);
+                    });
+                } else {
+                    exams = fetchedExams;
+                    if (!activeExamKey || !exams[activeExamKey]) {
+                        activeExamKey = Object.keys(exams)[0] || "";
+                    }
+                    if (!activeTeacherExamKey || !exams[activeTeacherExamKey]) {
+                        activeTeacherExamKey = activeExamKey;
+                    }
+                    renderHomeExamSelect();
+                    updateDashboardExamCards();
+                    if (!document.getElementById('view-teacher').classList.contains('hidden')) {
+                        renderTeacherExamList();
+                        renderTeacherQuestionTab();
+                    }
+                }
+            });
+
+            // Sync Subjects
+            fbFS.onSnapshot(fbFS.collection(db, "meta"), (snapshot) => {
+                let subDocFound = false;
+                snapshot.forEach((docSnap) => {
+                    if (docSnap.id === "subjects") {
+                        subDocFound = true;
+                        subjects = docSnap.data().list || defaultSubjects;
+                    }
+                    if (docSnap.id === "security") {
+                        teacherPassword = docSnap.data().password || "123456";
+                    }
+                });
+
+                if (!subDocFound) {
+                    fbFS.setDoc(fbFS.doc(db, "meta", "subjects"), { list: defaultSubjects });
+                    fbFS.setDoc(fbFS.doc(db, "meta", "security"), { password: "123456" });
+                } else {
+                    renderHomeSubjectFilter();
+                    renderHomeExamSelect();
+                    if (!document.getElementById('view-teacher').classList.contains('hidden')) {
+                        renderTeacherSubjectsList();
+                        renderTeacherSubjectOptions();
+                    }
+                }
+            });
+
+            // Sync Allowed Students
+            fbFS.onSnapshot(fbFS.collection(db, "allowed_students"), (snapshot) => {
+                let list = [];
+                snapshot.forEach((doc) => {
+                    list.push({ id: doc.id, ...doc.data() });
+                });
+
+                if (list.length === 0) {
+                    defaultStudentIds.forEach((st) => {
+                        fbFS.setDoc(fbFS.doc(db, "allowed_students", st.id), { name: st.name });
+                    });
+                } else {
+                    allowedStudentIds = list;
+                    if (!document.getElementById('view-teacher').classList.contains('hidden')) {
+                        renderTeacherAllowedIdsList();
+                    }
+                }
+            });
+
+            // Sync Submissions
+            fbFS.onSnapshot(fbFS.collection(db, "submissions"), (snapshot) => {
+                let list = [];
+                snapshot.forEach((doc) => {
+                    list.push({ id: doc.id, ...doc.data() });
+                });
+                submissions = list.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+                if (!document.getElementById('view-teacher').classList.contains('hidden')) {
+                    renderTeacherSubmissionsTab();
+                }
+            });
+        }
+
+        // Custom Alert Modal
         function showAlert(title, message, iconClass = "fa-circle-info", iconColor = "text-indigo-600") {
             document.getElementById('modal-title').innerText = title;
             document.getElementById('modal-message').innerText = message;
@@ -829,6 +971,7 @@
             document.getElementById('custom-modal').classList.add('hidden');
         }
 
+        // Custom Confirm Modal
         function showConfirm(title, message, onConfirm) {
             document.getElementById('confirm-modal-title').innerText = title;
             document.getElementById('confirm-modal-message').innerText = message;
@@ -844,6 +987,7 @@
             pendingConfirmCallback = null;
         }
 
+        // View Switcher
         function switchView(viewName) {
             ['dashboard', 'student-reg', 'exam', 'result', 'teacher'].forEach(v => {
                 const el = document.getElementById(`view-${v}`);
@@ -860,6 +1004,7 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
+        // Home Subject Filter & Dropdown Logic
         function renderHomeSubjectFilter() {
             const filterEl = document.getElementById('home-subject-filter');
             filterEl.innerHTML = subjects.map(s => `
@@ -927,6 +1072,7 @@
             }
         }
 
+        // Start Exam Flow Handler
         function startExamFlow() {
             if (!activeExamKey || !exams[activeExamKey]) {
                 showAlert("সতর্কতা", "অনুগ্রহ করে একটি বৈধ পরীক্ষা নির্বাচন করুন।");
@@ -941,11 +1087,13 @@
             }
 
             if (!exam.questions || exam.questions.length === 0) {
-                showAlert("প্রশ্ন খালি", "এই পরীক্ষায় এখনো কোনো প্রশ্ন যুক্ত করা হয়নি।");
+                showAlert("প্রশ্ন খালি", "এই পরীক্ষায় এখনো কোনো প্রশ্ন যুক্ত করা হয়নি। শিক্ষক প্যানেল থেকে প্রশ্ন যোগ করুন।");
                 return;
             }
 
             document.getElementById('reg-exam-title-display').innerText = exam.title;
+            
+            const studentIdWrapper = document.getElementById('student-id-field-wrapper');
             const reqMark = document.getElementById('id-required-mark');
             const studentIdInput = document.getElementById('student-id');
 
@@ -962,6 +1110,7 @@
             switchView('student-reg');
         }
 
+        // Begin Quiz Function
         function beginQuiz(e) {
             e.preventDefault();
             const exam = exams[activeExamKey];
@@ -976,7 +1125,7 @@
 
                 const matchedStudent = allowedStudentIds.find(s => s.id === enteredId);
                 if (!matchedStudent) {
-                    showAlert("অনুমোদনহীন আইডি", "আপনার স্টুডেন্ট আইডিটি অনুমোদিত তালিকায় পাওয়া যায়নি।");
+                    showAlert("অনুমোদনহীন আইডি", "আপনার স্টুডেন্ট আইডিটি অনুমোদিত তালিকায় পাওয়া যায়নি। অনুগ্রহ করে শিক্ষকের সাথে যোগাযোগ করুন।");
                     return;
                 }
 
@@ -1033,7 +1182,7 @@
                 updateTimerDisplay();
                 if (timeRemaining <= 0) {
                     clearInterval(timerInterval);
-                    showAlert("সময় শেষ!", "আপনার সময় শেষ হয়েছে। উত্তরপত্র জমা করা হচ্ছে।");
+                    showAlert("সময় শেষ!", "আপনার পরীক্ষার নির্ধারিত সময় শেষ হয়েছে। উত্তরপত্র জমা করা হচ্ছে।");
                     submitExamResults();
                 }
             }, 1000);
@@ -1047,7 +1196,7 @@
         }
 
         function confirmFinishQuiz() {
-            showConfirm("পরীক্ষা জমা দিন", "আপনি কি নিশ্চিত যে উত্তরপত্র জমা দিতে চান?", () => {
+            showConfirm("পরীক্ষা জমা দিন", "আপনি কি নিশ্চিত যে আপনার উত্তরপত্র জমা দিতে চান?", () => {
                 submitExamResults();
             });
         }
@@ -1062,8 +1211,11 @@
             currentExamRunning.questions.forEach((q, idx) => {
                 const ans = userAnswers[idx];
                 if (ans !== undefined && ans !== null) {
-                    if (ans === q.correct) correctCount++;
-                    else incorrectCount++;
+                    if (ans === q.correct) {
+                        correctCount++;
+                    } else {
+                        incorrectCount++;
+                    }
                 }
             });
 
@@ -1071,7 +1223,6 @@
             const finalScore = Math.max(0, rawScore);
 
             const submissionRecord = {
-                id: "sub-" + Date.now(),
                 examKey: currentExamRunning.key,
                 examTitle: currentExamRunning.title,
                 studentId: currentUser.id,
@@ -1084,15 +1235,8 @@
                 timestamp: new Date().toISOString()
             };
 
-            submissions.unshift(submissionRecord);
-            saveState();
-
             if (window.db && window.fbFS) {
-                try {
-                    window.fbFS.addDoc(window.fbFS.collection(window.db, "submissions"), submissionRecord);
-                } catch (e) {
-                    console.log("Firestore sync Error:", e);
-                }
+                window.fbFS.addDoc(window.fbFS.collection(window.db, "submissions"), submissionRecord);
             }
 
             currentSubmission = submissionRecord;
@@ -1100,6 +1244,7 @@
             switchView('result');
         }
 
+        // Render Result View
         function renderResultSummary() {
             const sub = currentSubmission;
             document.getElementById('result-student-info').innerText = `শিক্ষার্থী: ${sub.studentName} (আইডি: ${sub.studentId})`;
@@ -1118,7 +1263,7 @@
             if (exam && exam.answerTime && new Date() < new Date(exam.answerTime)) {
                 reviewLockNotice.classList.remove('hidden');
                 document.getElementById('review-lock-time-text').innerText = 
-                    `সঠিক উত্তর প্রকাশের সময়: ${new Date(exam.answerTime).toLocaleString('bn-BD')}`;
+                    `সঠিক উত্তর ও ব্যাখ্যা প্রকাশের সময়: ${new Date(exam.answerTime).toLocaleString('bn-BD')}`;
                 btnReview.disabled = true;
                 btnReview.classList.add('opacity-50', 'cursor-not-allowed');
             } else {
@@ -1193,6 +1338,7 @@
             container.classList.remove('hidden');
         }
 
+        // Student Portal Functions
         function openStudentPortalModal() {
             document.getElementById('student-portal-login-modal').classList.remove('hidden');
         }
@@ -1259,6 +1405,7 @@
             document.getElementById('student-dashboard-modal').classList.add('hidden');
         }
 
+        // Leaderboard Functions
         function openLeaderboardModal(examKey) {
             const selectEl = document.getElementById('leaderboard-exam-select');
             selectEl.innerHTML = Object.values(exams).map(e => `
@@ -1307,6 +1454,7 @@
             }).join('');
         }
 
+        // Teacher Panel Functions
         function openTeacherLoginModal() {
             document.getElementById('teacher-login-modal').classList.remove('hidden');
         }
@@ -1324,7 +1472,7 @@
                 renderTeacherPanel();
                 switchView('teacher');
             } else {
-                showAlert("ভুল পাসওয়ার্ড", "শিক্ষক পাসওয়ার্ড সঠিক নয়।", "fa-lock", "text-rose-600");
+                showAlert("ভুল পাসওয়ার্ড", "শিক্ষক পাসওয়ার্ড সঠিক নয়। আবার চেষ্টা করুন।", "fa-lock", "text-rose-600");
             }
         }
 
@@ -1412,7 +1560,7 @@
             const isFree = document.getElementById('new-exam-is-free').checked;
 
             const examKey = "exam-" + Date.now();
-            exams[examKey] = {
+            const newExam = {
                 key: examKey,
                 subject: subject,
                 title: name,
@@ -1423,18 +1571,19 @@
                 questions: []
             };
 
-            saveState();
-            renderTeacherExamList();
+            if (window.db && window.fbFS) {
+                window.fbFS.setDoc(window.fbFS.doc(window.db, "exams", examKey), newExam);
+            }
+
             document.getElementById('new-exam-name-input').value = "";
             showAlert("সফল!", "নতুন এক্সাম সেট সফলভাবে যুক্ত করা হয়েছে।");
         }
 
         function deleteExamSet(key) {
             showConfirm("এক্সাম মুছুন", "আপনি কি এই এক্সাম সেটটি মুছে ফেলতে চান?", () => {
-                delete exams[key];
-                if (activeExamKey === key) activeExamKey = Object.keys(exams)[0] || "";
-                saveState();
-                renderTeacherExamList();
+                if (window.db && window.fbFS) {
+                    window.fbFS.deleteDoc(window.fbFS.doc(window.db, "exams", key));
+                }
             });
         }
 
@@ -1478,18 +1627,22 @@
             const correctIdx = parseInt(document.getElementById('new-correct-idx').value);
             const explanation = document.getElementById('new-explanation').value.trim();
 
-            if (!exam.questions) exam.questions = [];
-
-            exam.questions.push({
+            const questions = exam.questions ? [...exam.questions] : [];
+            questions.push({
                 q: qText,
                 options: [opt0, opt1, opt2, opt3],
                 correct: correctIdx,
                 explanation: explanation
             });
 
-            saveState();
+            if (window.db && window.fbFS) {
+                window.fbFS.setDoc(window.fbFS.doc(window.db, "exams", exam.key), {
+                    ...exam,
+                    questions: questions
+                });
+            }
+
             document.getElementById('add-q-form').reset();
-            renderTeacherQuestionTab();
             showAlert("প্রশ্ন যোগ হয়েছে", "নতুন প্রশ্নটি এক্সাম সেটে যুক্ত করা হয়েছে।");
         }
 
@@ -1497,11 +1650,18 @@
             const exam = exams[activeTeacherExamKey];
             if (!exam) return;
 
-            exam.questions.splice(qIdx, 1);
-            saveState();
-            renderTeacherQuestionTab();
+            const questions = [...exam.questions];
+            questions.splice(qIdx, 1);
+
+            if (window.db && window.fbFS) {
+                window.fbFS.setDoc(window.fbFS.doc(window.db, "exams", exam.key), {
+                    ...exam,
+                    questions: questions
+                });
+            }
         }
 
+        // Subjects Management
         function renderTeacherSubjectsList() {
             const container = document.getElementById('subjects-list-container');
             container.innerHTML = subjects.filter(s => s !== "সবগুলো").map(s => `
@@ -1518,21 +1678,22 @@
             e.preventDefault();
             const name = document.getElementById('new-subject-name').value.trim();
             if (name && !subjects.includes(name)) {
-                subjects.push(name);
-                saveState();
-                renderTeacherSubjectsList();
-                renderTeacherSubjectOptions();
+                const updated = [...subjects, name];
+                if (window.db && window.fbFS) {
+                    window.fbFS.setDoc(window.fbFS.doc(window.db, "meta", "subjects"), { list: updated });
+                }
                 document.getElementById('new-subject-name').value = "";
             }
         }
 
         function deleteSubject(subName) {
-            subjects = subjects.filter(s => s !== subName);
-            saveState();
-            renderTeacherSubjectsList();
-            renderTeacherSubjectOptions();
+            const updated = subjects.filter(s => s !== subName);
+            if (window.db && window.fbFS) {
+                window.fbFS.setDoc(window.fbFS.doc(window.db, "meta", "subjects"), { list: updated });
+            }
         }
 
+        // Allowed Student IDs Management
         function renderTeacherAllowedIdsList() {
             const container = document.getElementById('allowed-ids-list-container');
             container.innerHTML = allowedStudentIds.map(st => `
@@ -1552,21 +1713,20 @@
             const id = document.getElementById('new-student-id-input').value.trim();
             const name = document.getElementById('new-student-name-input').value.trim();
 
-            if (id && !allowedStudentIds.some(s => s.id === id)) {
-                allowedStudentIds.push({ id, name });
-                saveState();
-                renderTeacherAllowedIdsList();
+            if (id && window.db && window.fbFS) {
+                window.fbFS.setDoc(window.fbFS.doc(window.db, "allowed_students", id), { name });
                 document.getElementById('new-student-id-input').value = "";
                 document.getElementById('new-student-name-input').value = "";
             }
         }
 
         function deleteStudentId(id) {
-            allowedStudentIds = allowedStudentIds.filter(s => s.id !== id);
-            saveState();
-            renderTeacherAllowedIdsList();
+            if (window.db && window.fbFS) {
+                window.fbFS.deleteDoc(window.fbFS.doc(window.db, "allowed_students", id));
+            }
         }
 
+        // Submissions List in Teacher Panel
         function renderTeacherSubmissionsTab() {
             document.getElementById('sub-count').innerText = submissions.length;
             const tbody = document.getElementById('submissions-table-body');
@@ -1589,20 +1749,24 @@
 
         function clearSubmissions() {
             showConfirm("সকল রেকর্ড মুছুন", "আপনি কি সকল জমা পড়া পরীক্ষার রেকর্ড মুছে ফেলতে চান?", () => {
-                submissions = [];
-                saveState();
-                renderTeacherSubmissionsTab();
+                if (window.db && window.fbFS) {
+                    submissions.forEach(s => {
+                        window.fbFS.deleteDoc(window.fbFS.doc(window.db, "submissions", s.id));
+                    });
+                }
             });
         }
 
+        // Change Teacher Password
         function handleChangePassword(e) {
             e.preventDefault();
             const curr = document.getElementById('curr-pass-input').value;
             const newP = document.getElementById('new-pass-input').value;
 
             if (curr === teacherPassword) {
-                teacherPassword = newP;
-                saveState();
+                if (window.db && window.fbFS) {
+                    window.fbFS.setDoc(window.fbFS.doc(window.db, "meta", "security"), { password: newP });
+                }
                 document.getElementById('curr-pass-input').value = "";
                 document.getElementById('new-pass-input').value = "";
                 showAlert("সফল!", "পাসওয়ার্ড সফলভাবে পরিবর্তন করা হয়েছে।");
@@ -1611,11 +1775,12 @@
             }
         }
 
+        // Startup Initialization
         window.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
             const paramExam = urlParams.get('exam');
 
-            if (paramExam && exams[paramExam]) {
+            if (paramExam) {
                 activeExamKey = paramExam;
             }
 
