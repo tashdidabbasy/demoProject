@@ -79,30 +79,30 @@
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col overflow-x-hidden">
 
     <header class="bg-indigo-700 text-white shadow-md sticky top-0 z-45">
-        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col sm:flex-row justify-between items-center gap-3">
-            <div class="flex items-center space-x-3 w-full sm:w-auto justify-between sm:justify-start">
+        <div class="max-w-7xl mx-auto px-3 sm:px-4 py-3 flex flex-col sm:flex-row justify-between items-center gap-3">
+            <!-- BCS One Brand as Home Button -->
+            <div onclick="switchView('dashboard')" class="flex items-center space-x-3 w-full sm:w-auto justify-between sm:justify-start cursor-pointer group">
                 <div class="flex items-center space-x-3">
-                    <div class="bg-white text-indigo-700 p-2 rounded-xl font-bold text-lg shadow">
+                    <div class="bg-white text-indigo-700 p-2 rounded-xl font-bold text-lg shadow group-hover:bg-indigo-50 transition">
                         <i class="fa-solid fa-graduation-cap"></i>
                     </div>
                     <div>
-                        <h1 class="text-lg sm:text-xl font-bold tracking-wide">BCS One</h1>
+                        <h1 class="text-lg sm:text-xl font-bold tracking-wide group-hover:text-indigo-200 transition">BCS One</h1>
                         <p class="text-[11px] text-indigo-200">এক্সক্লুসিভ অনলাইন কুইজ পোর্টাল</p>
                     </div>
                 </div>
             </div>
-            <div id="nav-actions" class="flex flex-wrap items-center justify-center gap-2 w-full sm:w-auto">
-                <button onclick="switchView('dashboard')" class="bg-indigo-600 hover:bg-indigo-500 px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition flex items-center gap-1.5 flex-1 sm:flex-initial justify-center">
-                    <i class="fa-solid fa-home"></i> হোম
+            
+            <!-- Navigation Actions -->
+            <div id="nav-actions" class="grid grid-cols-3 gap-1.5 sm:flex sm:flex-wrap items-center justify-center sm:gap-2 w-full sm:w-auto">
+                <button onclick="openStudentPortalModal()" class="bg-violet-600 hover:bg-violet-500 px-2.5 sm:px-3 py-2 rounded-lg text-[11px] sm:text-sm font-medium transition flex items-center justify-center gap-1.5 shadow">
+                    <i class="fa-solid fa-id-card"></i> স্টুডেন্ট
                 </button>
-                <button onclick="openStudentPortalModal()" class="bg-violet-600 hover:bg-violet-500 px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition flex items-center gap-1.5 shadow flex-1 sm:flex-initial justify-center">
-                    <i class="fa-solid fa-id-card"></i> স্টুডেন্ট পোর্টাল
-                </button>
-                <button onclick="openLeaderboardModal(activeExamKey)" class="bg-emerald-600 hover:bg-emerald-500 px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition flex items-center gap-1.5 shadow flex-1 sm:flex-initial justify-center">
+                <button onclick="openLeaderboardModal(activeExamKey)" class="bg-emerald-600 hover:bg-emerald-500 px-2.5 sm:px-3 py-2 rounded-lg text-[11px] sm:text-sm font-medium transition flex items-center justify-center gap-1.5 shadow">
                     <i class="fa-solid fa-trophy"></i> লিডারবোর্ড
                 </button>
-                <button onclick="openTeacherLoginModal()" class="bg-amber-500 hover:bg-amber-600 text-white px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition flex items-center gap-1.5 shadow flex-1 sm:flex-initial justify-center">
-                    <i class="fa-solid fa-chalkboard-user"></i> শিক্ষক প্যানেল
+                <button onclick="openTeacherLoginModal()" class="bg-amber-500 hover:bg-amber-600 text-white px-2.5 sm:px-3 py-2 rounded-lg text-[11px] sm:text-sm font-medium transition flex items-center justify-center gap-1.5 shadow">
+                    <i class="fa-solid fa-chalkboard-user"></i> শিক্ষক
                 </button>
             </div>
         </div>
@@ -112,13 +112,13 @@
         
         <!-- 1. DASHBOARD / HOME VIEW -->
         <div id="view-dashboard" class="space-y-5">
-            <div class="bg-gradient-to-r from-indigo-600 to-violet-600 rounded-2xl sm:rounded-3xl p-5 sm:p-8 text-white shadow-xl relative overflow-hidden">
+            <div class="bg-gradient-to-r from-indigo-600 to-violet-600 rounded-2xl sm:rounded-3xl p-4 sm:p-8 text-white shadow-xl relative overflow-hidden">
                 <div class="absolute right-0 top-0 bottom-0 w-1/3 opacity-10 flex items-center justify-center pointer-events-none">
                     <i class="fa-solid fa-graduation-cap text-9xl"></i>
                 </div>
                 <div class="relative z-10 max-w-xl">
                     <span class="bg-white/20 text-[10px] sm:text-xs px-3 py-1 rounded-full font-semibold uppercase tracking-wider">BCS One Portal</span>
-                    <h2 class="text-2xl sm:text-3xl font-bold mt-2 sm:mt-3 mb-2">নির্ধারিত পরীক্ষা নির্বাচন করুন</h2>
+                    <h2 class="text-xl sm:text-3xl font-bold mt-2 sm:mt-3 mb-2">নির্ধারিত পরীক্ষা নির্বাচন করুন</h2>
                     <p class="text-indigo-100 text-xs sm:text-sm leading-relaxed mb-5">
                         নিচের তালিকা থেকে সাবজেক্ট ফিল্টার করে আপনার কাঙ্ক্ষিত পরীক্ষাটি বেছে নিন। পরীক্ষা দিতে স্টুডেন্ট আইডি প্রদান বাধ্যতামূলক।
                     </p>
@@ -198,7 +198,7 @@
         </div>
 
         <!-- 3. EXAM RUNNING VIEW -->
-        <div id="view-exam" class="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-8 shadow-sm border border-slate-100 hidden space-y-6">
+        <div id="view-exam" class="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-8 shadow-sm border border-slate-100 hidden space-y-6">
             <div class="flex flex-col sm:flex-row justify-between items-center pb-3 border-b border-slate-100 gap-2 sticky top-16 bg-white z-30 py-2">
                 <div>
                     <span id="quiz-exam-heading" class="text-xs sm:text-sm font-bold text-indigo-700 bg-indigo-50 px-3 py-1 rounded-full uppercase">পরীক্ষা চলমান</span>
@@ -213,7 +213,7 @@
             </div>
 
             <div class="pt-4 border-t border-slate-200 flex justify-end">
-                <button onclick="confirmFinishQuiz()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-8 py-3.5 rounded-xl text-sm transition shadow-lg flex items-center gap-2">
+                <button onclick="confirmFinishQuiz()" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-8 py-3.5 rounded-xl text-sm transition shadow-lg flex items-center justify-center gap-2">
                     <i class="fa-solid fa-check-double"></i> পরীক্ষা জমা দিন (Submit)
                 </button>
             </div>
@@ -267,7 +267,7 @@
         </div>
 
         <!-- 5. TEACHER PANEL VIEW -->
-        <div id="view-teacher" class="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-8 shadow-sm border border-slate-100 hidden space-y-5">
+        <div id="view-teacher" class="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-8 shadow-sm border border-slate-100 hidden space-y-5">
             <div class="flex justify-between items-center pb-3 border-b border-slate-100">
                 <div>
                     <h2 class="text-base sm:text-xl font-bold text-slate-900"><i class="fa-solid fa-chalkboard-user text-indigo-600 mr-2"></i> শিক্ষক প্যানেল</h2>
@@ -438,7 +438,7 @@
                         </div>
                     </div>
 
-                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-6 py-2.5 rounded-xl text-xs sm:text-sm transition shadow">
+                    <button type="submit" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-6 py-2.5 rounded-xl text-xs sm:text-sm transition shadow">
                         প্রশ্ন যোগ করুন
                     </button>
                 </form>
@@ -452,7 +452,7 @@
             <!-- Tab 5: Submissions -->
             <div id="teacher-tab-submissions" class="hidden space-y-4">
                 <div class="flex justify-between items-center">
-                    <h3 class="font-bold text-slate-800 text-xs sm:text-sm">পরীক্ষার্থীদের জমা দেওয়া ফলাফল তালিকা (আইডিতে ক্লিক করে ইতিহাস দেখুন)</h3>
+                    <h3 class="font-bold text-slate-800 text-xs sm:text-sm">পরীক্ষার্থীদের জমা দেওয়া ফলাফল তালিকা</h3>
                     <button onclick="clearSubmissions()" class="text-[11px] sm:text-xs text-rose-600 hover:underline font-semibold">সকল মুছুন</button>
                 </div>
                 <div class="overflow-x-auto">
@@ -574,17 +574,40 @@
                     </div>
                 </div>
 
-                <!-- Detailed Exam History List -->
+                <!-- Detailed Exam History List (Exam name buttons) -->
                 <div class="space-y-3">
-                    <h4 class="font-bold text-slate-800 text-sm sm:text-base">পরীক্ষার বিস্তারিত ইতিহাস ও ভুলত্রুটি:</h4>
-                    <div id="student-dash-exams-list" class="space-y-3">
-                        <!-- Dynamic Exams & Mistakes -->
+                    <h4 class="font-bold text-slate-800 text-sm sm:text-base">পরীক্ষার তালিকা (নির্দিষ্ট পরীক্ষাতে ট্যাপ করে বিস্তারিত দেখুন):</h4>
+                    <div id="student-dash-exams-list" class="space-y-2">
+                        <!-- Dynamic Exam Buttons -->
                     </div>
                 </div>
             </div>
 
             <div class="pt-3 border-t border-slate-100 mt-4 text-right">
-                <button onclick="closeStudentDashboardModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-6 py-2.5 rounded-xl text-xs sm:text-sm transition">বন্ধ করুন</button>
+                <button onclick="closeStudentDashboardModal()" class="w-full sm:w-auto bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-6 py-2.5 rounded-xl text-xs sm:text-sm transition">বন্ধ করুন</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Single Exam Detailed Popup Screen (Appears at absolute top) -->
+    <div id="exam-detail-popup-modal" class="fixed inset-0 bg-black/60 z-[9999] flex items-center justify-center p-3 sm:p-4 hidden">
+        <div class="bg-white rounded-2xl sm:rounded-3xl max-w-2xl w-full p-4 sm:p-6 shadow-2xl transform transition-all max-h-[90vh] flex flex-col">
+            <div class="flex justify-between items-center pb-3 border-b border-slate-100 mb-3">
+                <div>
+                    <h3 id="popup-exam-title" class="text-base sm:text-lg font-bold text-slate-900">পরীক্ষার বিস্তারিত বিবরণ</h3>
+                    <p id="popup-exam-meta" class="text-xs text-slate-500">স্কোর ও ভুলত্রুটি বিশ্লেষণ</p>
+                </div>
+                <button onclick="closeExamDetailPopup()" class="text-slate-400 hover:text-slate-700 text-xl p-1">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            
+            <div id="popup-exam-content" class="overflow-y-auto flex-grow pr-1 space-y-3">
+                <!-- Dynamic Content: Mistakes & Correct Answers -->
+            </div>
+
+            <div class="pt-3 border-t border-slate-100 mt-3 text-right">
+                <button onclick="closeExamDetailPopup()" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-6 py-2.5 rounded-xl text-xs sm:text-sm transition">বন্ধ করুন</button>
             </div>
         </div>
     </div>
@@ -619,7 +642,7 @@
                 </table>
             </div>
             <div class="pt-3 border-t border-slate-100 mt-3 text-right">
-                <button onclick="closeStudentHistoryModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-6 py-2 rounded-xl text-xs sm:text-sm transition">বন্ধ করুন</button>
+                <button onclick="closeStudentHistoryModal()" class="w-full sm:w-auto bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-6 py-2 rounded-xl text-xs sm:text-sm transition">বন্ধ করুন</button>
             </div>
         </div>
     </div>
@@ -735,7 +758,7 @@
                 <button onclick="window.print()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center justify-center gap-2 shadow">
                     <i class="fa-solid fa-print"></i> প্রিন্ট / PDF সংরক্ষণ
                 </button>
-                <button onclick="closeLeaderboardModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-6 py-2.5 rounded-xl text-xs sm:text-sm transition">বন্ধ করুন</button>
+                <button onclick="closeLeaderboardModal()" class="w-full sm:w-auto bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-6 py-2.5 rounded-xl text-xs sm:text-sm transition">বন্ধ করুন</button>
             </div>
         </div>
     </div>
@@ -777,6 +800,7 @@
         let studentAnswers = [];
         let timerInterval = null;
         let timeRemaining = 0;
+        let globalStudentSubmissions = []; // Stores loaded submissions for popup lookup
 
         async function initData() {
             const saved = localStorage.getItem("bcs_one_data");
@@ -1092,29 +1116,28 @@
             const exam = appData.exams[activeExamKey];
             let correct = 0, incorrect = 0;
 
-            let detailedMistakes = [];
+            let detailedReview = [];
             studentAnswers.forEach((ans, idx) => {
                 const questionObj = exam.questions[idx];
+                const isCorrect = (ans !== null && ans === questionObj.correct);
+                
                 if (ans !== null) {
-                    if (ans === questionObj.correct) {
+                    if (isCorrect) {
                         correct++;
                     } else {
                         incorrect++;
-                        detailedMistakes.push({
-                            question: questionObj.q,
-                            yourAnswer: questionObj.opts[ans],
-                            correctAnswer: questionObj.opts[questionObj.correct],
-                            explanation: questionObj.exp
-                        });
                     }
                 } else {
-                    detailedMistakes.push({
-                        question: questionObj.q,
-                        yourAnswer: "উত্তর দেওয়া হয়নি",
-                        correctAnswer: questionObj.opts[questionObj.correct],
-                        explanation: questionObj.exp
-                    });
+                    incorrect++; // Unanswered treated as incorrect/skipped
                 }
+
+                detailedReview.push({
+                    question: questionObj.q,
+                    yourAnswer: ans !== null ? questionObj.opts[ans] : "উত্তর দেওয়া হয়নি",
+                    correctAnswer: questionObj.opts[questionObj.correct],
+                    isCorrect: isCorrect,
+                    explanation: questionObj.exp
+                });
             });
 
             const score = Math.max(0, correct - (incorrect * 0.5));
@@ -1133,7 +1156,7 @@
                 correct: correct,
                 incorrect: incorrect,
                 timeSpent: timeFormatted,
-                mistakes: detailedMistakes,
+                mistakes: detailedReview, // Storing all question reviews (both correct & incorrect)
                 timestamp: window.fbFS ? window.fbFS.serverTimestamp() : new Date().toLocaleString("bn-BD")
             };
 
@@ -1233,30 +1256,30 @@
 
             if (window.db && window.fbFS) {
                 window.fbFS.getDocs(window.fbFS.collection(window.db, "submissions")).then((snapshot) => {
-                    let studentSubs = [];
+                    globalStudentSubmissions = [];
                     let studentName = "শিক্ষার্থী";
                     
                     snapshot.forEach(doc => {
                         const data = doc.data();
                         if (String(data.studentId).trim() === String(studentId).trim()) {
-                            studentSubs.push(data);
+                            globalStudentSubmissions.push({ docId: doc.id, ...data });
                             if(data.studentName) studentName = data.studentName;
                         }
                     });
 
                     document.getElementById("student-dash-title").innerHTML = `<i class="fa-solid fa-chart-line text-violet-600 mr-2"></i> ${studentName} (${studentId})`;
 
-                    if (studentSubs.length === 0) {
+                    if (globalStudentSubmissions.length === 0) {
                         document.getElementById("student-dash-exams-list").innerHTML = `<p class="text-xs text-slate-400 text-center py-6">এই আইডি দিয়ে এখনো কোনো পরীক্ষা দেওয়া হয়নি।</p>`;
                         return;
                     }
 
-                    let totalExams = studentSubs.length;
+                    let totalExams = globalStudentSubmissions.length;
                     let totalScoreSum = 0;
                     let totalCorrect = 0;
                     let totalIncorrect = 0;
 
-                    studentSubs.forEach(sub => {
+                    globalStudentSubmissions.forEach(sub => {
                         totalScoreSum += Number(sub.score || 0);
                         totalCorrect += Number(sub.correct || 0);
                         totalIncorrect += Number(sub.incorrect || 0);
@@ -1273,39 +1296,8 @@
                     document.getElementById("stat-growth-percentage").innerText = `${accuracyRate}%`;
                     document.getElementById("stat-growth-bar").style.width = `${accuracyRate}%`;
 
-                    document.getElementById("student-dash-exams-list").innerHTML = studentSubs.map((sub, sIdx) => {
-                        let mistakesHtml = "";
-                        const examObj = appData.exams[sub.examKey];
-                        let canShowAnswers = true;
-                        if (examObj && examObj.answerReleaseTime) {
-                            if (new Date() < new Date(examObj.answerReleaseTime)) {
-                                canShowAnswers = false;
-                            }
-                        }
-
-                        if (!canShowAnswers) {
-                            const releaseDateStr = new Date(examObj.answerReleaseTime).toLocaleString('bn-BD', { dateStyle: 'full', timeStyle: 'short' });
-                            mistakesHtml = `<div class="mt-3 pt-3 border-t border-slate-200 text-xs text-amber-700 font-medium bg-amber-50 p-2.5 rounded-xl"><i class="fa-solid fa-lock mr-1"></i> এই পরীক্ষার উত্তর ও ভুলত্রুটি ${releaseDateStr} তারিখের পর স্টুডেন্ট পোর্টালে প্রদর্শিত হবে।</div>`;
-                        } else if (sub.mistakes && sub.mistakes.length > 0) {
-                            mistakesHtml = `
-                                <div class="mt-3 pt-3 border-t border-slate-200 space-y-2">
-                                    <h5 class="text-xs font-bold text-rose-700"><i class="fa-solid fa-triangle-exclamation mr-1"></i> ভুল হওয়া প্রশ্ন ও ব্যাখ্যা (${sub.mistakes.length}টি):</h5>
-                                    <div class="space-y-2">
-                                        ${sub.mistakes.map(m => `
-                                            <div class="bg-white p-2.5 rounded-xl border border-rose-100 text-xs space-y-1">
-                                                <p class="font-bold text-slate-800">${m.question}</p>
-                                                <p class="text-rose-600"><strong>আপনার উত্তর:</strong> ${m.yourAnswer}</p>
-                                                <p class="text-emerald-700"><strong>সঠিক উত্তর:</strong> ${m.correctAnswer}</p>
-                                                <p class="text-slate-500 bg-slate-50 p-1.5 rounded"><strong>ব্যাখ্যা:</strong> ${m.explanation}</p>
-                                            </div>
-                                        `).join('')}
-                                    </div>
-                                </div>
-                            `;
-                        } else {
-                            mistakesHtml = `<p class="text-xs text-emerald-600 mt-2 font-medium"><i class="fa-solid fa-check-circle mr-1"></i> দারুণ! এই পরীক্ষায় আপনার কোনো ভুল হয়নি।</p>`;
-                        }
-
+                    // Render Exam Buttons List inside Student Dashboard
+                    document.getElementById("student-dash-exams-list").innerHTML = globalStudentSubmissions.map((sub, sIdx) => {
                         let dateStr = "";
                         if (sub.timestamp && sub.timestamp.toDate) {
                             dateStr = sub.timestamp.toDate().toLocaleString("bn-BD");
@@ -1314,27 +1306,16 @@
                         }
 
                         return `
-                            <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50 space-y-2">
-                                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-1">
-                                    <h4 class="font-bold text-slate-900 text-xs sm:text-sm">${sIdx + 1}. ${sub.examTitle}</h4>
-                                    <span class="text-[11px] text-slate-500">${dateStr}</span>
+                            <button onclick="openExamDetailPopupByIndex(${sIdx})" class="w-full text-left p-3.5 rounded-2xl border border-slate-200 bg-slate-50 hover:bg-violet-50/60 transition flex justify-between items-center group shadow-sm">
+                                <div>
+                                    <h4 class="font-bold text-slate-900 text-xs sm:text-sm group-hover:text-violet-700 transition">${sIdx + 1}. ${sub.examTitle}</h4>
+                                    <p class="text-[11px] text-slate-500 mt-0.5">তারিখ: ${dateStr}</p>
                                 </div>
-                                <div class="grid grid-cols-3 gap-2 pt-1 text-center text-xs">
-                                    <div class="bg-white p-2 rounded-lg border border-slate-200">
-                                        <span class="text-slate-500 block text-[10px]">স্কোর</span>
-                                        <span class="font-bold text-indigo-600">${sub.score}</span>
-                                    </div>
-                                    <div class="bg-emerald-50 p-2 rounded-lg border border-emerald-100">
-                                        <span class="text-emerald-600 block text-[10px]">সঠিক</span>
-                                        <span class="font-bold text-emerald-700">${sub.correct}</span>
-                                    </div>
-                                    <div class="bg-rose-50 p-2 rounded-lg border border-rose-100">
-                                        <span class="text-rose-600 block text-[10px]">ভুল</span>
-                                        <span class="font-bold text-rose-700">${sub.incorrect}</span>
-                                    </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="bg-indigo-100 text-indigo-700 font-bold px-2.5 py-1 rounded-xl text-xs font-mono">স্কোর: ${sub.score}</span>
+                                    <i class="fa-solid fa-chevron-right text-slate-400 group-hover:text-violet-600 text-xs transition"></i>
                                 </div>
-                                ${mistakesHtml}
-                            </div>
+                            </button>
                         `;
                     }).join("");
 
@@ -1347,6 +1328,60 @@
 
         function closeStudentDashboardModal() {
             document.getElementById("student-dashboard-modal").classList.add("hidden");
+        }
+
+        // Open Popup for Specific Exam Details at Absolute Top (z-[9999]) - Shows both Correct and Incorrect Answers
+        function openExamDetailPopupByIndex(index) {
+            const sub = globalStudentSubmissions[index];
+            if (!sub) return;
+
+            document.getElementById("popup-exam-title").innerText = sub.examTitle;
+            document.getElementById("popup-exam-meta").innerText = `স্কোর: ${sub.score} | সঠিক: ${sub.correct} | ভুল: ${sub.incorrect}`;
+
+            const contentContainer = document.getElementById("popup-exam-content");
+            const examObj = appData.exams[sub.examKey];
+            let canShowAnswers = true;
+            if (examObj && examObj.answerReleaseTime) {
+                if (new Date() < new Date(examObj.answerReleaseTime)) {
+                    canShowAnswers = false;
+                }
+            }
+
+            if (!canShowAnswers) {
+                const releaseDateStr = new Date(examObj.answerReleaseTime).toLocaleString('bn-BD', { dateStyle: 'full', timeStyle: 'short' });
+                contentContainer.innerHTML = `<div class="p-4 text-xs text-amber-700 font-medium bg-amber-50 rounded-xl"><i class="fa-solid fa-lock mr-1"></i> এই পরীক্ষার উত্তর ও বিশ্লেষণ ${releaseDateStr} তারিখের পর প্রদর্শিত হবে।</div>`;
+            } else if (sub.mistakes && sub.mistakes.length > 0) {
+                contentContainer.innerHTML = `
+                    <div class="space-y-3">
+                        <h5 class="text-xs font-bold text-slate-800"><i class="fa-solid fa-list-check text-indigo-600 mr-1"></i> সকল প্রশ্নের সঠিক ও ভুল উত্তরসমূহ:</h5>
+                        <div class="space-y-2.5">
+                            ${sub.mistakes.map((m, mIdx) => {
+                                let badgeClass = m.isCorrect ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700";
+                                let badgeText = m.isCorrect ? "সঠিক" : "ভুল";
+                                return `
+                                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs space-y-1.5">
+                                        <div class="flex justify-between items-start gap-2">
+                                            <p class="font-bold text-slate-900">${mIdx + 1}. ${m.question}</p>
+                                            <span class="text-[10px] px-2 py-0.5 rounded font-bold shrink-0 ${badgeClass}">${badgeText}</span>
+                                        </div>
+                                        <p class="${m.isCorrect ? 'text-emerald-700 font-semibold' : 'text-rose-600'}"><strong>আপনার উত্তর:</strong> ${m.yourAnswer}</p>
+                                        <p class="text-emerald-700 font-semibold"><strong>সঠিক উত্তর:</strong> ${m.correctAnswer}</p>
+                                        <p class="text-slate-600 bg-white p-2 rounded border border-slate-100"><strong>ব্যাখ্যা:</strong> ${m.explanation}</p>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+            } else {
+                contentContainer.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">এই পরীক্ষার কোনো বিস্তারিত প্রশ্ন পাওয়া যায়নি।</p>`;
+            }
+
+            document.getElementById("exam-detail-popup-modal").classList.remove("hidden");
+        }
+
+        function closeExamDetailPopup() {
+            document.getElementById("exam-detail-popup-modal").classList.add("hidden");
         }
 
         function openLeaderboardModal(examKey) {
