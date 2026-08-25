@@ -4,83 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BCS One - ইন্টারেক্টিভ কুইজ পোর্টাল</title>
-    
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        brand: {
-                            50: '#eef2ff',
-                            100: '#e0e7ff',
-                            500: '#6366f1',
-                            600: '#4f46e5',
-                            700: '#4338ca',
-                            800: '#3730a3',
-                        }
-                    },
-                    fontFamily: {
-                        sans: ['Hind Siliguri', 'sans-serif'],
-                    }
-                }
+            corePlugins: {
+                preflight: true,
             }
         }
     </script>
-    
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Font Hind Siliguri -->
-    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
-        body { 
-            font-family: 'Hind Siliguri', sans-serif; 
-            -webkit-tap-highlight-color: transparent;
-        }
-        
-        /* Custom scrollbars */
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: #f1f5f9;
-            border-radius: 8px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 8px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
-        }
-
-        /* Printable CSS rules for Leaderboard */
+        body { font-family: 'Hind Siliguri', sans-serif; }
         @media print {
-            body * { 
-                visibility: hidden; 
-            }
-            #printable-leaderboard, #printable-leaderboard * { 
-                visibility: visible; 
-            }
-            #printable-leaderboard { 
-                position: absolute; 
-                left: 0; 
-                top: 0; 
-                width: 100%; 
-                background: white;
-                color: black;
-                padding: 20px;
-            }
-            .no-print {
-                display: none !important;
-            }
+            body * { visibility: hidden; }
+            #printable-leaderboard, #printable-leaderboard * { visibility: visible; }
+            #printable-leaderboard { position: absolute; left: 0; top: 0; width: 100%; }
         }
     </style>
 
-    <!-- Firebase SDK Integration with Firestore and Analytics -->
+    <!-- Firebase SDK Integration -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-analytics.js";
@@ -88,12 +35,15 @@
             getFirestore, 
             collection, 
             addDoc, 
+            getDocs, 
             doc, 
             setDoc, 
             deleteDoc, 
-            onSnapshot 
+            onSnapshot, 
+            serverTimestamp 
         } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
+        // Your web app's Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyBrtWfKWd_HtaOUtV7uWBrS1D7eOltcOwA",
             authDomain: "demoproject01-54df0.firebaseapp.com",
@@ -104,85 +54,83 @@
             measurementId: "G-FEF29BCW9S"
         };
 
-        try {
-            const app = initializeApp(firebaseConfig);
-            const analytics = getAnalytics(app);
-            const db = getFirestore(app);
+        // Initialize Firebase & Analytics
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const db = getFirestore(app);
 
-            window.app = app;
-            window.analytics = analytics;
-            window.db = db;
-            window.fbFS = { collection, addDoc, doc, setDoc, deleteDoc, onSnapshot };
+        // Make Firebase Firestore accessible globally
+        window.db = db;
+        window.fbFS = {
+            collection,
+            addDoc,
+            getDocs,
+            doc,
+            setDoc,
+            deleteDoc,
+            onSnapshot,
+            serverTimestamp
+        };
 
-            window.dispatchEvent(new Event('firebase-initialized'));
-        } catch (e) {
-            console.error("Firebase Initialization Error:", e);
-        }
+        // Notify app initialization
+        window.dispatchEvent(new Event('firebase-initialized'));
     </script>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col overflow-x-hidden">
 
-    <!-- Navigation Header -->
-    <header class="bg-indigo-700 text-white shadow-md sticky top-0 z-40">
+    <header class="bg-indigo-700 text-white shadow-md sticky top-0 z-45">
         <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col sm:flex-row justify-between items-center gap-3">
             <div class="flex items-center space-x-3 w-full sm:w-auto justify-between sm:justify-start">
-                <div class="flex items-center space-x-3 cursor-pointer" onclick="switchView('dashboard')">
-                    <div class="bg-white text-indigo-700 p-2 rounded-xl font-bold text-lg shadow flex items-center justify-center w-10 h-10">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-white text-indigo-700 p-2 rounded-xl font-bold text-lg shadow">
                         <i class="fa-solid fa-graduation-cap"></i>
                     </div>
                     <div>
-                        <h1 class="text-lg sm:text-xl font-bold tracking-wide leading-tight">BCS One</h1>
-                        <p class="text-[11px] text-indigo-200">এক্সক্লুসিভ মডেল টেস্ট পোর্টাল</p>
+                        <h1 class="text-lg sm:text-xl font-bold tracking-wide">BCS One</h1>
+                        <p class="text-[11px] text-indigo-200">এক্সক্লুসিভ অনলাইন কুইজ পোর্টাল</p>
                     </div>
                 </div>
             </div>
-
-            <!-- Header Action Buttons -->
-            <div id="nav-actions" class="flex flex-wrap items-center justify-center gap-2 w-full sm:w-auto text-xs sm:text-sm">
-                <button onclick="switchView('dashboard')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-xl font-medium transition flex items-center gap-1.5 shadow-sm">
-                    <i class="fa-solid fa-house"></i> হোম
+            <div id="nav-actions" class="flex flex-wrap items-center justify-center gap-2 w-full sm:w-auto">
+                <button onclick="switchView('dashboard')" class="bg-indigo-600 hover:bg-indigo-500 px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition flex items-center gap-1.5 flex-1 sm:flex-initial justify-center">
+                    <i class="fa-solid fa-home"></i> হোম
                 </button>
-                <button onclick="openStudentPortalModal()" class="bg-violet-600 hover:bg-violet-500 text-white px-3 py-1.5 rounded-xl font-medium transition flex items-center gap-1.5 shadow-sm">
+                <button onclick="openStudentPortalModal()" class="bg-violet-600 hover:bg-violet-500 px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition flex items-center gap-1.5 shadow flex-1 sm:flex-initial justify-center">
                     <i class="fa-solid fa-id-card"></i> স্টুডেন্ট পোর্টাল
                 </button>
-                <a href="https://t.me/your_telegram_channel" target="_blank" class="bg-sky-500 hover:bg-sky-600 text-white px-3 py-1.5 rounded-xl font-medium transition flex items-center gap-1.5 shadow-sm">
-                    <i class="fa-brands fa-telegram"></i> টেলিগ্রাম
-                </a>
-                <button onclick="openLeaderboardModal(activeExamKey)" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-xl font-medium transition flex items-center gap-1.5 shadow-sm">
+                <button onclick="openLeaderboardModal(activeExamKey)" class="bg-emerald-600 hover:bg-emerald-500 px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition flex items-center gap-1.5 shadow flex-1 sm:flex-initial justify-center">
                     <i class="fa-solid fa-trophy"></i> লিডারবোর্ড
                 </button>
-                <button onclick="openTeacherLoginModal()" class="bg-amber-500 hover:bg-amber-600 text-white px-3 py-1.5 rounded-xl font-medium transition flex items-center gap-1.5 shadow-sm">
+                <button onclick="openTeacherLoginModal()" class="bg-amber-500 hover:bg-amber-600 text-white px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition flex items-center gap-1.5 shadow flex-1 sm:flex-initial justify-center">
                     <i class="fa-solid fa-chalkboard-user"></i> শিক্ষক প্যানেল
                 </button>
             </div>
         </div>
     </header>
 
-    <!-- Main Content Container -->
-    <main class="flex-grow max-w-5xl w-full mx-auto p-3 sm:p-5 md:p-6">
+    <main class="flex-grow max-w-4xl w-full mx-auto p-3 sm:p-4 md:p-6">
         
-        <!-- ================= 1. DASHBOARD / HOME VIEW ================= -->
-        <div id="view-dashboard" class="space-y-6">
-            <!-- Hero Banner -->
-            <div class="bg-gradient-to-r from-indigo-700 via-indigo-600 to-violet-700 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
+        <!-- 1. DASHBOARD / HOME VIEW -->
+        <div id="view-dashboard" class="space-y-5">
+            <div class="bg-gradient-to-r from-indigo-600 to-violet-600 rounded-2xl sm:rounded-3xl p-5 sm:p-8 text-white shadow-xl relative overflow-hidden">
                 <div class="absolute right-0 top-0 bottom-0 w-1/3 opacity-10 flex items-center justify-center pointer-events-none">
                     <i class="fa-solid fa-graduation-cap text-9xl"></i>
                 </div>
-                <div class="relative z-10 max-w-2xl">
+                <div class="relative z-10 max-w-xl">
                     <span class="bg-white/20 text-[10px] sm:text-xs px-3 py-1 rounded-full font-semibold uppercase tracking-wider">BCS One Portal</span>
-                    <h2 class="text-2xl sm:text-3xl font-bold mt-2 sm:mt-3 mb-2">নির্ধারিত মডেল টেস্ট নির্বাচন করুন</h2>
+                    <h2 class="text-2xl sm:text-3xl font-bold mt-2 sm:mt-3 mb-2">নির্ধারিত পরীক্ষা নির্বাচন করুন</h2>
                     <p class="text-indigo-100 text-xs sm:text-sm leading-relaxed mb-5">
-                        নিচের সাবজেক্ট অনুযায়ী ফিল্টার করে আপনার পরীক্ষা বেছে নিন। প্রতিটি ভুল উত্তরে ০.৫ নেগেটিভ মার্ক কাটা হবে।
+                        নিচের তালিকা থেকে সাবজেক্ট ফিল্টার করে আপনার কাঙ্ক্ষিত পরীক্ষাটি বেছে নিন। পরীক্ষা দিতে স্টুডেন্ট আইডি প্রদান বাধ্যতামূলক।
                     </p>
                     
-                    <div class="space-y-3 bg-white/10 p-4 sm:p-5 rounded-2xl backdrop-blur-md border border-white/15">
+                    <div class="space-y-3 bg-white/10 p-3 sm:p-4 rounded-2xl backdrop-blur-md">
                         <div>
-                            <label class="block text-xs font-medium text-indigo-100 mb-1">সাবজেক্ট ফিল্টার করুন:</label>
-                            <select id="home-subject-filter" onchange="onHomeSubjectFilterChange()" class="w-full bg-white text-slate-800 font-semibold px-4 py-2.5 rounded-xl focus:outline-none shadow text-xs sm:text-sm">
+                            <label class="block text-[11px] sm:text-xs font-medium text-indigo-200 mb-1">সাবজেক্ট ফিল্টার করুন:</label>
+                            <select id="home-subject-filter" onchange="onHomeSubjectFilterChange()" class="w-full bg-white text-slate-800 font-semibold px-3 sm:px-4 py-2.5 rounded-xl focus:outline-none shadow text-xs sm:text-sm">
                             </select>
                         </div>
                         <div class="flex flex-col sm:flex-row gap-3 items-center">
-                            <select id="home-exam-select" onchange="onHomeExamChange()" class="w-full bg-white text-slate-800 font-semibold px-4 py-3 rounded-xl focus:outline-none shadow text-xs sm:text-sm">
+                            <select id="home-exam-select" onchange="onHomeExamChange()" class="w-full bg-white text-slate-800 font-semibold px-3 sm:px-4 py-3 rounded-xl focus:outline-none shadow text-xs sm:text-sm">
                             </select>
                             <button onclick="startExamFlow()" class="w-full sm:w-auto bg-white text-indigo-700 hover:bg-indigo-50 font-bold px-6 py-3 rounded-xl shadow-lg transition flex items-center justify-center gap-2 whitespace-nowrap text-xs sm:text-sm">
                                 <i class="fa-solid fa-play"></i> পরীক্ষা শুরু করুন
@@ -192,262 +140,207 @@
                 </div>
             </div>
 
-            <!-- Exam Information Cards -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center space-x-4">
-                    <div class="bg-indigo-50 text-indigo-600 p-4 rounded-2xl text-xl flex items-center justify-center w-12 h-12">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+                <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center space-x-4">
+                    <div class="bg-indigo-50 text-indigo-600 p-3.5 sm:p-4 rounded-xl text-lg sm:text-xl">
                         <i class="fa-solid fa-clock"></i>
                     </div>
                     <div>
-                        <h4 class="text-xs font-medium text-slate-500">সময়সীমা</h4>
+                        <h4 class="text-xs sm:text-sm font-medium text-slate-500">সময়সীমা</h4>
                         <p id="dash-timer-display" class="text-base sm:text-lg font-bold text-slate-800">১০ মিনিট</p>
                     </div>
                 </div>
-                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center space-x-4">
-                    <div class="bg-emerald-50 text-emerald-600 p-4 rounded-2xl text-xl flex items-center justify-center w-12 h-12">
+                <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center space-x-4">
+                    <div class="bg-emerald-50 text-emerald-600 p-3.5 sm:p-4 rounded-xl text-lg sm:text-xl">
                         <i class="fa-solid fa-list-check"></i>
                     </div>
                     <div>
-                        <h4 class="text-xs font-medium text-slate-500">মোট প্রশ্ন</h4>
-                        <p id="dash-q-count" class="text-base sm:text-lg font-bold text-slate-800">০টি</p>
+                        <h4 class="text-xs sm:text-sm font-medium text-slate-500">মোট প্রশ্ন</h4>
+                        <p id="dash-q-count" class="text-base sm:text-lg font-bold text-slate-800">০</p>
                     </div>
                 </div>
-                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center space-x-4">
-                    <div class="bg-amber-50 text-amber-600 p-4 rounded-2xl text-xl flex items-center justify-center w-12 h-12">
+                <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center space-x-4">
+                    <div class="bg-amber-50 text-amber-600 p-3.5 sm:p-4 rounded-xl text-lg sm:text-xl">
                         <i class="fa-solid fa-trophy"></i>
                     </div>
                     <div>
-                        <h4 class="text-xs font-medium text-slate-500">মেধা তালিকা</h4>
+                        <h4 class="text-xs sm:text-sm font-medium text-slate-500">লিডারবোর্ড</h4>
                         <button onclick="openLeaderboardModal(activeExamKey)" class="text-xs text-indigo-600 hover:underline font-bold mt-1 block">লিডারবোর্ড দেখুন →</button>
                     </div>
                 </div>
             </div>
-
-            <!-- Exam Availability Schedule Notice Box -->
-            <div id="dash-exam-schedule-box" class="hidden bg-amber-50 border border-amber-200 rounded-2xl p-4 text-amber-900 text-xs sm:text-sm space-y-1">
-                <div class="font-bold flex items-center">
-                    <i class="fa-solid fa-calendar-days text-amber-600 mr-2"></i>
-                    <span id="dash-schedule-title">পরীক্ষার সময়সূচী</span>
-                </div>
-                <p id="dash-schedule-detail" class="text-amber-800 text-xs"></p>
-            </div>
-
-            <!-- Telegram Channel Banner -->
-            <div class="bg-gradient-to-r from-sky-500 to-blue-600 rounded-2xl p-5 text-white shadow-md flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div class="flex items-center space-x-3 text-center sm:text-left">
-                    <div class="bg-white text-sky-600 p-3.5 rounded-2xl text-2xl shadow shrink-0">
-                        <i class="fa-brands fa-telegram"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-base sm:text-lg">আমাদের অফিসিয়াল টেলিগ্রাম চ্যানেল</h3>
-                        <p class="text-xs text-sky-100">নিয়মিত ফ্রি কুইজ, মডেল টেস্ট আপডেট ও কোর্স এনরোলমেন্টের জন্য যুক্ত থাকুন।</p>
-                    </div>
-                </div>
-                <a href="https://t.me/your_telegram_channel" target="_blank" class="bg-white text-sky-600 hover:bg-sky-600 font-bold px-5 py-2.5 rounded-xl shadow transition whitespace-nowrap text-xs sm:text-sm flex items-center gap-2">
-                    <i class="fa-solid fa-paper-plane"></i> চ্যানেলে যোগ দিন
-                </a>
-            </div>
         </div>
 
-        <!-- ================= 2. STUDENT REGISTRATION VIEW ================= -->
-        <div id="view-student-reg" class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200 hidden max-w-lg mx-auto space-y-5">
+        <!-- 2. STUDENT REGISTRATION VIEW -->
+        <div id="view-student-reg" class="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-8 shadow-sm border border-slate-100 hidden max-w-lg mx-auto space-y-5">
             <div class="text-center">
-                <div class="bg-indigo-50 text-indigo-600 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-3 text-2xl shadow-inner">
+                <div class="bg-indigo-50 text-indigo-600 w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center mx-auto mb-3 text-xl sm:text-2xl shadow-inner">
                     <i class="fa-solid fa-user-graduate"></i>
                 </div>
                 <h2 id="reg-exam-title-display" class="text-xl sm:text-2xl font-bold text-slate-900">আপনার তথ্য প্রদান করুন</h2>
-                <p id="reg-subtitle" class="text-xs sm:text-sm text-slate-500 mt-1">পরীক্ষায় অংশ নিতে আপনার নাম ও স্টুডেন্ট আইডি দিন</p>
+                <p id="reg-subtitle" class="text-xs sm:text-sm text-slate-500 mt-1">পরীক্ষায় অংশ নিতে আপনার স্টুডেন্ট আইডি দিন (নাম ঐচ্ছিক)</p>
             </div>
             
             <form onsubmit="beginQuiz(event)" class="space-y-4">
                 <div>
                     <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-1.5">আপনার পূর্ণ নাম <span class="text-slate-400 text-xs font-normal">(ঐচ্ছিক)</span></label>
-                    <input type="text" id="student-name" placeholder="যেমন: আব্দুর রহিম" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs sm:text-sm">
+                    <input type="text" id="student-name" placeholder="যেমন: আব্দুর রহিম (ঐচ্ছিক)" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs sm:text-sm">
                 </div>
                 <div id="student-id-field-wrapper">
                     <label id="student-id-label" class="block text-xs sm:text-sm font-medium text-slate-700 mb-1.5">স্টুডেন্ট আইডি / রোল <span id="id-required-mark" class="text-indigo-600">*</span></label>
-                    <input type="text" id="student-id" required placeholder="যেমন: 202601" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs sm:text-sm font-mono">
-                    <p class="text-[11px] text-slate-400 mt-1">ফলাফল ও লিডারবোর্ডের জন্য স্টুডেন্ট আইডি আবশ্যক।</p>
+                    <input type="text" id="student-id" required placeholder="যেমন: 202601" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs sm:text-sm">
+                    <p class="text-[11px] text-slate-400 mt-1">লগইনের জন্য স্টুডেন্ট আইডি প্রদান বাধ্যতামূলক।</p>
                 </div>
-                <div class="flex gap-2 pt-2">
-                    <button type="button" onclick="switchView('dashboard')" class="w-1/3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3.5 rounded-xl transition text-xs sm:text-sm">
-                        ফিরে যান
-                    </button>
-                    <button type="submit" class="w-2/3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-xs sm:text-sm">
-                        <i class="fa-solid fa-play"></i> পরীক্ষা শুরু করুন
-                    </button>
-                </div>
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-sm">
+                    <i class="fa-solid fa-arrow-right-to-bracket"></i> পরীক্ষা শুরু করুন
+                </button>
             </form>
         </div>
 
-        <!-- ================= 3. EXAM RUNNING VIEW ================= -->
-        <div id="view-exam" class="bg-white rounded-3xl p-5 sm:p-8 shadow-sm border border-slate-200 hidden space-y-6">
-            <!-- Exam Header Bar -->
-            <div class="flex flex-col sm:flex-row justify-between items-center pb-4 border-b border-slate-200 gap-3 sticky top-16 bg-white/95 backdrop-blur-md z-30 py-2">
+        <!-- 3. EXAM RUNNING VIEW -->
+        <div id="view-exam" class="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-8 shadow-sm border border-slate-100 hidden space-y-6">
+            <div class="flex flex-col sm:flex-row justify-between items-center pb-3 border-b border-slate-100 gap-2 sticky top-16 bg-white z-30 py-2">
                 <div>
-                    <span id="quiz-exam-heading" class="text-xs sm:text-sm font-bold text-indigo-700 bg-indigo-50 px-3 py-1 rounded-full uppercase border border-indigo-100">
-                        পরীক্ষা চলমান
-                    </span>
+                    <span id="quiz-exam-heading" class="text-xs sm:text-sm font-bold text-indigo-700 bg-indigo-50 px-3 py-1 rounded-full uppercase">পরীক্ষা চলমান</span>
                 </div>
-                <div class="flex items-center gap-2 bg-rose-50 text-rose-700 px-4 py-2 rounded-xl font-mono font-bold text-xs sm:text-sm border border-rose-200 shadow-sm">
-                    <i class="fa-solid fa-stopwatch animate-pulse text-base"></i>
-                    <span class="text-xs font-semibold text-rose-600">অবশিষ্ট সময়:</span>
-                    <span id="timer-countdown" class="text-base sm:text-lg">10:00</span>
+                <div class="flex items-center gap-2 bg-rose-50 text-rose-700 px-3.5 py-1.5 rounded-xl font-mono font-bold text-xs sm:text-sm border border-rose-100 shadow-sm">
+                    <i class="fa-solid fa-stopwatch animate-pulse"></i>
+                    <span id="timer-countdown">10:00</span>
                 </div>
             </div>
 
-            <!-- Questions Container -->
             <div id="all-questions-container" class="space-y-6">
             </div>
 
-            <!-- Exam Submit Bar -->
             <div class="pt-4 border-t border-slate-200 flex justify-end">
-                <button onclick="confirmFinishQuiz()" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-8 py-3.5 rounded-xl text-xs sm:text-sm transition shadow-lg flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-paper-plane"></i> উত্তরপত্র জমা দিন (Submit)
+                <button onclick="confirmFinishQuiz()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-8 py-3.5 rounded-xl text-sm transition shadow-lg flex items-center gap-2">
+                    <i class="fa-solid fa-check-double"></i> পরীক্ষা জমা দিন (Submit)
                 </button>
             </div>
         </div>
 
-        <!-- ================= 4. RESULT SUMMARY & REVIEW VIEW ================= -->
-        <div id="view-result" class="bg-white rounded-3xl p-5 sm:p-8 shadow-sm border border-slate-200 hidden space-y-6">
-            <div class="text-center bg-gradient-to-br from-indigo-50 to-violet-50 p-6 rounded-2xl border border-indigo-100 space-y-2">
-                <div class="w-16 h-16 bg-indigo-600 text-white rounded-2xl flex items-center justify-center mx-auto text-3xl shadow">
+        <!-- 4. RESULT SUMMARY & REVIEW VIEW -->
+        <div id="view-result" class="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-8 shadow-sm border border-slate-100 hidden space-y-5">
+            <div class="text-center bg-gradient-to-br from-indigo-50 to-violet-50 p-5 rounded-2xl border border-indigo-100 space-y-2">
+                <div class="w-14 h-14 sm:w-16 sm:h-16 bg-indigo-600 text-white rounded-2xl flex items-center justify-center mx-auto text-2xl sm:text-3xl shadow">
                     <i class="fa-solid fa-award"></i>
                 </div>
-                <h2 class="text-xl sm:text-2xl font-bold text-slate-900">পরীক্ষা সফলভাবে জমা হয়েছে!</h2>
+                <h2 class="text-xl sm:text-2xl font-bold text-slate-900">অভিনন্দন! পরীক্ষা সম্পন্ন হয়েছে</h2>
                 <p id="result-student-info" class="text-xs sm:text-sm text-slate-600 font-medium"></p>
             </div>
 
-            <!-- Score Stats Grid -->
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-center">
+                <div class="bg-slate-50 p-3 sm:p-4 rounded-2xl border border-slate-200 text-center">
                     <span class="text-[11px] sm:text-xs text-slate-500 block mb-1">মোট প্রশ্ন</span>
                     <span id="res-total" class="text-lg sm:text-xl font-bold text-slate-800">০</span>
                 </div>
-                <div class="bg-emerald-50 p-4 rounded-2xl border border-emerald-200 text-center">
+                <div class="bg-emerald-50 p-3 sm:p-4 rounded-2xl border border-emerald-200 text-center">
                     <span class="text-[11px] sm:text-xs text-emerald-600 block mb-1">সঠিক উত্তর</span>
                     <span id="res-correct" class="text-lg sm:text-xl font-bold text-emerald-700">০</span>
                 </div>
-                <div class="bg-rose-50 p-4 rounded-2xl border border-rose-200 text-center">
+                <div class="bg-rose-50 p-3 sm:p-4 rounded-2xl border border-rose-200 text-center">
                     <span class="text-[11px] sm:text-xs text-rose-600 block mb-1">ভুল উত্তর (-০.৫)</span>
                     <span id="res-incorrect" class="text-lg sm:text-xl font-bold text-rose-700">০</span>
                 </div>
-                <div class="bg-indigo-50 p-4 rounded-2xl border border-indigo-200 text-center">
-                    <span class="text-[11px] sm:text-xs text-indigo-600 block mb-1">প্রাপ্ত নম্বর</span>
+                <div class="bg-indigo-50 p-3 sm:p-4 rounded-2xl border border-indigo-200 text-center">
+                    <span class="text-[11px] sm:text-xs text-indigo-600 block mb-1">চূড়ান্ত স্কোর</span>
                     <span id="res-score" class="text-xl sm:text-2xl font-black text-indigo-700">০</span>
                 </div>
             </div>
 
-            <!-- Actions Row -->
-            <div class="flex flex-col sm:flex-row gap-3 pt-1">
-                <button id="btn-toggle-review" onclick="toggleReviewSection()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl transition text-xs sm:text-sm flex items-center justify-center gap-2 shadow">
+            <div class="flex flex-col sm:flex-row gap-2.5 pt-1">
+                <button onclick="toggleReviewSection()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 rounded-xl transition text-xs sm:text-sm flex items-center justify-center gap-2 shadow">
                     <i class="fa-solid fa-list-check"></i> উত্তর পর্যালোচনা (Review)
                 </button>
-                <button onclick="openLeaderboardModal(activeExamKey)" class="bg-amber-500 hover:bg-amber-600 text-white font-semibold px-5 py-3 rounded-xl transition text-xs sm:text-sm flex items-center justify-center gap-2 shadow">
+                <button onclick="openLeaderboardModal(activeExamKey)" class="bg-amber-500 hover:bg-amber-600 text-white font-medium px-5 py-3 rounded-xl transition text-xs sm:text-sm flex items-center justify-center gap-2 shadow">
                     <i class="fa-solid fa-trophy"></i> লিডারবোর্ড
                 </button>
-                <button onclick="switchView('dashboard')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-5 py-3 rounded-xl transition text-xs sm:text-sm">
+                <button onclick="switchView('dashboard')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-5 py-3 rounded-xl transition text-xs sm:text-sm">
                     হোম
                 </button>
             </div>
 
-            <!-- Review Release Time Warning Box (if applicable) -->
-            <div id="review-lock-notice" class="hidden bg-amber-50 border border-amber-200 rounded-2xl p-4 text-amber-800 text-xs sm:text-sm space-y-1">
-                <div class="font-bold flex items-center">
-                    <i class="fa-solid fa-lock text-amber-600 mr-2"></i> সঠিক উত্তর ও ব্যাখ্যা স্থগিত আছে
-                </div>
-                <p id="review-lock-time-text" class="text-xs text-amber-700"></p>
-            </div>
-
-            <!-- Detailed Answer Review List -->
-            <div id="review-container" class="hidden space-y-4 pt-3 border-t border-slate-200">
-                <h3 class="font-bold text-slate-900 text-sm sm:text-base flex items-center gap-2">
-                    <i class="fa-solid fa-check-double text-indigo-600"></i> সকল প্রশ্নের সঠিক উত্তর ও ব্যাখ্যা:
-                </h3>
-                <div id="review-list" class="space-y-4"></div>
+            <div id="review-container" class="hidden space-y-3 pt-3 border-t border-slate-100">
+                <h3 class="font-bold text-slate-900 text-sm sm:text-base">সকল প্রশ্নের সঠিক উত্তর ও ব্যাখ্যা:</h3>
+                <div id="review-list" class="space-y-3"></div>
             </div>
         </div>
 
-        <!-- ================= 5. TEACHER PANEL VIEW ================= -->
-        <div id="view-teacher" class="bg-white rounded-3xl p-5 sm:p-8 shadow-sm border border-slate-200 hidden space-y-6">
-            <div class="flex justify-between items-center pb-3 border-b border-slate-200">
+        <!-- 5. TEACHER PANEL VIEW -->
+        <div id="view-teacher" class="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-8 shadow-sm border border-slate-100 hidden space-y-5">
+            <div class="flex justify-between items-center pb-3 border-b border-slate-100">
                 <div>
-                    <h2 class="text-lg sm:text-xl font-bold text-slate-900 flex items-center">
-                        <i class="fa-solid fa-chalkboard-user text-indigo-600 mr-2"></i> শিক্ষক কন্ট্রোল প্যানেল
-                    </h2>
-                    <p class="text-xs text-slate-500">পরীক্ষা, প্রশ্ন এবং শিক্ষার্থী ফলাফল পরিচালনা করুন</p>
+                    <h2 class="text-base sm:text-xl font-bold text-slate-900"><i class="fa-solid fa-chalkboard-user text-indigo-600 mr-2"></i> শিক্ষক প্যানেল</h2>
+                    <p class="text-xs text-slate-500">পরীক্ষা, প্রশ্ন এবং ফলাফল নিয়ন্ত্রণ করুন</p>
                 </div>
-                <button onclick="switchView('dashboard')" class="text-slate-400 hover:text-slate-700 p-2 text-lg">
-                    <i class="fa-solid fa-xmark"></i>
+                <button onclick="switchView('dashboard')" class="text-slate-500 hover:text-slate-800 text-sm font-medium p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
                 </button>
             </div>
 
-            <!-- Tabs Header -->
-            <div class="flex border-b border-slate-200 space-x-1 sm:space-x-2 overflow-x-auto custom-scrollbar pb-px">
-                <button onclick="switchTeacherTab('exams')" id="tab-btn-exams" class="py-2.5 px-3 sm:px-4 font-bold text-xs sm:text-sm border-b-2 border-indigo-600 text-indigo-600 whitespace-nowrap">এক্সাম সেট</button>
-                <button onclick="switchTeacherTab('subjects')" id="tab-btn-subjects" class="py-2.5 px-3 sm:px-4 font-semibold text-xs sm:text-sm text-slate-500 hover:text-slate-800 border-b-2 border-transparent whitespace-nowrap">সাবজেক্ট</button>
-                <button onclick="switchTeacherTab('student-ids')" id="tab-btn-student-ids" class="py-2.5 px-3 sm:px-4 font-semibold text-xs sm:text-sm text-slate-500 hover:text-slate-800 border-b-2 border-transparent whitespace-nowrap">আইডি তালিকা</button>
-                <button onclick="switchTeacherTab('add-question')" id="tab-btn-add-question" class="py-2.5 px-3 sm:px-4 font-semibold text-xs sm:text-sm text-slate-500 hover:text-slate-800 border-b-2 border-transparent whitespace-nowrap">প্রশ্ন যোগ</button>
-                <button onclick="switchTeacherTab('submissions')" id="tab-btn-submissions" class="py-2.5 px-3 sm:px-4 font-semibold text-xs sm:text-sm text-slate-500 hover:text-slate-800 border-b-2 border-transparent whitespace-nowrap">ফলাফল (<span id="sub-count">0</span>)</button>
-                <button onclick="switchTeacherTab('security')" id="tab-btn-security" class="py-2.5 px-3 sm:px-4 font-semibold text-xs sm:text-sm text-slate-500 hover:text-slate-800 border-b-2 border-transparent whitespace-nowrap">পাসওয়ার্ড</button>
+            <!-- Tabs Navigation -->
+            <div class="flex border-b border-slate-200 space-x-1 sm:space-x-2 overflow-x-auto pb-px">
+                <button onclick="switchTeacherTab('exams')" id="tab-btn-exams" class="py-2 px-3 sm:px-4 font-semibold text-xs sm:text-sm border-b-2 border-indigo-600 text-indigo-600 whitespace-nowrap">এক্সাম সেট</button>
+                <button onclick="switchTeacherTab('subjects')" id="tab-btn-subjects" class="py-2 px-3 sm:px-4 font-medium text-xs sm:text-sm text-slate-500 hover:text-slate-800 border-b-2 border-transparent whitespace-nowrap">সাবজেক্ট</button>
+                <button onclick="switchTeacherTab('student-ids')" id="tab-btn-student-ids" class="py-2 px-3 sm:px-4 font-medium text-xs sm:text-sm text-slate-500 hover:text-slate-800 border-b-2 border-transparent whitespace-nowrap">আইডি তালিকা</button>
+                <button onclick="switchTeacherTab('add-question')" id="tab-btn-add-question" class="py-2 px-3 sm:px-4 font-medium text-xs sm:text-sm text-slate-500 hover:text-slate-800 border-b-2 border-transparent whitespace-nowrap">প্রশ্ন যোগ</button>
+                <button onclick="switchTeacherTab('submissions')" id="tab-btn-submissions" class="py-2 px-3 sm:px-4 font-medium text-xs sm:text-sm text-slate-500 hover:text-slate-800 border-b-2 border-transparent whitespace-nowrap">ফলাফল (<span id="sub-count">0</span>)</button>
+                <button onclick="switchTeacherTab('security')" id="tab-btn-security" class="py-2 px-3 sm:px-4 font-medium text-xs sm:text-sm text-slate-500 hover:text-slate-800 border-b-2 border-transparent whitespace-nowrap">পাসওয়ার্ড</button>
             </div>
 
             <!-- Tab 1: Exam Sets Management -->
-            <div id="teacher-tab-exams" class="space-y-6">
-                <!-- Shareable Link Card -->
-                <div class="bg-indigo-50 p-4 sm:p-5 rounded-2xl border border-indigo-100 space-y-2">
+            <div id="teacher-tab-exams" class="space-y-5">
+                <div class="bg-indigo-50 p-4 sm:p-5 rounded-2xl border border-indigo-100 space-y-2.5">
                     <h3 class="font-bold text-indigo-900 text-xs sm:text-sm"><i class="fa-solid fa-share-nodes mr-1.5"></i> শেয়ারেবল পরীক্ষার লিংক</h3>
-                    <p class="text-[11px] sm:text-xs text-indigo-700">নির্বাচিত পরীক্ষার ডিরেক্ট লিংক আপনার শিক্ষার্থীদের কাছে পাঠাতে কপি করুন:</p>
+                    <p class="text-[11px] sm:text-xs text-indigo-700">এই লিংকটি আপনার স্টুডেন্টদের সাথে শেয়ার করুন।</p>
                     <div class="flex flex-col sm:flex-row gap-2">
                         <input type="text" id="share-link-input" readonly class="w-full bg-white px-3 py-2 rounded-xl text-xs border border-indigo-200 text-slate-600 font-mono">
-                        <button onclick="copyShareLink()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition whitespace-nowrap shadow-sm">
-                            <i class="fa-solid fa-copy mr-1"></i> কপি লিংক
+                        <button onclick="copyShareLink()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition whitespace-nowrap">
+                            <i class="fa-solid fa-copy mr-1"></i> কপি
                         </button>
                     </div>
                 </div>
 
-                <!-- Create Exam Form -->
-                <div class="bg-slate-50 p-4 sm:p-5 rounded-2xl border border-slate-200 space-y-4">
-                    <h3 class="font-bold text-slate-800 text-xs sm:text-sm"><i class="fa-solid fa-circle-plus text-indigo-600 mr-1.5"></i> নতুন এক্সাম তৈরি করুন</h3>
+                <div class="bg-slate-50 p-4 sm:p-5 rounded-2xl border border-slate-200 space-y-3">
+                    <h3 class="font-bold text-slate-800 text-xs sm:text-sm"><i class="fa-solid fa-circle-plus text-indigo-600 mr-1.5"></i> নতুন এক্সাম বা সেট তৈরি করুন</h3>
                     <form onsubmit="handleCreateExam(event)" class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
                         <div>
-                            <label class="block text-[11px] font-semibold text-slate-600 mb-1">সাবজেক্ট</label>
-                            <select id="new-exam-subject-input" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"></select>
+                            <label class="block text-[11px] font-medium text-slate-600 mb-1">সাবজেক্ট</label>
+                            <select id="new-exam-subject-input" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm bg-white"></select>
                         </div>
                         <div>
-                            <label class="block text-[11px] font-semibold text-slate-600 mb-1">এক্সামের নাম</label>
-                            <input type="text" id="new-exam-name-input" required placeholder="যেমন: বিশেষ মডেল টেস্ট ০২" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <label class="block text-[11px] font-medium text-slate-600 mb-1">এক্সামের নাম</label>
+                            <input type="text" id="new-exam-name-input" required placeholder="Exam 02" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm bg-white">
                         </div>
                         <div>
-                            <label class="block text-[11px] font-semibold text-slate-600 mb-1">সময় (মিনিট)</label>
-                            <input type="number" id="new-exam-timer-input" min="1" max="180" value="10" required class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <label class="block text-[11px] font-medium text-slate-600 mb-1">সময় (মিনিট)</label>
+                            <input type="number" id="new-exam-timer-input" min="1" max="120" value="10" required class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm bg-white">
                         </div>
                         
                         <div class="sm:col-span-1.5">
-                            <label class="block text-[11px] font-semibold text-slate-600 mb-1">পরীক্ষা শুরুর সময় <span class="text-slate-400 font-normal">(ঐচ্ছিক)</span></label>
-                            <input type="datetime-local" id="new-exam-start-time" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <label class="block text-[11px] font-medium text-slate-600 mb-1">পরীক্ষা শুরুর তারিখ ও সময় <span class="text-slate-400 font-normal">(ঐচ্ছিক)</span></label>
+                            <input type="datetime-local" id="new-exam-start-time" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm bg-white">
                         </div>
                         <div class="sm:col-span-1.5">
-                            <label class="block text-[11px] font-semibold text-slate-600 mb-1">উত্তর প্রকাশের সময় <span class="text-slate-400 font-normal">(ঐচ্ছিক)</span></label>
-                            <input type="datetime-local" id="new-exam-answer-time" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <label class="block text-[11px] font-medium text-slate-600 mb-1">উত্তর প্রকাশের তারিখ ও সময় <span class="text-slate-400 font-normal">(ঐচ্ছিক)</span></label>
+                            <input type="datetime-local" id="new-exam-answer-time" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm bg-white">
                         </div>
 
                         <div class="sm:col-span-3 flex items-center gap-2 pt-1">
                             <input type="checkbox" id="new-exam-is-free" class="w-4 h-4 text-indigo-600 rounded border-slate-300">
-                            <label for="new-exam-is-free" class="text-xs font-semibold text-slate-700 cursor-pointer">ফ্রি পরীক্ষা (আইডি ভ্যালিডেশন ছাড়াই উন্মুক্ত)</label>
+                            <label for="new-exam-is-free" class="text-xs font-medium text-slate-700">ফ্রি পরীক্ষা (আইডি বা নামের কড়াকড়ি ছাড়াই)</label>
                         </div>
                         <div class="sm:col-span-3">
-                            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2.5 rounded-xl text-xs sm:text-sm transition shadow">
-                                এক্সাম যোগ করুন
+                            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2.5 rounded-xl text-xs sm:text-sm transition shadow">
+                                এক্সাম তৈরি করুন
                             </button>
                         </div>
                     </form>
                 </div>
 
-                <!-- Exam Sets List -->
                 <div>
-                    <h4 class="font-bold text-slate-800 text-xs sm:text-sm mb-3">সকল এক্সাম সেটসমূহ:</h4>
-                    <div id="exam-sets-list-container" class="space-y-3"></div>
+                    <h4 class="font-bold text-slate-800 text-xs sm:text-sm mb-2.5">সকল এক্সাম সেটসমূহ:</h4>
+                    <div id="exam-sets-list-container" class="space-y-2.5"></div>
                 </div>
             </div>
 
@@ -456,8 +349,8 @@
                 <div class="bg-indigo-50 p-4 sm:p-5 rounded-2xl border border-indigo-100 space-y-3">
                     <h3 class="font-bold text-indigo-900 text-xs sm:text-sm"><i class="fa-solid fa-book mr-1.5"></i> নতুন সাবজেক্ট যোগ করুন</h3>
                     <form onsubmit="handleAddSubject(event)" class="flex flex-col sm:flex-row gap-2">
-                        <input type="text" id="new-subject-name" required placeholder="যেমন: বাংলাদেশ বিষয়াবলী" class="w-full px-4 py-2.5 rounded-xl border border-indigo-200 text-xs sm:text-sm bg-white">
-                        <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-5 py-2.5 rounded-xl text-xs sm:text-sm transition whitespace-nowrap shadow">
+                        <input type="text" id="new-subject-name" required placeholder="যেমন: বিজ্ঞান" class="w-full px-4 py-2.5 rounded-xl border border-indigo-200 text-xs sm:text-sm bg-white">
+                        <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-5 py-2.5 rounded-xl text-xs sm:text-sm transition whitespace-nowrap shadow">
                             যোগ করুন
                         </button>
                     </form>
@@ -474,67 +367,65 @@
                     <h3 class="font-bold text-indigo-900 text-xs sm:text-sm"><i class="fa-solid fa-user-plus mr-1.5"></i> অনুমোদিত শিক্ষার্থী (আইডি ও নাম) যোগ করুন</h3>
                     <form onsubmit="handleAddStudentId(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
                         <div>
-                            <label class="block text-[11px] font-semibold text-slate-700 mb-1">স্টুডেন্ট আইডি</label>
-                            <input type="text" id="new-student-id-input" required placeholder="যেমন: 202601" class="w-full px-3 py-2 rounded-xl border border-indigo-200 text-xs sm:text-sm bg-white font-mono">
+                            <label class="block text-[11px] font-medium text-slate-700 mb-1">স্টুডেন্ট আইডি</label>
+                            <input type="text" id="new-student-id-input" required placeholder="যেমন: 202601" class="w-full px-3 py-2 rounded-xl border border-indigo-200 text-xs sm:text-sm bg-white">
                         </div>
                         <div>
-                            <label class="block text-[11px] font-semibold text-slate-700 mb-1">শিক্ষার্থীর নাম</label>
+                            <label class="block text-[11px] font-medium text-slate-700 mb-1">শিক্ষার্থীর নাম</label>
                             <input type="text" id="new-student-name-input" required placeholder="যেমন: আব্দুর রহিম" class="w-full px-3 py-2 rounded-xl border border-indigo-200 text-xs sm:text-sm bg-white">
                         </div>
                         <div class="sm:col-span-2">
-                            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-5 py-2.5 rounded-xl text-xs sm:text-sm transition shadow">
+                            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-5 py-2.5 rounded-xl text-xs sm:text-sm transition shadow">
                                 তালিকাভুক্ত করুন
                             </button>
                         </div>
                     </form>
                 </div>
                 <div>
-                    <h4 class="font-bold text-slate-800 text-xs sm:text-sm mb-2.5">অনুমোদিত স্টুডেন্ট আইডি তালিকা:</h4>
-                    <div id="allowed-ids-list-container" class="space-y-2 max-h-60 overflow-y-auto custom-scrollbar"></div>
+                    <h4 class="font-bold text-slate-800 text-xs sm:text-sm mb-2.5">অনুমোদিত স্টুডেন্ট আইডি ও নাম তালিকা:</h4>
+                    <div id="allowed-ids-list-container" class="space-y-2 max-h-60 overflow-y-auto"></div>
                 </div>
             </div>
 
             <!-- Tab 4: Add Question -->
             <div id="teacher-tab-add-question" class="hidden space-y-5">
-                <div class="bg-amber-50 p-4 rounded-2xl border border-amber-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                <div class="bg-amber-50 p-3.5 sm:p-4 rounded-2xl border border-amber-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                     <div>
-                        <span id="current-active-exam-subject-badge" class="text-[10px] bg-amber-200 text-amber-900 px-2.5 py-0.5 rounded font-bold">বিষয়</span>
+                        <span id="current-active-exam-subject-badge" class="text-[10px] bg-amber-200 text-amber-900 px-2 py-0.5 rounded font-bold">সাবজেক্ট</span>
                         <h3 id="current-active-exam-badge-label" class="font-bold text-amber-900 text-sm sm:text-base mt-1">লোড হচ্ছে...</h3>
                     </div>
-                    <button onclick="switchTeacherTab('exams')" class="text-[11px] bg-amber-600 hover:bg-amber-700 text-white px-3 py-1.5 rounded-lg transition font-semibold">
-                        <i class="fa-solid fa-arrows-rotate mr-1"></i> অন্য এক্সাম নির্বাচন
-                    </button>
+                    <button onclick="switchTeacherTab('exams')" class="text-[11px] bg-amber-600 hover:bg-amber-700 text-white px-3 py-1.5 rounded-lg transition font-medium">এক্সাম পরিবর্তন</button>
                 </div>
 
-                <form id="add-q-form" onsubmit="handleAddNewQuestion(event)" class="space-y-4">
+                <form id="add-q-form" onsubmit="handleAddNewQuestion(event)" class="space-y-3 sm:space-y-4">
                     <div>
-                        <label class="block text-xs sm:text-sm font-semibold text-slate-700 mb-1">প্রশ্নের বিবরণ</label>
-                        <textarea id="new-q-text" required rows="2" placeholder="যেমন: 'চর্যাপদ' কোন ছন্দে রচিত?" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs sm:text-sm"></textarea>
+                        <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-1">প্রশ্নের বিবরণ</label>
+                        <textarea id="new-q-text" required rows="2" placeholder="প্রশ্ন এখানে লিখুন..." class="w-full px-3 sm:px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs sm:text-sm"></textarea>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
-                            <label class="block text-[11px] font-semibold text-slate-600 mb-1">অপশন ১ (ক)</label>
-                            <input type="text" id="new-opt-0" required placeholder="অক্ষরবৃত্ত" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm">
+                            <label class="block text-[11px] sm:text-xs font-medium text-slate-600 mb-1">অপশন ১ (ক)</label>
+                            <input type="text" id="new-opt-0" required placeholder="প্রথম অপশন" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm">
                         </div>
                         <div>
-                            <label class="block text-[11px] font-semibold text-slate-600 mb-1">অপশন ২ (খ)</label>
-                            <input type="text" id="new-opt-1" required placeholder="মাত্রাবৃত্ত" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm">
+                            <label class="block text-[11px] sm:text-xs font-medium text-slate-600 mb-1">অপশন ২ (খ)</label>
+                            <input type="text" id="new-opt-1" required placeholder="দ্বিতীয় অপশন" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm">
                         </div>
                         <div>
-                            <label class="block text-[11px] font-semibold text-slate-600 mb-1">অপশন ৩ (গ)</label>
-                            <input type="text" id="new-opt-2" required placeholder="স্বরবৃত্ত" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm">
+                            <label class="block text-[11px] sm:text-xs font-medium text-slate-600 mb-1">অপশন ৩ (গ)</label>
+                            <input type="text" id="new-opt-2" required placeholder="তৃতীয় অপশন" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm">
                         </div>
                         <div>
-                            <label class="block text-[11px] font-semibold text-slate-600 mb-1">অপশন ৪ (ঘ)</label>
-                            <input type="text" id="new-opt-3" required placeholder="ছন্দহীন" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm">
+                            <label class="block text-[11px] sm:text-xs font-medium text-slate-600 mb-1">অপশন ৪ (ঘ)</label>
+                            <input type="text" id="new-opt-3" required placeholder="চতুর্থ অপশন" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm">
                         </div>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
-                            <label class="block text-xs sm:text-sm font-semibold text-slate-700 mb-1">সঠিক উত্তর নির্বাচন</label>
-                            <select id="new-correct-idx" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm bg-white focus:outline-none">
+                            <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-1">সঠিক উত্তর নির্বাচন</label>
+                            <select id="new-correct-idx" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm bg-white">
                                 <option value="0">অপশন ১ (ক)</option>
                                 <option value="1">অপশন ২ (খ)</option>
                                 <option value="2">অপশন ৩ (গ)</option>
@@ -542,61 +433,59 @@
                             </select>
                         </div>
                         <div>
-                            <label class="block text-xs sm:text-sm font-semibold text-slate-700 mb-1">ব্যাখ্যা (Explanation)</label>
-                            <input type="text" id="new-explanation" placeholder="যেমন: চর্যাপদের গানগুলো মূলত মাত্রাবৃত্ত ছন্দে রচিত।" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm">
+                            <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-1">ব্যাখ্যা (Explanation)</label>
+                            <input type="text" id="new-explanation" required placeholder="সঠিক উত্তরের ব্যাখ্যা..." class="w-full px-3 sm:px-4 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm">
                         </div>
                     </div>
 
-                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-2.5 rounded-xl text-xs sm:text-sm transition shadow">
-                        <i class="fa-solid fa-plus mr-1"></i> প্রশ্ন যোগ করুন
+                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-6 py-2.5 rounded-xl text-xs sm:text-sm transition shadow">
+                        প্রশ্ন যোগ করুন
                     </button>
                 </form>
 
-                <div class="pt-3 border-t border-slate-200">
+                <div class="pt-3 border-t border-slate-100">
                     <h4 class="font-bold text-slate-800 text-xs sm:text-sm mb-2.5">এই এক্সামের বিদ্যমান প্রশ্নসমূহ:</h4>
-                    <div id="teacher-question-list" class="space-y-3 max-h-72 overflow-y-auto custom-scrollbar pr-1"></div>
+                    <div id="teacher-question-list" class="space-y-2 max-h-60 overflow-y-auto pr-1"></div>
                 </div>
             </div>
 
             <!-- Tab 5: Submissions -->
             <div id="teacher-tab-submissions" class="hidden space-y-4">
                 <div class="flex justify-between items-center">
-                    <h3 class="font-bold text-slate-800 text-xs sm:text-sm">শিক্ষার্থীদের জমা দেওয়া পরীক্ষার তালিকা</h3>
-                    <button onclick="clearSubmissions()" class="text-xs text-rose-600 hover:underline font-semibold">
-                        <i class="fa-solid fa-trash-can mr-1"></i> সকল রেকর্ড মুছুন
-                    </button>
+                    <h3 class="font-bold text-slate-800 text-xs sm:text-sm">পরীক্ষার্থীদের জমা দেওয়া ফলাফল তালিকা (আইডিতে ক্লিক করে ইতিহাস দেখুন)</h3>
+                    <button onclick="clearSubmissions()" class="text-[11px] sm:text-xs text-rose-600 hover:underline font-semibold">সকল মুছুন</button>
                 </div>
-                <div class="overflow-x-auto border border-slate-200 rounded-2xl">
+                <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse text-xs sm:text-sm">
                         <thead>
-                            <tr class="bg-slate-100 text-slate-700 border-b border-slate-200">
-                                <th class="p-3 font-semibold">শিক্ষার্থী</th>
-                                <th class="p-3 font-semibold">আইডি</th>
-                                <th class="p-3 font-semibold">পরীক্ষা</th>
-                                <th class="p-3 font-semibold text-center">তারিখ ও সময়</th>
-                                <th class="p-3 font-semibold text-right">প্রাপ্ত স্কোর</th>
+                            <tr class="bg-slate-50 text-slate-600 border-b border-slate-200">
+                                <th class="p-2.5 font-semibold">শিক্ষার্থী</th>
+                                <th class="p-2.5 font-semibold">আইডি</th>
+                                <th class="p-2.5 font-semibold">পরীক্ষা</th>
+                                <th class="p-2.5 font-semibold text-center">সময়</th>
+                                <th class="p-2.5 font-semibold text-right">স্কোর</th>
                             </tr>
                         </thead>
-                        <tbody id="submissions-table-body" class="divide-y divide-slate-100"></tbody>
+                        <tbody id="submissions-table-body"></tbody>
                     </table>
                 </div>
             </div>
 
             <!-- Tab 6: Security / Password Update -->
             <div id="teacher-tab-security" class="hidden space-y-4">
-                <div class="max-w-md bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-4">
-                    <h3 class="font-bold text-slate-800 text-xs sm:text-sm">শিক্ষক প্যানেলের পাসওয়ার্ড পরিবর্তন করুন</h3>
+                <div class="max-w-md bg-slate-50 p-4 sm:p-5 rounded-2xl border border-slate-200 space-y-4">
+                    <h3 class="font-bold text-slate-800 text-xs sm:text-sm">পাসওয়ার্ড পরিবর্তন করুন</h3>
                     <form onsubmit="handleChangePassword(event)" class="space-y-3">
                         <div>
-                            <label class="block text-[11px] font-semibold text-slate-600 mb-1">বর্তমান পাসওয়ার্ড</label>
+                            <label class="block text-[11px] font-medium text-slate-600 mb-1">বর্তমান পাসওয়ার্ড</label>
                             <input type="password" id="curr-pass-input" required class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm bg-white">
                         </div>
                         <div>
-                            <label class="block text-[11px] font-semibold text-slate-600 mb-1">নতুন পাসওয়ার্ড</label>
+                            <label class="block text-[11px] font-medium text-slate-600 mb-1">নতুন পাসওয়ার্ড</label>
                             <input type="password" id="new-pass-input" required class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm bg-white">
                         </div>
-                        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 rounded-xl text-xs sm:text-sm transition shadow">
-                            পাসওয়ার্ড আপডেট করুন
+                        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 rounded-xl text-xs sm:text-sm transition shadow">
+                            আপডেট করুন
                         </button>
                     </form>
                 </div>
@@ -604,1187 +493,1368 @@
         </div>
     </main>
 
-    <!-- Custom Notification/Message Modal -->
-    <div id="custom-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-3xl max-w-sm sm:max-w-md w-full p-6 shadow-2xl transform transition-all text-center">
-            <div id="modal-icon" class="text-4xl sm:text-5xl mb-3 text-indigo-600">
-                <i class="fa-solid fa-circle-info"></i>
-            </div>
-            <h3 id="modal-title" class="text-base sm:text-lg font-bold text-slate-900 mb-2">সতর্কবার্তা</h3>
-            <p id="modal-message" class="text-slate-600 text-xs sm:text-sm mb-5 leading-relaxed">বার্তা এখানে প্রদর্শিত হবে।</p>
-            <button onclick="closeModal()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl transition text-xs sm:text-sm shadow">
-                ঠিক আছে
-            </button>
-        </div>
-    </div>
-
-    <!-- Confirmation Modal (Replaces standard confirm) -->
-    <div id="confirm-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-3xl max-w-sm sm:max-w-md w-full p-6 shadow-2xl transform transition-all text-center">
-            <div class="text-4xl sm:text-5xl mb-3 text-amber-500">
-                <i class="fa-solid fa-circle-question"></i>
-            </div>
-            <h3 id="confirm-modal-title" class="text-base sm:text-lg font-bold text-slate-900 mb-2">নিশ্চিত করুন</h3>
-            <p id="confirm-modal-message" class="text-slate-600 text-xs sm:text-sm mb-5 leading-relaxed"></p>
-            <div class="flex gap-2">
-                <button onclick="closeConfirmModal(false)" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-3 rounded-xl transition text-xs sm:text-sm">
-                    বাতিল
-                </button>
-                <button onclick="closeConfirmModal(true)" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl transition text-xs sm:text-sm shadow">
-                    হ্যাঁ, নিশ্চিত
-                </button>
+    <!-- Custom Message Modal -->
+    <div id="custom-modal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl max-w-sm sm:max-w-md w-full p-5 sm:p-6 shadow-2xl transform transition-all">
+            <div class="text-center">
+                <div id="modal-icon" class="text-4xl sm:text-5xl mb-3 text-indigo-600">
+                    <i class="fa-solid fa-circle-info"></i>
+                </div>
+                <h3 id="modal-title" class="text-base sm:text-lg font-bold text-slate-900 mb-2">সতর্কবার্তা</h3>
+                <p id="modal-message" class="text-slate-600 text-xs sm:text-sm mb-5">বার্তা এখানে প্রদর্শিত হবে।</p>
+                <button onclick="closeModal()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 rounded-xl transition text-sm">ঠিক আছে</button>
             </div>
         </div>
     </div>
 
-    <!-- Teacher Login Modal -->
-    <div id="teacher-login-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-3xl max-w-sm sm:max-w-md w-full p-6 shadow-2xl">
+    <!-- Student Login Modal (For Student Portal) -->
+    <div id="student-portal-login-modal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl sm:rounded-3xl max-w-sm sm:max-w-md w-full p-5 sm:p-6 shadow-2xl transform transition-all">
             <div class="text-center mb-4">
-                <div class="bg-amber-50 text-amber-600 w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-2 text-2xl">
-                    <i class="fa-solid fa-lock"></i>
-                </div>
-                <h3 class="text-lg font-bold text-slate-900">শিক্ষক প্যানেল লগইন</h3>
-                <p class="text-xs text-slate-500 mt-1">পাসওয়ার্ড দিয়ে শিক্ষক প্যানেলে প্রবেশ করুন</p>
-            </div>
-            <form onsubmit="handleTeacherLogin(event)" class="space-y-4">
-                <div>
-                    <input type="password" id="teacher-password-input" required placeholder="পাসওয়ার্ড দিন (ডিফল্ট: 123456)" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500 text-center text-xs sm:text-sm">
-                </div>
-                <div class="flex gap-2">
-                    <button type="button" onclick="closeTeacherLoginModal()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-3 rounded-xl transition text-xs sm:text-sm">বাতিল</button>
-                    <button type="submit" class="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-semibold py-3 rounded-xl transition text-xs sm:text-sm shadow">প্রবেশ করুন</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Student Portal Login Modal -->
-    <div id="student-portal-login-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-3xl max-w-sm sm:max-w-md w-full p-6 shadow-2xl">
-            <div class="text-center mb-4">
-                <div class="bg-violet-50 text-violet-600 w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-2 text-2xl">
+                <div class="bg-violet-50 text-violet-600 w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center mx-auto mb-2 text-xl sm:text-2xl">
                     <i class="fa-solid fa-id-card"></i>
                 </div>
-                <h3 class="text-lg font-bold text-slate-900">স্টুডেন্ট পোর্টাল লগইন</h3>
-                <p class="text-xs text-slate-500 mt-1">আপনার পূর্বের পরীক্ষার রেকর্ড ও অ্যানালিটিক্স দেখতে আইডি দিন</p>
+                <h3 class="text-base sm:text-lg font-bold text-slate-900">স্টুডেন্ট পোর্টাল লগইন</h3>
+                <p class="text-xs text-slate-500 mt-1">আপনার নিজস্ব পারফরম্যান্স ও অ্যানালিটিক্স দেখতে স্টুডেন্ট আইডি দিন</p>
             </div>
             <form onsubmit="verifyStudentPortalLogin(event)" class="space-y-4">
                 <div>
                     <input type="text" id="portal-student-id-input" required placeholder="স্টুডেন্ট আইডি (যেমন: 202601)" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-violet-500 text-center font-mono text-xs sm:text-sm">
                 </div>
                 <div class="flex gap-2">
-                    <button type="button" onclick="closeStudentPortalModal()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-3 rounded-xl transition text-xs sm:text-sm">বাতিল</button>
-                    <button type="submit" class="flex-1 bg-violet-600 hover:bg-violet-700 text-white font-semibold py-3 rounded-xl transition text-xs sm:text-sm shadow">পোর্টাল খুলুন</button>
+                    <button type="button" onclick="closeStudentPortalModal()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-2.5 rounded-xl transition text-xs sm:text-sm">বাতিল</button>
+                    <button type="submit" class="flex-1 bg-violet-600 hover:bg-violet-700 text-white font-medium py-2.5 rounded-xl transition text-xs sm:text-sm shadow">প্রবেশ করুন</button>
                 </div>
             </form>
         </div>
     </div>
 
     <!-- Dedicated Student Dashboard & Analytics Modal -->
-    <div id="student-dashboard-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 hidden">
-        <div class="bg-white rounded-3xl max-w-3xl w-full p-5 sm:p-6 shadow-2xl max-h-[90vh] flex flex-col">
-            <div class="flex justify-between items-center pb-3 border-b border-slate-200 mb-4">
+    <div id="student-dashboard-modal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-3 sm:p-4 hidden">
+        <div class="bg-white rounded-2xl sm:rounded-3xl max-w-3xl w-full p-4 sm:p-6 shadow-2xl transform transition-all max-h-[92vh] flex flex-col">
+            <div class="flex justify-between items-center pb-3 border-b border-slate-100 mb-4">
                 <div>
-                    <h3 id="student-dash-title" class="text-base sm:text-xl font-bold text-slate-900 flex items-center">
-                        <i class="fa-solid fa-chart-line text-violet-600 mr-2"></i> স্টুডেন্ট পোর্টাল ও পারফরম্যান্স
-                    </h3>
-                    <p id="student-dash-subtitle" class="text-xs text-slate-500">আইডি ভিত্তিক সকল পরীক্ষার রেকর্ড ও ভুল উত্তর ট্র্যাকিং</p>
+                    <h3 id="student-dash-title" class="text-base sm:text-xl font-bold text-slate-900"><i class="fa-solid fa-chart-line text-violet-600 mr-2"></i> স্টুডেন্ট ড্যাশবোর্ড ও অ্যানালিটিক্স</h3>
+                    <p id="student-dash-subtitle" class="text-xs text-slate-500">আইডি ভিত্তিক পরীক্ষার বিস্তারিত রেকর্ড ও গ্রোথ ট্র্যাকিং</p>
                 </div>
-                <button onclick="closeStudentDashboardModal()" class="text-slate-400 hover:text-slate-700 p-2 text-lg">
+                <button onclick="closeStudentDashboardModal()" class="text-slate-400 hover:text-slate-700 text-xl p-1">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
 
-            <div class="overflow-y-auto custom-scrollbar space-y-5 pr-1 flex-grow">
-                <!-- Summary Stats Card -->
-                <div class="grid grid-cols-3 gap-3">
-                    <div class="bg-violet-50 p-3.5 rounded-2xl text-center border border-violet-100">
-                        <span class="text-[11px] text-violet-600 block">মোট পরীক্ষা</span>
-                        <span id="st-stat-count" class="text-lg font-bold text-violet-900">০টি</span>
+            <div class="overflow-y-auto flex-grow pr-1 space-y-5">
+                <!-- Analytics Summary Cards -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div class="bg-violet-50 p-3.5 rounded-2xl border border-violet-100 text-center">
+                        <span class="text-[11px] text-violet-600 block mb-1 font-medium">মোট পরীক্ষা</span>
+                        <span id="stat-total-exams" class="text-xl sm:text-2xl font-bold text-violet-700">০</span>
                     </div>
-                    <div class="bg-emerald-50 p-3.5 rounded-2xl text-center border border-emerald-100">
-                        <span class="text-[11px] text-emerald-600 block">গড় স্কোর</span>
-                        <span id="st-stat-avg" class="text-lg font-bold text-emerald-900">০.০</span>
+                    <div class="bg-emerald-50 p-3.5 rounded-2xl border border-emerald-100 text-center">
+                        <span class="text-[11px] text-emerald-600 block mb-1 font-medium">গড় স্কোর</span>
+                        <span id="stat-avg-score" class="text-xl sm:text-2xl font-bold text-emerald-700">০</span>
                     </div>
-                    <div class="bg-indigo-50 p-3.5 rounded-2xl text-center border border-indigo-100">
-                        <span class="text-[11px] text-indigo-600 block">সর্বোচ্চ নম্বর</span>
-                        <span id="st-stat-max" class="text-lg font-bold text-indigo-900">০</span>
+                    <div class="bg-indigo-50 p-3.5 rounded-2xl border border-indigo-100 text-center">
+                        <span class="text-[11px] text-indigo-600 block mb-1 font-medium">সঠিক উত্তর</span>
+                        <span id="stat-total-correct" class="text-xl sm:text-2xl font-bold text-indigo-700">০</span>
+                    </div>
+                    <div class="bg-rose-50 p-3.5 rounded-2xl border border-rose-100 text-center">
+                        <span class="text-[11px] text-rose-600 block mb-1 font-medium">মোট ভুল</span>
+                        <span id="stat-total-incorrect" class="text-xl sm:text-2xl font-bold text-rose-700">০</span>
                     </div>
                 </div>
 
-                <!-- Submissions History Table -->
-                <div>
-                    <h4 class="font-bold text-slate-800 text-xs sm:text-sm mb-2.5">অংশগ্রহণকৃত পরীক্ষার তালিকা:</h4>
-                    <div id="student-history-container" class="space-y-3"></div>
+                <!-- Growth & Progress Bar -->
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-2">
+                    <div class="flex justify-between items-center text-xs sm:text-sm font-bold text-slate-700">
+                        <span>পারফরম্যান্স গ্রোথ ও নির্ভুলতা রেট</span>
+                        <span id="stat-growth-percentage" class="text-violet-600 font-mono">0%</span>
+                    </div>
+                    <div class="w-full bg-slate-200 h-3 rounded-full overflow-hidden">
+                        <div id="stat-growth-bar" class="bg-violet-600 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
                 </div>
+
+                <!-- Detailed Exam History List -->
+                <div class="space-y-3">
+                    <h4 class="font-bold text-slate-800 text-sm sm:text-base">পরীক্ষার বিস্তারিত ইতিহাস ও ভুলত্রুটি:</h4>
+                    <div id="student-dash-exams-list" class="space-y-3">
+                        <!-- Dynamic Exams & Mistakes -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-3 border-t border-slate-100 mt-4 text-right">
+                <button onclick="closeStudentDashboardModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-6 py-2.5 rounded-xl text-xs sm:text-sm transition">বন্ধ করুন</button>
             </div>
         </div>
     </div>
 
-    <!-- Leaderboard Modal (Printable) -->
-    <div id="leaderboard-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 hidden">
-        <div id="printable-leaderboard" class="bg-white rounded-3xl max-w-2xl w-full p-5 sm:p-6 shadow-2xl max-h-[90vh] flex flex-col">
-            <div class="flex justify-between items-center pb-3 border-b border-slate-200 mb-4 no-print">
-                <div class="flex items-center space-x-2">
-                    <div class="bg-amber-100 text-amber-600 p-2 rounded-xl text-lg">
-                        <i class="fa-solid fa-trophy"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-base sm:text-lg font-bold text-slate-900">মেধা তালিকা (Leaderboard)</h3>
-                        <p class="text-xs text-slate-500">শীর্ষ নম্বর অর্জনকারী পরীক্ষার্থীদের তালিকা</p>
-                    </div>
+    <!-- Student Results History Modal -->
+    <div id="student-history-modal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-3 sm:p-4 hidden">
+        <div class="bg-white rounded-2xl sm:rounded-3xl max-w-2xl w-full p-4 sm:p-6 shadow-2xl transform transition-all max-h-[90vh] flex flex-col">
+            <div class="flex justify-between items-center pb-3 border-b border-slate-100 mb-3">
+                <div>
+                    <h3 id="student-history-title" class="text-sm sm:text-lg font-bold text-slate-900"><i class="fa-solid fa-user-clock text-indigo-600 mr-2"></i> শিক্ষার্থীদের পরীক্ষার ইতিহাস</h3>
+                    <p id="student-history-subtitle" class="text-[11px] sm:text-xs text-slate-500">আইডি ও নাম ভিত্তিক সকল রেজাল্ট</p>
                 </div>
-                <div class="flex items-center gap-2">
-                    <button onclick="window.print()" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold px-3 py-1.5 rounded-xl text-xs transition flex items-center gap-1">
-                        <i class="fa-solid fa-print"></i> প্রিন্ট
-                    </button>
-                    <button onclick="closeLeaderboardModal()" class="text-slate-400 hover:text-slate-700 p-2 text-lg">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-                </div>
+                <button onclick="closeStudentHistoryModal()" class="text-slate-400 hover:text-slate-700 text-lg p-1">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
             </div>
-
-            <!-- Header only visible in Print -->
-            <div class="hidden print:block mb-4 text-center">
-                <h1 class="text-2xl font-bold">BCS One - মেধা তালিকা</h1>
-                <p id="print-exam-title" class="text-sm text-gray-600 mt-1"></p>
-            </div>
-
-            <div class="no-print mb-4">
-                <select id="leaderboard-exam-select" onchange="renderLeaderboardTable()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm font-semibold focus:outline-none">
-                </select>
-            </div>
-
-            <div class="overflow-y-auto custom-scrollbar flex-grow pr-1 border border-slate-200 rounded-2xl">
+            <div class="overflow-y-auto flex-grow pr-1 space-y-3">
                 <table class="w-full text-left border-collapse text-xs sm:text-sm">
                     <thead>
-                        <tr class="bg-slate-100 text-slate-700 border-b border-slate-200">
-                            <th class="p-3 font-semibold">র‍্যাংক</th>
-                            <th class="p-3 font-semibold">শিক্ষার্থীর নাম</th>
-                            <th class="p-3 font-semibold">আইডি</th>
-                            <th class="p-3 font-semibold text-right">প্রাপ্ত স্কোর</th>
+                        <tr class="bg-slate-50 text-slate-600 border-b border-slate-200">
+                            <th class="p-2.5 font-semibold">পরীক্ষার নাম</th>
+                            <th class="p-2.5 font-semibold text-center">সময়</th>
+                            <th class="p-2.5 font-semibold text-right">স্কোর</th>
+                            <th class="p-2.5 font-semibold text-right">তারিখ</th>
                         </tr>
                     </thead>
-                    <tbody id="leaderboard-table-body" class="divide-y divide-slate-100"></tbody>
+                    <tbody id="student-history-table-body">
+                        <tr>
+                            <td colspan="4" class="p-4 text-center text-slate-400">ডেটা লোড হচ্ছে...</td>
+                        </tr>
+                    </tbody>
                 </table>
+            </div>
+            <div class="pt-3 border-t border-slate-100 mt-3 text-right">
+                <button onclick="closeStudentHistoryModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-6 py-2 rounded-xl text-xs sm:text-sm transition">বন্ধ করুন</button>
             </div>
         </div>
     </div>
 
-    <!-- Application Logic Script with Firestore Integration -->
+    <!-- Question Edit Modal -->
+    <div id="edit-question-modal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center hidden p-3 sm:p-4">
+        <div class="bg-white rounded-2xl sm:rounded-3xl max-w-xl w-full p-4 sm:p-6 shadow-2xl transform transition-all max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center pb-3 border-b border-slate-100 mb-4">
+                <h3 class="text-sm sm:text-lg font-bold text-slate-900"><i class="fa-solid fa-pen-to-square text-indigo-600 mr-2"></i> প্রশ্ন সম্পাদনা</h3>
+                <button onclick="closeEditQuestionModal()" class="text-slate-400 hover:text-slate-700 text-lg p-1">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <form onsubmit="handleSaveEditedQuestion(event)" class="space-y-3 sm:space-y-4">
+                <input type="hidden" id="edit-q-index">
+                <div>
+                    <label class="block text-xs font-medium text-slate-700 mb-1">প্রশ্নের বিবরণ</label>
+                    <textarea id="edit-q-text" required rows="2" class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs sm:text-sm"></textarea>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 mb-1">অপশন ১ (ক)</label>
+                        <input type="text" id="edit-opt-0" required class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 mb-1">অপশন ২ (খ)</label>
+                        <input type="text" id="edit-opt-1" required class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 mb-1">অপশন ৩ (গ)</label>
+                        <input type="text" id="edit-opt-2" required class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 mb-1">অপশন ৪ (ঘ)</label>
+                        <input type="text" id="edit-opt-3" required class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-700 mb-1">সঠিক উত্তর</label>
+                        <select id="edit-correct-idx" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm bg-white">
+                            <option value="0">অপশন ১ (ক)</option>
+                            <option value="1">অপশন ২ (খ)</option>
+                            <option value="2">অপশন ৩ (গ)</option>
+                            <option value="3">অপশন ৪ (ঘ)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-700 mb-1">ব্যাখ্যা (Explanation)</label>
+                        <input type="text" id="edit-explanation" required class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm">
+                    </div>
+                </div>
+                <div class="flex gap-2 pt-2">
+                    <button type="button" onclick="closeEditQuestionModal()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-2.5 rounded-xl transition text-xs sm:text-sm">বাতিল</button>
+                    <button type="submit" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 rounded-xl transition text-xs sm:text-sm shadow">সংরক্ষণ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Teacher Login Modal -->
+    <div id="teacher-login-modal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl sm:rounded-3xl max-w-sm sm:max-w-md w-full p-5 sm:p-6 shadow-2xl transform transition-all">
+            <div class="text-center mb-4">
+                <div class="bg-amber-50 text-amber-600 w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center mx-auto mb-2 text-xl sm:text-2xl">
+                    <i class="fa-solid fa-lock"></i>
+                </div>
+                <h3 class="text-base sm:text-lg font-bold text-slate-900">শিক্ষক প্যানেল লগইন</h3>
+            </div>
+            <form onsubmit="verifyTeacherPassword(event)" class="space-y-4">
+                <div>
+                    <input type="password" id="teacher-pass-input" required placeholder="পাসওয়ার্ড লিখুন" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500 text-center tracking-widest text-xs sm:text-sm">
+                </div>
+                <div class="flex gap-2">
+                    <button type="button" onclick="closeTeacherLoginModal()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-2.5 rounded-xl transition text-xs sm:text-sm">বাতিল</button>
+                    <button type="submit" class="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-medium py-2.5 rounded-xl transition text-xs sm:text-sm shadow">প্রবেশ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Leaderboard Modal -->
+    <div id="leaderboard-modal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-3 sm:p-4 hidden">
+        <div class="bg-white rounded-2xl sm:rounded-3xl max-w-xl w-full p-4 sm:p-6 shadow-2xl transform transition-all max-h-[90vh] flex flex-col">
+            <div class="flex justify-between items-center pb-3 border-b border-slate-100 mb-3">
+                <div>
+                    <h3 id="lb-modal-title" class="text-sm sm:text-lg font-bold text-slate-900"><i class="fa-solid fa-trophy text-amber-500 mr-2"></i> লিডারবোর্ড</h3>
+                    <p class="text-[11px] sm:text-xs text-slate-500">সর্বোচ্চ স্কোর এবং কম সময়ে পরীক্ষার্থীদের র‍্যাংকিং</p>
+                </div>
+                <button onclick="closeLeaderboardModal()" class="text-slate-400 hover:text-slate-700 text-lg p-1">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div id="printable-leaderboard" class="overflow-y-auto flex-grow pr-1 space-y-3">
+                <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                    <thead>
+                        <tr class="bg-slate-50 text-slate-600 border-b border-slate-200">
+                            <th class="p-2 sm:p-3 font-semibold rounded-l-xl w-10 sm:w-12 text-center">#</th>
+                            <th class="p-2 sm:p-3 font-semibold">শিক্ষার্থীর নাম</th>
+                            <th class="p-2 sm:p-3 font-semibold">আইডি</th>
+                            <th class="p-2 sm:p-3 font-semibold text-center">সময়</th>
+                            <th class="p-2 sm:p-3 font-semibold text-right rounded-r-xl">স্কোর</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboard-table-body">
+                        <tr>
+                            <td colspan="5" class="p-4 text-center text-slate-400">ডেটা লোড হচ্ছে...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="pt-3 sm:pt-4 border-t border-slate-100 mt-3 flex flex-col sm:flex-row gap-2 sm:gap-3">
+                <button onclick="window.print()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center justify-center gap-2 shadow">
+                    <i class="fa-solid fa-print"></i> প্রিন্ট / PDF সংরক্ষণ
+                </button>
+                <button onclick="closeLeaderboardModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-6 py-2.5 rounded-xl text-xs sm:text-sm transition">বন্ধ করুন</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Application Logic -->
     <script>
-        // Default Sample Data
-        const defaultExamsData = {
-            "exam-bcs-01": {
-                key: "exam-bcs-01",
-                subject: "বাংলা",
-                title: "বিসিএস বাংলা ভাষা ও সাহিত্য বিশেষ মডেল টেস্ট",
-                duration: 10,
-                isFree: false,
-                startTime: "",
-                answerTime: "",
-                questions: [
-                    {
-                        q: "‘চর্যাপদ’ কোন ছন্দে রচিত?",
-                        options: ["অক্ষরবৃত্ত", "মাত্রাবৃত্ত", "স্বরবৃত্ত", "ছন্দহীন"],
-                        correct: 1,
-                        explanation: "চর্যাপদের গানগুলো মূলত মাত্রাবৃত্ত ছন্দে রচিত।"
-                    },
-                    {
-                        q: "বাংলা ভাষার মূল উৎস কোনটি?",
-                        options: ["বৈদিক ভাষা", "সংস্কৃত ভাষা", "প্রাকৃত ভাষা", "অপভ্রংশ"],
-                        correct: 2,
-                        explanation: "বাংলা ভাষার প্রাচীনতম নিদর্শন ও মূল উৎস প্রাকৃত ভাষা থেকে উদ্ভূত।"
-                    },
-                    {
-                        q: "কাজী নজরুল ইসলামের ‘অগ্নিবীণা’ কাব্যের প্রথম কবিতা কোনটি?",
-                        options: ["বিদ্রোহী", "প্রলয়োল্লাস", "ধুমকেতু", "রক্তাম্বরধারিণী মা"],
-                        correct: 1,
-                        explanation: "‘অগ্নিবীণা’ কাব্যের প্রথম কবিতা ‘প্রলয়োল্লাস’ এবং দ্বিতীয় কবিতা ‘বিদ্রোহী’।"
-                    }
-                ]
+        let appData = {
+            teacherPass: "1234",
+            subjects: ["বাংলা", "ইংরেজি", "সাধারণ জ্ঞান"],
+            exams: {
+                "bcs-bangla-1": {
+                    id: "bcs-bangla-1",
+                    subject: "বাংলা",
+                    title: "বাংলা ব্যাকরণ ও সাহিত্য - সেট ০১",
+                    timerMinutes: 10,
+                    isFree: false,
+                    startTime: "",
+                    answerReleaseTime: "",
+                    questions: [
+                        {
+                            q: "‘চর্যাপদ’ কোন ছন্দে রচিত?",
+                            opts: ["অক্ষরবৃত্ত", "মাত্রাবৃত্ত", "স্বরাবৃত্ত", "অমিত্রাক্ষর"],
+                            correct: 1,
+                            exp: "চর্যাপদ মূলত মাত্রাবৃত্ত ছন্দে রচিত।"
+                        }
+                    ]
+                }
             },
-            "exam-eng-01": {
-                key: "exam-eng-01",
-                subject: "English",
-                title: "English Grammar & Vocabulary Practice Test",
-                duration: 10,
-                isFree: true,
-                startTime: "",
-                answerTime: "",
-                questions: [
-                    {
-                        q: "Choose the correct synonym of 'Prudent':",
-                        options: ["Rash", "Wise", "Foolish", "Careless"],
-                        correct: 1,
-                        explanation: "Prudent means showing care and thought for the future (Wise/বিচক্ষণ)."
-                    },
-                    {
-                        q: "Identify the correct sentence:",
-                        options: [
-                            "He is senior than me.",
-                            "He is senior to me.",
-                            "He is senior from me.",
-                            "He is senior with me."
-                        ],
-                        correct: 1,
-                        explanation: "Latin adjectives like Senior, Junior, Superior take 'to' instead of 'than'."
-                    }
-                ]
-            }
+            allowedStudentIds: [
+                { id: "202601", name: "আব্দুর রহিম" },
+                { id: "202602", name: "ফাতেমা বেগম" },
+                { id: "202603", name: "আরিফ হোসেন" }
+            ],
+            submissions: []
         };
 
-        const defaultSubjects = ["সবগুলো", "বাংলা", "English", "সাধারণ জ্ঞান", "গণিত"];
-        
-        const defaultStudentIds = [
-            { id: "202601", name: "আব্দুর রহিম" },
-            { id: "202602", name: "নাসরিন সুলতানা" },
-            { id: "202603", name: "তানভীর আহমেদ" }
-        ];
-
-        // Global State - Pure Cloud Sync
-        let exams = {};
-        let subjects = [];
-        let allowedStudentIds = [];
-        let submissions = [];
-        let teacherPassword = "123456";
-
-        let activeExamKey = "";
-        let activeSubjectFilter = "সবগুলো";
-        let activeTeacherExamKey = "";
-        
-        let currentUser = { id: "", name: "" };
-        let currentExamRunning = null;
-        let userAnswers = {};
+        let activeExamKey = "bcs-bangla-1";
+        let currentStudent = { name: "", id: "" };
+        let studentAnswers = [];
         let timerInterval = null;
         let timeRemaining = 0;
-        let currentSubmission = null;
-        let pendingConfirmCallback = null;
 
-        // Firebase Sync Listeners
-        window.addEventListener('firebase-initialized', () => {
-            setupFirestoreListeners();
-        });
+        async function initData() {
+            const saved = localStorage.getItem("bcs_one_data");
+            if (saved) {
+                try { 
+                    const parsed = JSON.parse(saved);
+                    if(parsed.teacherPass) appData.teacherPass = parsed.teacherPass;
+                    if(parsed.subjects) appData.subjects = parsed.subjects;
+                    if(parsed.exams) appData.exams = parsed.exams;
+                    if(parsed.allowedStudentIds) appData.allowedStudentIds = parsed.allowedStudentIds;
+                } catch(e){}
+            }
 
-        function setupFirestoreListeners() {
-            const { db, fbFS } = window;
-            if (!db || !fbFS) return;
+            try {
+                if (window.db && window.fbFS) {
+                    const docRef = window.fbFS.doc(window.db, "app_config", "bcs_data");
+                    
+                    window.fbFS.onSnapshot(docRef, (docSnap) => {
+                        if (docSnap.exists()) {
+                            const data = docSnap.data();
+                            appData.subjects = data.subjects || appData.subjects;
+                            appData.exams = data.exams || appData.exams;
+                            
+                            if (data.allowedStudentIds) {
+                                appData.allowedStudentIds = data.allowedStudentIds.map(item => {
+                                    if (typeof item === 'string') {
+                                        return { id: item, name: "নামহীন শিক্ষার্থী" };
+                                    }
+                                    return item;
+                                });
+                            }
 
-            // Sync Exams
-            fbFS.onSnapshot(fbFS.collection(db, "exams"), (snapshot) => {
-                let fetchedExams = {};
-                snapshot.forEach((doc) => {
-                    fetchedExams[doc.id] = doc.data();
-                });
-                
-                if (Object.keys(fetchedExams).length === 0) {
-                    Object.keys(defaultExamsData).forEach((key) => {
-                        fbFS.setDoc(fbFS.doc(db, "exams", key), defaultExamsData[key]);
+                            if(data.teacherPass) appData.teacherPass = data.teacherPass;
+                        } else {
+                            saveDataToFirebase();
+                        }
+                        refreshUIState();
+                    }, (err) => {
+                        console.warn("Firestore listener warning (using local data fallback):", err);
+                        refreshUIState();
                     });
                 } else {
-                    exams = fetchedExams;
-                    if (!activeExamKey || !exams[activeExamKey]) {
-                        activeExamKey = Object.keys(exams)[0] || "";
-                    }
-                    if (!activeTeacherExamKey || !exams[activeTeacherExamKey]) {
-                        activeTeacherExamKey = activeExamKey;
-                    }
-                    renderHomeExamSelect();
-                    updateDashboardExamCards();
-                    if (!document.getElementById('view-teacher').classList.contains('hidden')) {
-                        renderTeacherExamList();
-                        renderTeacherQuestionTab();
-                    }
+                    refreshUIState();
                 }
-            });
+            } catch (e) {
+                console.error("Firestore Init Error:", e);
+                refreshUIState();
+            }
+        }
 
-            // Sync Subjects
-            fbFS.onSnapshot(fbFS.collection(db, "meta"), (snapshot) => {
-                let subDocFound = false;
-                snapshot.forEach((docSnap) => {
-                    if (docSnap.id === "subjects") {
-                        subDocFound = true;
-                        subjects = docSnap.data().list || defaultSubjects;
-                    }
-                    if (docSnap.id === "security") {
-                        teacherPassword = docSnap.data().password || "123456";
-                    }
-                });
+        function refreshUIState() {
+            const keys = Object.keys(appData.exams);
+            if (keys.length > 0 && !appData.exams[activeExamKey]) activeExamKey = keys[0];
+            
+            const params = new URLSearchParams(window.location.search);
+            const examParam = params.get("exam");
+            if (examParam && appData.exams[examParam]) {
+                activeExamKey = examParam;
+            }
 
-                if (!subDocFound) {
-                    fbFS.setDoc(fbFS.doc(db, "meta", "subjects"), { list: defaultSubjects });
-                    fbFS.setDoc(fbFS.doc(db, "meta", "security"), { password: "123456" });
-                } else {
-                    renderHomeSubjectFilter();
-                    renderHomeExamSelect();
-                    if (!document.getElementById('view-teacher').classList.contains('hidden')) {
-                        renderTeacherSubjectsList();
-                        renderTeacherSubjectOptions();
-                    }
-                }
-            });
+            renderHomeSubjectFilter();
+            renderHomeExamDropdown();
+            updateDashboardStats();
+            updateShareLink();
 
-            // Sync Allowed Students
-            fbFS.onSnapshot(fbFS.collection(db, "allowed_students"), (snapshot) => {
-                let list = [];
-                snapshot.forEach((doc) => {
-                    list.push({ id: doc.id, ...doc.data() });
-                });
+            const teacherView = document.getElementById("view-teacher");
+            if (teacherView && !teacherView.classList.contains("hidden")) {
+                renderTeacherExamsTab();
+                renderTeacherSubjectsTab();
+                renderTeacherStudentIdsTab();
+                renderAddQuestionTab();
+            }
+        }
 
-                if (list.length === 0) {
-                    defaultStudentIds.forEach((st) => {
-                        fbFS.setDoc(fbFS.doc(db, "allowed_students", st.id), { name: st.name });
+        async function saveDataToFirebase() {
+            try {
+                if (window.db && window.fbFS) {
+                    await window.fbFS.setDoc(window.fbFS.doc(window.db, "app_config", "bcs_data"), {
+                        subjects: appData.subjects,
+                        exams: appData.exams,
+                        allowedStudentIds: appData.allowedStudentIds,
+                        teacherPass: appData.teacherPass
                     });
-                } else {
-                    allowedStudentIds = list;
-                    if (!document.getElementById('view-teacher').classList.contains('hidden')) {
-                        renderTeacherAllowedIdsList();
-                    }
                 }
-            });
-
-            // Sync Submissions
-            fbFS.onSnapshot(fbFS.collection(db, "submissions"), (snapshot) => {
-                let list = [];
-                snapshot.forEach((doc) => {
-                    list.push({ id: doc.id, ...doc.data() });
-                });
-                submissions = list.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-
-                if (!document.getElementById('view-teacher').classList.contains('hidden')) {
-                    renderTeacherSubmissionsTab();
-                }
-            });
+            } catch (e) {
+                console.error("Error saving data to Firebase:", e);
+            }
+            localStorage.setItem("bcs_one_data", JSON.stringify(appData));
         }
 
-        // Custom Alert Modal
-        function showAlert(title, message, iconClass = "fa-circle-info", iconColor = "text-indigo-600") {
-            document.getElementById('modal-title').innerText = title;
-            document.getElementById('modal-message').innerText = message;
-            document.getElementById('modal-icon').innerHTML = `<i class="fa-solid ${iconClass}"></i>`;
-            document.getElementById('modal-icon').className = `text-4xl sm:text-5xl mb-3 ${iconColor}`;
-            document.getElementById('custom-modal').classList.remove('hidden');
+        function switchView(viewId) {
+            ["view-dashboard", "view-student-reg", "view-exam", "view-result", "view-teacher"].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.add("hidden");
+            });
+            const target = document.getElementById(`view-${viewId}`);
+            if (target) target.classList.remove("hidden");
+            if(viewId === 'dashboard') updateDashboardStats();
+            window.scrollTo({ top: 0, behavior: 'instant' });
         }
 
+        function showModal(title, msg) {
+            document.getElementById("modal-title").innerText = title;
+            document.getElementById("modal-message").innerText = msg;
+            document.getElementById("custom-modal").classList.remove("hidden");
+        }
+        
         function closeModal() {
-            document.getElementById('custom-modal').classList.add('hidden');
+            document.getElementById("custom-modal").classList.add("hidden");
         }
 
-        // Custom Confirm Modal
-        function showConfirm(title, message, onConfirm) {
-            document.getElementById('confirm-modal-title').innerText = title;
-            document.getElementById('confirm-modal-message').innerText = message;
-            pendingConfirmCallback = onConfirm;
-            document.getElementById('confirm-modal').classList.remove('hidden');
-        }
-
-        function closeConfirmModal(result) {
-            document.getElementById('confirm-modal').classList.add('hidden');
-            if (result && pendingConfirmCallback) {
-                pendingConfirmCallback();
-            }
-            pendingConfirmCallback = null;
-        }
-
-        // View Switcher
-        function switchView(viewName) {
-            ['dashboard', 'student-reg', 'exam', 'result', 'teacher'].forEach(v => {
-                const el = document.getElementById(`view-${v}`);
-                if (el) el.classList.add('hidden');
-            });
-
-            const target = document.getElementById(`view-${viewName}`);
-            if (target) target.classList.remove('hidden');
-
-            if (viewName === 'dashboard') {
-                renderHomeSubjectFilter();
-                renderHomeExamSelect();
-            }
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        // Home Subject Filter & Dropdown Logic
         function renderHomeSubjectFilter() {
-            const filterEl = document.getElementById('home-subject-filter');
-            filterEl.innerHTML = subjects.map(s => `
-                <option value="${s}" ${s === activeSubjectFilter ? 'selected' : ''}>${s}</option>
-            `).join('');
+            const select = document.getElementById("home-subject-filter");
+            select.innerHTML = `<option value="ALL">সকল সাবজেক্ট</option>` + 
+                appData.subjects.map(s => `<option value="${s}">${s}</option>`).join("");
         }
 
         function onHomeSubjectFilterChange() {
-            activeSubjectFilter = document.getElementById('home-subject-filter').value;
-            renderHomeExamSelect();
+            renderHomeExamDropdown();
+            updateDashboardStats();
         }
 
-        function renderHomeExamSelect() {
-            const examSelectEl = document.getElementById('home-exam-select');
+        function renderHomeExamDropdown() {
+            const filterVal = document.getElementById("home-subject-filter").value;
+            const select = document.getElementById("home-exam-select");
+            let filteredKeys = Object.keys(appData.exams);
             
-            const filteredExams = Object.values(exams).filter(e => {
-                if (activeSubjectFilter === "সবগুলো") return true;
-                return e.subject === activeSubjectFilter;
-            });
+            if (filterVal !== "ALL") {
+                filteredKeys = filteredKeys.filter(k => appData.exams[k].subject === filterVal);
+            }
 
-            if (filteredExams.length === 0) {
-                examSelectEl.innerHTML = `<option value="">কোনো পরীক্ষা পাওয়া যায়নি</option>`;
-                activeExamKey = "";
-                updateDashboardExamCards();
+            if (filteredKeys.length === 0) {
+                select.innerHTML = `<option value="">কোনো পরীক্ষা পাওয়া যায়নি</option>`;
                 return;
             }
 
-            examSelectEl.innerHTML = filteredExams.map(e => `
-                <option value="${e.key}" ${e.key === activeExamKey ? 'selected' : ''}>
-                    ${e.title} [${e.subject}]
-                </option>
-            `).join('');
-
-            activeExamKey = examSelectEl.value || filteredExams[0].key;
-            updateDashboardExamCards();
+            select.innerHTML = filteredKeys.map(k => {
+                const ex = appData.exams[k];
+                const freeTag = ex.isFree ? " [ফ্রি]" : "";
+                return `<option value="${k}">${ex.title}${freeTag}</option>`;
+            }).join("");
+            
+            if (filteredKeys.includes(activeExamKey)) {
+                select.value = activeExamKey;
+            } else {
+                activeExamKey = select.value;
+            }
         }
 
         function onHomeExamChange() {
-            activeExamKey = document.getElementById('home-exam-select').value;
-            updateDashboardExamCards();
+            activeExamKey = document.getElementById("home-exam-select").value;
+            updateDashboardStats();
         }
 
-        function updateDashboardExamCards() {
-            const exam = exams[activeExamKey];
-            const timerDisplay = document.getElementById('dash-timer-display');
-            const qCount = document.getElementById('dash-q-count');
-            const scheduleBox = document.getElementById('dash-exam-schedule-box');
+        function updateDashboardStats() {
+            const exam = appData.exams[activeExamKey];
+            if (exam) {
+                document.getElementById("dash-timer-display").innerText = `${exam.timerMinutes} মিনিট`;
+                document.getElementById("dash-q-count").innerText = exam.questions ? exam.questions.length : 0;
+            } else {
+                document.getElementById("dash-timer-display").innerText = "N/A";
+                document.getElementById("dash-q-count").innerText = "0";
+            }
+        }
 
-            if (!exam) {
-                timerDisplay.innerText = "0 মিনিট";
-                qCount.innerText = "0টি";
-                scheduleBox.classList.add('hidden');
+        function startExamFlow() {
+            if (!activeExamKey || !appData.exams[activeExamKey]) {
+                showModal("সতর্কতা", "অনুগ্রহ করে একটি সঠিক পরীক্ষা নির্বাচন করুন।");
                 return;
             }
-
-            timerDisplay.innerText = `${exam.duration} মিনিট`;
-            qCount.innerText = `${exam.questions ? exam.questions.length : 0}টি`;
+            const exam = appData.exams[activeExamKey];
 
             if (exam.startTime) {
-                scheduleBox.classList.remove('hidden');
-                document.getElementById('dash-schedule-title').innerText = "পরীক্ষার সময় নির্ধারণ করা হয়েছে";
-                document.getElementById('dash-schedule-detail').innerText = `পরীক্ষা শুরু প্রকাশের সময়: ${new Date(exam.startTime).toLocaleString('bn-BD')}`;
-            } else {
-                scheduleBox.classList.add('hidden');
+                const startTime = new Date(exam.startTime);
+                const now = new Date();
+                if (now < startTime) {
+                    const formattedDate = startTime.toLocaleString('bn-BD', { dateStyle: 'full', timeStyle: 'short' });
+                    showModal("পরীক্ষা শুরু হয়নি", `এই পরীক্ষাটি নির্ধারিত সময় অনুযায়ী ${formattedDate} তারিখে শুরু হবে।`);
+                    return;
+                }
             }
+
+            document.getElementById("reg-exam-title-display").innerText = exam.title;
+
+            const idInput = document.getElementById("student-id");
+            const nameInput = document.getElementById("student-name");
+
+            idInput.required = true;
+            idInput.placeholder = "যেমন: 202601";
+            nameInput.required = false;
+            nameInput.placeholder = "যেমন: আব্দুর রহিম (ঐচ্ছিক)";
+            document.getElementById("reg-subtitle").innerText = "পরীক্ষায় অংশ নিতে আপনার স্টুডেন্ট আইডি দিন (নাম ঐচ্ছিক)";
+
+            switchView("student-reg");
         }
 
-        // Start Exam Flow Handler
-        function startExamFlow() {
-            if (!activeExamKey || !exams[activeExamKey]) {
-                showAlert("সতর্কতা", "অনুগ্রহ করে একটি বৈধ পরীক্ষা নির্বাচন করুন।");
-                return;
-            }
-
-            const exam = exams[activeExamKey];
-
-            if (exam.startTime && new Date() < new Date(exam.startTime)) {
-                showAlert("পরীক্ষা এখনো শুরু হয়নি", `এই পরীক্ষাটি ${new Date(exam.startTime).toLocaleString('bn-BD')} তারিখে শুরু হবে।`);
-                return;
-            }
-
-            if (!exam.questions || exam.questions.length === 0) {
-                showAlert("প্রশ্ন খালি", "এই পরীক্ষায় এখনো কোনো প্রশ্ন যুক্ত করা হয়নি। শিক্ষক প্যানেল থেকে প্রশ্ন যোগ করুন।");
-                return;
-            }
-
-            document.getElementById('reg-exam-title-display').innerText = exam.title;
-            
-            const studentIdWrapper = document.getElementById('student-id-field-wrapper');
-            const reqMark = document.getElementById('id-required-mark');
-            const studentIdInput = document.getElementById('student-id');
-
-            if (exam.isFree) {
-                reqMark.classList.add('hidden');
-                studentIdInput.removeAttribute('required');
-                document.getElementById('reg-subtitle').innerText = "ফ্রি পরীক্ষা: আইডি প্রদান ঐচ্ছিক";
-            } else {
-                reqMark.classList.remove('hidden');
-                studentIdInput.setAttribute('required', 'true');
-                document.getElementById('reg-subtitle').innerText = "পরীক্ষায় অংশ নিতে অনুমোদিত স্টুডেন্ট আইডি দিন";
-            }
-
-            switchView('student-reg');
-        }
-
-        // Begin Quiz Function
         function beginQuiz(e) {
             e.preventDefault();
-            const exam = exams[activeExamKey];
-            const enteredName = document.getElementById('student-name').value.trim();
-            const enteredId = document.getElementById('student-id').value.trim();
+            const rawName = document.getElementById("student-name").value.trim();
+            const rawId = document.getElementById("student-id").value.trim();
 
-            if (!exam.isFree) {
-                if (!enteredId) {
-                    showAlert("আইডি আবশ্যক", "পরীক্ষায় অংশ নিতে স্টুডেন্ট আইডি প্রদান করা বাধ্যতামূলক।");
-                    return;
-                }
-
-                const matchedStudent = allowedStudentIds.find(s => s.id === enteredId);
-                if (!matchedStudent) {
-                    showAlert("অনুমোদনহীন আইডি", "আপনার স্টুডেন্ট আইডিটি অনুমোদিত তালিকায় পাওয়া যায়নি। অনুগ্রহ করে শিক্ষকের সাথে যোগাযোগ করুন।");
-                    return;
-                }
-
-                currentUser = {
-                    id: enteredId,
-                    name: enteredName || matchedStudent.name || "শিক্ষার্থী"
-                };
-            } else {
-                currentUser = {
-                    id: enteredId || "GUEST-" + Math.floor(1000 + Math.random() * 9000),
-                    name: enteredName || "পরীক্ষার্থী (Free)"
-                };
+            const exam = appData.exams[activeExamKey];
+            if(!exam || !exam.questions || exam.questions.length === 0) {
+                showModal("ত্রুটি", "এই পরীক্ষায় কোনো প্রশ্ন নেই!");
+                return;
             }
 
-            currentExamRunning = exam;
-            userAnswers = {};
-            timeRemaining = exam.duration * 60;
+            let matchedStudent = null;
+            if (!exam.isFree) {
+                if (!appData.allowedStudentIds || appData.allowedStudentIds.length === 0) {
+                    showModal("সতর্কতা", "শিক্ষক প্যানেলে কোনো অনুমোদিত স্টুডেন্ট আইডি যুক্ত করা হয়নি।");
+                    return;
+                }
 
-            document.getElementById('quiz-exam-heading').innerText = exam.title;
-            renderExamQuestions();
-            startExamTimer();
-            switchView('exam');
+                matchedStudent = appData.allowedStudentIds.find(item => String(item.id).trim() === String(rawId).trim());
+                if (!matchedStudent) {
+                    showModal("অনুমতি নেই", "আপনার স্টুডেন্ট আইডিটি এই পরীক্ষার জন্য অনুমোদিত নয়। সঠিক আইডি দিয়ে চেষ্টা করুন।");
+                    return;
+                }
+            }
+
+            let foundStudentName = rawName;
+            if (matchedStudent && matchedStudent.name) {
+                foundStudentName = matchedStudent.name;
+            }
+
+            currentStudent.name = foundStudentName !== "" ? foundStudentName : "অজ্ঞাত শিক্ষার্থী";
+            currentStudent.id = rawId;
+
+            studentAnswers = new Array(exam.questions.length).fill(null);
+            timeRemaining = exam.timerMinutes * 60;
+            
+            switchView("exam");
+            document.getElementById("quiz-exam-heading").innerText = exam.title;
+            renderAllQuestions();
+            startTimer();
         }
 
-        function renderExamQuestions() {
-            const container = document.getElementById('all-questions-container');
-            container.innerHTML = currentExamRunning.questions.map((q, qIdx) => `
-                <div class="bg-slate-50 p-4 sm:p-5 rounded-2xl border border-slate-200 space-y-3">
-                    <p class="font-bold text-slate-800 text-sm sm:text-base">
-                        <span class="bg-indigo-600 text-white text-xs px-2.5 py-0.5 rounded-lg mr-2 font-mono">${qIdx + 1}</span>
-                        ${q.q}
-                    </p>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
-                        ${q.options.map((opt, optIdx) => `
-                            <label class="flex items-center p-3.5 bg-white rounded-xl border border-slate-200 hover:border-indigo-400 cursor-pointer transition shadow-sm">
-                                <input type="radio" name="q_${qIdx}" value="${optIdx}" onchange="recordAnswer(${qIdx}, ${optIdx})" class="w-4 h-4 text-indigo-600 focus:ring-indigo-500">
-                                <span class="ml-3 text-xs sm:text-sm text-slate-700">${opt}</span>
-                            </label>
-                        `).join('')}
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function recordAnswer(qIdx, optIdx) {
-            userAnswers[qIdx] = optIdx;
-        }
-
-        function startExamTimer() {
-            updateTimerDisplay();
+        function startTimer() {
             clearInterval(timerInterval);
             timerInterval = setInterval(() => {
                 timeRemaining--;
-                updateTimerDisplay();
+                const mins = Math.floor(timeRemaining / 60);
+                const secs = timeRemaining % 60;
+                document.getElementById("timer-countdown").innerText = 
+                    `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                
                 if (timeRemaining <= 0) {
                     clearInterval(timerInterval);
-                    showAlert("সময় শেষ!", "আপনার পরীক্ষার নির্ধারিত সময় শেষ হয়েছে। উত্তরপত্র জমা করা হচ্ছে।");
-                    submitExamResults();
+                    finishQuiz();
                 }
             }, 1000);
         }
 
-        function updateTimerDisplay() {
-            const mins = Math.floor(timeRemaining / 60);
-            const secs = timeRemaining % 60;
-            document.getElementById('timer-countdown').innerText = 
-                `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-        }
+        function renderAllQuestions() {
+            const exam = appData.exams[activeExamKey];
+            const container = document.getElementById("all-questions-container");
 
-        function confirmFinishQuiz() {
-            showConfirm("পরীক্ষা জমা দিন", "আপনি কি নিশ্চিত যে আপনার উত্তরপত্র জমা দিতে চান?", () => {
-                submitExamResults();
-            });
-        }
-
-        function submitExamResults() {
-            clearInterval(timerInterval);
-
-            let correctCount = 0;
-            let incorrectCount = 0;
-            const totalQuestions = currentExamRunning.questions.length;
-
-            currentExamRunning.questions.forEach((q, idx) => {
-                const ans = userAnswers[idx];
-                if (ans !== undefined && ans !== null) {
-                    if (ans === q.correct) {
-                        correctCount++;
-                    } else {
-                        incorrectCount++;
-                    }
-                }
-            });
-
-            const rawScore = correctCount - (incorrectCount * 0.5);
-            const finalScore = Math.max(0, rawScore);
-
-            const submissionRecord = {
-                examKey: currentExamRunning.key,
-                examTitle: currentExamRunning.title,
-                studentId: currentUser.id,
-                studentName: currentUser.name,
-                totalQuestions: totalQuestions,
-                correctCount: correctCount,
-                incorrectCount: incorrectCount,
-                score: finalScore,
-                userAnswers: userAnswers,
-                timestamp: new Date().toISOString()
-            };
-
-            if (window.db && window.fbFS) {
-                window.fbFS.addDoc(window.fbFS.collection(window.db, "submissions"), submissionRecord);
-            }
-
-            currentSubmission = submissionRecord;
-            renderResultSummary();
-            switchView('result');
-        }
-
-        // Render Result View
-        function renderResultSummary() {
-            const sub = currentSubmission;
-            document.getElementById('result-student-info').innerText = `শিক্ষার্থী: ${sub.studentName} (আইডি: ${sub.studentId})`;
-            document.getElementById('res-total').innerText = sub.totalQuestions;
-            document.getElementById('res-correct').innerText = sub.correctCount;
-            document.getElementById('res-incorrect').innerText = sub.incorrectCount;
-            document.getElementById('res-score').innerText = sub.score;
-
-            const exam = exams[sub.examKey];
-            const reviewContainer = document.getElementById('review-container');
-            const reviewLockNotice = document.getElementById('review-lock-notice');
-            const btnReview = document.getElementById('btn-toggle-review');
-
-            reviewContainer.classList.add('hidden');
-
-            if (exam && exam.answerTime && new Date() < new Date(exam.answerTime)) {
-                reviewLockNotice.classList.remove('hidden');
-                document.getElementById('review-lock-time-text').innerText = 
-                    `সঠিক উত্তর ও ব্যাখ্যা প্রকাশের সময়: ${new Date(exam.answerTime).toLocaleString('bn-BD')}`;
-                btnReview.disabled = true;
-                btnReview.classList.add('opacity-50', 'cursor-not-allowed');
-            } else {
-                reviewLockNotice.classList.add('hidden');
-                btnReview.disabled = false;
-                btnReview.classList.remove('opacity-50', 'cursor-not-allowed');
-            }
-        }
-
-        function toggleReviewSection() {
-            const container = document.getElementById('review-container');
-            if (!container.classList.contains('hidden')) {
-                container.classList.add('hidden');
-                return;
-            }
-
-            const sub = currentSubmission;
-            const exam = exams[sub.examKey];
-            if (!exam) return;
-
-            const reviewListEl = document.getElementById('review-list');
-            reviewListEl.innerHTML = exam.questions.map((q, idx) => {
-                const userChoice = sub.userAnswers[idx];
-                const isCorrect = userChoice === q.correct;
-                const isUnanswered = userChoice === undefined || userChoice === null;
+            container.innerHTML = exam.questions.map((q, qIndex) => {
+                const isAnswered = studentAnswers[qIndex] !== null;
 
                 return `
-                <div class="bg-slate-50 p-4 sm:p-5 rounded-2xl border ${isCorrect ? 'border-emerald-300 bg-emerald-50/20' : (isUnanswered ? 'border-slate-200' : 'border-rose-300 bg-rose-50/20')} space-y-3">
-                    <div class="flex justify-between items-start gap-2">
-                        <p class="font-bold text-slate-800 text-xs sm:text-sm">
-                            <span class="text-xs px-2.5 py-0.5 rounded-md font-mono mr-2 ${isCorrect ? 'bg-emerald-600 text-white' : (isUnanswered ? 'bg-slate-500 text-white' : 'bg-rose-600 text-white')}">
-                                প্রশ্ন ${idx + 1}
-                            </span>
-                            ${q.q}
-                        </p>
-                        ${isCorrect ? '<span class="text-xs bg-emerald-100 text-emerald-800 font-bold px-2 py-1 rounded-md shrink-0"><i class="fa-solid fa-check mr-1"></i>সঠিক</span>' : 
-                          (isUnanswered ? '<span class="text-xs bg-slate-200 text-slate-700 font-bold px-2 py-1 rounded-md shrink-0">উত্তর দেয়নি</span>' : 
-                          '<span class="text-xs bg-rose-100 text-rose-800 font-bold px-2 py-1 rounded-md shrink-0"><i class="fa-solid fa-xmark mr-1"></i>ভুল</span>')}
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
-                        ${q.options.map((opt, optIdx) => {
-                            let optClass = "bg-white border-slate-200 text-slate-700";
-                            let icon = "";
-
-                            if (optIdx === q.correct) {
-                                optClass = "bg-emerald-100 border-emerald-400 text-emerald-900 font-bold";
-                                icon = '<i class="fa-solid fa-circle-check text-emerald-600"></i>';
-                            } else if (userChoice === optIdx && !isCorrect) {
-                                optClass = "bg-rose-100 border-rose-400 text-rose-900 font-bold";
-                                icon = '<i class="fa-solid fa-circle-xmark text-rose-600"></i>';
-                            }
-
-                            return `
-                                <div class="p-3 rounded-xl border text-xs sm:text-sm flex items-center justify-between ${optClass}">
-                                    <span>${opt}</span>
-                                    ${icon}
-                                </div>
-                            `;
-                        }).join('')}
-                    </div>
-
-                    ${q.explanation ? `
-                        <div class="p-3 bg-indigo-50/80 rounded-xl border border-indigo-100 text-xs text-indigo-900 mt-2">
-                            <strong class="text-indigo-700 block mb-0.5"><i class="fa-solid fa-lightbulb mr-1"></i>ব্যাখ্যা:</strong>
-                            ${q.explanation}
-                        </div>
-                    ` : ''}
-                </div>
-            `}).join('');
-
-            container.classList.remove('hidden');
-        }
-
-        // Student Portal Functions
-        function openStudentPortalModal() {
-            document.getElementById('student-portal-login-modal').classList.remove('hidden');
-        }
-
-        function closeStudentPortalModal() {
-            document.getElementById('student-portal-login-modal').classList.add('hidden');
-        }
-
-        function verifyStudentPortalLogin(e) {
-            e.preventDefault();
-            const idInput = document.getElementById('portal-student-id-input').value.trim();
-            if (!idInput) return;
-
-            closeStudentPortalModal();
-            openStudentDashboardModal(idInput);
-        }
-
-        function openStudentDashboardModal(studentId) {
-            const userSubs = submissions.filter(s => s.studentId === studentId);
-            
-            document.getElementById('student-dash-subtitle').innerText = `স্টুডেন্ট আইডি: ${studentId}`;
-            document.getElementById('st-stat-count').innerText = `${userSubs.length}টি`;
-
-            if (userSubs.length > 0) {
-                const avg = (userSubs.reduce((acc, s) => acc + s.score, 0) / userSubs.length).toFixed(1);
-                const max = Math.max(...userSubs.map(s => s.score));
-                document.getElementById('st-stat-avg').innerText = avg;
-                document.getElementById('st-stat-max').innerText = max;
-            } else {
-                document.getElementById('st-stat-avg').innerText = "0.0";
-                document.getElementById('st-stat-max').innerText = "0";
-            }
-
-            const historyContainer = document.getElementById('student-history-container');
-            if (userSubs.length === 0) {
-                historyContainer.innerHTML = `
-                    <div class="text-center py-8 text-slate-400 text-xs sm:text-sm bg-slate-50 rounded-2xl border border-slate-200">
-                        এই আইডিতে কোনো পরীক্ষার উত্তরপত্র পাওয়া যায়নি।
-                    </div>`;
-            } else {
-                historyContainer.innerHTML = userSubs.map(sub => `
-                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-2">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <h5 class="font-bold text-slate-800 text-xs sm:text-sm">${sub.examTitle}</h5>
-                                <p class="text-[11px] text-slate-400">${new Date(sub.timestamp).toLocaleString('bn-BD')}</p>
-                            </div>
-                            <span class="bg-indigo-100 text-indigo-700 font-bold px-2.5 py-1 rounded-lg text-xs">
-                                স্কোর: ${sub.score}/${sub.totalQuestions}
-                            </span>
-                        </div>
-                        <div class="flex gap-4 text-xs">
-                            <span class="text-emerald-600 font-semibold"><i class="fa-solid fa-check mr-1"></i>সঠিক: ${sub.correctCount}</span>
-                            <span class="text-rose-600 font-semibold"><i class="fa-solid fa-xmark mr-1"></i>ভুল: ${sub.incorrectCount}</span>
+                    <div class="p-4 sm:p-5 rounded-2xl border border-slate-200 bg-slate-50/50 space-y-3">
+                        <h3 class="text-sm sm:text-base font-bold text-slate-900 leading-snug">
+                            ${qIndex + 1}. ${q.q}
+                        </h3>
+                        <div class="space-y-2">
+                            ${q.opts.map((opt, optIndex) => {
+                                const isSelected = studentAnswers[qIndex] === optIndex;
+                                return `
+                                    <button type="button" 
+                                            onclick="selectOption(${qIndex}, ${optIndex})" 
+                                            ${isAnswered ? 'disabled' : ''} 
+                                            class="w-full text-left p-3 rounded-xl border transition flex items-center gap-3 
+                                            ${isSelected ? 'border-indigo-600 bg-indigo-50 font-semibold shadow-sm' : 'border-slate-200 bg-white hover:bg-slate-100'}
+                                            ${isAnswered && !isSelected ? 'opacity-50 cursor-not-allowed bg-slate-100' : ''}">
+                                        <span class="w-6 h-6 rounded-full border flex items-center justify-center text-xs shrink-0 ${isSelected ? 'bg-indigo-600 text-white border-indigo-600' : 'border-slate-300 text-slate-500'}">
+                                            ${String.fromCharCode(2453 + optIndex)}
+                                        </span>
+                                        <span class="text-xs sm:text-sm text-slate-800">${opt}</span>
+                                    </button>
+                                `;
+                            }).join('')}
                         </div>
                     </div>
-                `).join('');
-            }
-
-            document.getElementById('student-dashboard-modal').classList.remove('hidden');
-        }
-
-        function closeStudentDashboardModal() {
-            document.getElementById('student-dashboard-modal').classList.add('hidden');
-        }
-
-        // Leaderboard Functions
-        function openLeaderboardModal(examKey) {
-            const selectEl = document.getElementById('leaderboard-exam-select');
-            selectEl.innerHTML = Object.values(exams).map(e => `
-                <option value="${e.key}" ${e.key === examKey ? 'selected' : ''}>${e.title}</option>
-            `).join('');
-
-            renderLeaderboardTable();
-            document.getElementById('leaderboard-modal').classList.remove('hidden');
-        }
-
-        function closeLeaderboardModal() {
-            document.getElementById('leaderboard-modal').classList.add('hidden');
-        }
-
-        function renderLeaderboardTable() {
-            const selectedExamKey = document.getElementById('leaderboard-exam-select').value;
-            const tbody = document.getElementById('leaderboard-table-body');
-            const printTitle = document.getElementById('print-exam-title');
-
-            const exam = exams[selectedExamKey];
-            if (exam && printTitle) printTitle.innerText = exam.title;
-
-            const examSubs = submissions
-                .filter(s => s.examKey === selectedExamKey)
-                .sort((a, b) => b.score - a.score);
-
-            if (examSubs.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-400 text-xs">এখনো কেউ এই পরীক্ষায় অংশ নেয়নি।</td></tr>`;
-                return;
-            }
-
-            tbody.innerHTML = examSubs.map((sub, idx) => {
-                let badge = `<span class="font-bold text-slate-600">${idx + 1}</span>`;
-                if (idx === 0) badge = `<span class="text-amber-500 font-bold text-base">🥇 ১</span>`;
-                if (idx === 1) badge = `<span class="text-slate-400 font-bold text-base">🥈 ২</span>`;
-                if (idx === 2) badge = `<span class="text-amber-700 font-bold text-base">🥉 ৩</span>`;
-
-                return `
-                    <tr class="hover:bg-slate-50 transition">
-                        <td class="p-3">${badge}</td>
-                        <td class="p-3 font-semibold text-slate-800">${sub.studentName}</td>
-                        <td class="p-3 font-mono text-slate-500 text-xs">${sub.studentId}</td>
-                        <td class="p-3 text-right font-bold text-indigo-600">${sub.score}</td>
-                    </tr>
                 `;
             }).join('');
         }
 
-        // Teacher Panel Functions
+        function selectOption(qIdx, optIdx) {
+            if (studentAnswers[qIdx] === null) {
+                studentAnswers[qIdx] = optIdx;
+                renderAllQuestions();
+            }
+        }
+
+        function confirmFinishQuiz() {
+            const unanswered = studentAnswers.filter(a => a === null).length;
+            if (unanswered > 0) {
+                if (!confirm(`আপনার ${unanswered} টি প্রশ্নের উত্তর দেওয়া বাকি আছে। আপনি কি নিশ্চিতভাবে পরীক্ষা জমা দিতে চান?`)) {
+                    return;
+                }
+            } else {
+                if (!confirm("আপনি কি নিশ্চিতভাবে পরীক্ষা জমা দিতে চান?")) {
+                    return;
+                }
+            }
+            finishQuiz();
+        }
+
+        async function finishQuiz() {
+            clearInterval(timerInterval);
+            const exam = appData.exams[activeExamKey];
+            let correct = 0, incorrect = 0;
+
+            let detailedMistakes = [];
+            studentAnswers.forEach((ans, idx) => {
+                const questionObj = exam.questions[idx];
+                if (ans !== null) {
+                    if (ans === questionObj.correct) {
+                        correct++;
+                    } else {
+                        incorrect++;
+                        detailedMistakes.push({
+                            question: questionObj.q,
+                            yourAnswer: questionObj.opts[ans],
+                            correctAnswer: questionObj.opts[questionObj.correct],
+                            explanation: questionObj.exp
+                        });
+                    }
+                } else {
+                    detailedMistakes.push({
+                        question: questionObj.q,
+                        yourAnswer: "উত্তর দেওয়া হয়নি",
+                        correctAnswer: questionObj.opts[questionObj.correct],
+                        explanation: questionObj.exp
+                    });
+                }
+            });
+
+            const score = Math.max(0, correct - (incorrect * 0.5));
+            const timeTakenSecs = (exam.timerMinutes * 60) - timeRemaining;
+            const mins = Math.floor(timeTakenSecs / 60);
+            const secs = timeTakenSecs % 60;
+            const timeFormatted = `${mins} মি. ${secs} সে.`;
+
+            const submission = {
+                studentName: currentStudent.name,
+                studentId: currentStudent.id,
+                examKey: activeExamKey,
+                examTitle: exam.title,
+                totalQuestions: exam.questions.length,
+                score: score,
+                correct: correct,
+                incorrect: incorrect,
+                timeSpent: timeFormatted,
+                mistakes: detailedMistakes,
+                timestamp: window.fbFS ? window.fbFS.serverTimestamp() : new Date().toLocaleString("bn-BD")
+            };
+
+            try {
+                if (window.db && window.fbFS) {
+                    await window.fbFS.addDoc(window.fbFS.collection(window.db, "submissions"), submission);
+                }
+            } catch (e) {
+                console.error("Error saving submission to Firebase:", e);
+            }
+
+            document.getElementById("result-student-info").innerText = `${currentStudent.name} (আইডি: ${currentStudent.id})`;
+            document.getElementById("res-total").innerText = exam.questions.length;
+            document.getElementById("res-correct").innerText = correct;
+            document.getElementById("res-incorrect").innerText = incorrect;
+            document.getElementById("res-score").innerText = score;
+
+            document.getElementById("review-container").classList.add("hidden");
+
+            switchView("result");
+        }
+
+        function toggleReviewSection() {
+            const exam = appData.exams[activeExamKey];
+
+            if (exam && exam.answerReleaseTime) {
+                const releaseTime = new Date(exam.answerReleaseTime);
+                const now = new Date();
+                if (now < releaseTime) {
+                    const formattedDate = releaseTime.toLocaleString('bn-BD', { dateStyle: 'full', timeStyle: 'short' });
+                    showModal("উত্তর প্রকাশ হয়নি", `এই পরীক্ষার প্রশ্নের সমাধান ও বিস্তারিত ব্যাখ্যা ${formattedDate} তারিখে প্রকাশ করা হবে।`);
+                    return;
+                }
+            }
+
+            const container = document.getElementById("review-container");
+            container.classList.toggle("hidden");
+            if (!container.classList.contains("hidden")) {
+                renderReviewList();
+            }
+        }
+
+        function renderReviewList() {
+            const exam = appData.exams[activeExamKey];
+            const list = document.getElementById("review-list");
+            
+            list.innerHTML = exam.questions.map((q, idx) => {
+                const ans = studentAnswers[idx];
+                const isCorrect = ans === q.correct;
+                const isSkipped = ans === null;
+                
+                let badgeClass = isSkipped ? "bg-slate-100 text-slate-600" : (isCorrect ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700");
+                let badgeText = isSkipped ? "স্কিপড" : (isCorrect ? "সঠিক" : "ভুল");
+
+                return `
+                    <div class="p-3.5 sm:p-4 rounded-2xl border border-slate-200 bg-slate-50/50 space-y-1.5">
+                        <div class="flex justify-between items-start gap-2">
+                            <h4 class="font-bold text-xs sm:text-sm text-slate-800">${idx + 1}. ${q.q}</h4>
+                            <span class="text-[10px] sm:text-xs px-2 py-0.5 rounded font-bold shrink-0 ${badgeClass}">${badgeText}</span>
+                        </div>
+                        <p class="text-[11px] sm:text-xs text-slate-600"><strong>আপনার উত্তর:</strong> ${ans !== null ? q.opts[ans] : 'দেওয়া হয়নি'}</p>
+                        <p class="text-[11px] sm:text-xs text-emerald-700"><strong>সঠিক উত্তর:</strong> ${q.opts[q.correct]}</p>
+                        <p class="text-[11px] sm:text-xs text-slate-500 bg-white p-2.5 rounded-lg border border-slate-100 mt-1"><strong>ব্যাখ্যা:</strong> ${q.exp}</p>
+                    </div>
+                `;
+            }).join("");
+        }
+
+        // --- STUDENT PORTAL & ANALYTICS FUNCTIONS ---
+        function openStudentPortalModal() {
+            document.getElementById("portal-student-id-input").value = "";
+            document.getElementById("student-portal-login-modal").classList.remove("hidden");
+        }
+
+        function closeStudentPortalModal() {
+            document.getElementById("student-portal-login-modal").classList.add("hidden");
+        }
+
+        function verifyStudentPortalLogin(e) {
+            e.preventDefault();
+            const studentId = document.getElementById("portal-student-id-input").value.trim();
+            closeStudentPortalModal();
+            loadStudentDashboard(studentId);
+        }
+
+        function loadStudentDashboard(studentId) {
+            document.getElementById("student-dash-subtitle").innerText = `স্টুডেন্ট আইডি: ${studentId} - এর সকল পরীক্ষার ডিটেইলস ও অ্যানালিটিক্স`;
+            document.getElementById("stat-total-exams").innerText = "০";
+            document.getElementById("stat-avg-score").innerText = "০";
+            document.getElementById("stat-total-correct").innerText = "০";
+            document.getElementById("stat-total-incorrect").innerText = "০";
+            document.getElementById("stat-growth-percentage").innerText = "0%";
+            document.getElementById("stat-growth-bar").style.width = "0%";
+            document.getElementById("student-dash-exams-list").innerHTML = `<p class="text-xs text-slate-400 text-center py-4">ডেটা লোড হচ্ছে...</p>`;
+            
+            document.getElementById("student-dashboard-modal").classList.remove("hidden");
+
+            if (window.db && window.fbFS) {
+                window.fbFS.getDocs(window.fbFS.collection(window.db, "submissions")).then((snapshot) => {
+                    let studentSubs = [];
+                    let studentName = "শিক্ষার্থী";
+                    
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        if (String(data.studentId).trim() === String(studentId).trim()) {
+                            studentSubs.push(data);
+                            if(data.studentName) studentName = data.studentName;
+                        }
+                    });
+
+                    document.getElementById("student-dash-title").innerHTML = `<i class="fa-solid fa-chart-line text-violet-600 mr-2"></i> ${studentName} (${studentId})`;
+
+                    if (studentSubs.length === 0) {
+                        document.getElementById("student-dash-exams-list").innerHTML = `<p class="text-xs text-slate-400 text-center py-6">এই আইডি দিয়ে এখনো কোনো পরীক্ষা দেওয়া হয়নি।</p>`;
+                        return;
+                    }
+
+                    let totalExams = studentSubs.length;
+                    let totalScoreSum = 0;
+                    let totalCorrect = 0;
+                    let totalIncorrect = 0;
+
+                    studentSubs.forEach(sub => {
+                        totalScoreSum += Number(sub.score || 0);
+                        totalCorrect += Number(sub.correct || 0);
+                        totalIncorrect += Number(sub.incorrect || 0);
+                    });
+
+                    let avgScore = (totalScoreSum / totalExams).toFixed(1);
+                    let totalAttempted = totalCorrect + totalIncorrect;
+                    let accuracyRate = totalAttempted > 0 ? Math.round((totalCorrect / totalAttempted) * 100) : 0;
+
+                    document.getElementById("stat-total-exams").innerText = totalExams;
+                    document.getElementById("stat-avg-score").innerText = avgScore;
+                    document.getElementById("stat-total-correct").innerText = totalCorrect;
+                    document.getElementById("stat-total-incorrect").innerText = totalIncorrect;
+                    document.getElementById("stat-growth-percentage").innerText = `${accuracyRate}%`;
+                    document.getElementById("stat-growth-bar").style.width = `${accuracyRate}%`;
+
+                    document.getElementById("student-dash-exams-list").innerHTML = studentSubs.map((sub, sIdx) => {
+                        let mistakesHtml = "";
+                        if (sub.mistakes && sub.mistakes.length > 0) {
+                            mistakesHtml = `
+                                <div class="mt-3 pt-3 border-t border-slate-200 space-y-2">
+                                    <h5 class="text-xs font-bold text-rose-700"><i class="fa-solid fa-triangle-exclamation mr-1"></i> ভুল হওয়া প্রশ্ন ও ব্যাখ্যা (${sub.mistakes.length}টি):</h5>
+                                    <div class="space-y-2">
+                                        ${sub.mistakes.map(m => `
+                                            <div class="bg-white p-2.5 rounded-xl border border-rose-100 text-xs space-y-1">
+                                                <p class="font-bold text-slate-800">${m.question}</p>
+                                                <p class="text-rose-600"><strong>আপনার উত্তর:</strong> ${m.yourAnswer}</p>
+                                                <p class="text-emerald-700"><strong>সঠিক উত্তর:</strong> ${m.correctAnswer}</p>
+                                                <p class="text-slate-500 bg-slate-50 p-1.5 rounded"><strong>ব্যাখ্যা:</strong> ${m.explanation}</p>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            `;
+                        } else {
+                            mistakesHtml = `<p class="text-xs text-emerald-600 mt-2 font-medium"><i class="fa-solid fa-check-circle mr-1"></i> দারুণ! এই পরীক্ষায় আপনার কোনো ভুল হয়নি।</p>`;
+                        }
+
+                        let dateStr = "";
+                        if (sub.timestamp && sub.timestamp.toDate) {
+                            dateStr = sub.timestamp.toDate().toLocaleString("bn-BD");
+                        } else if (typeof sub.timestamp === "string") {
+                            dateStr = sub.timestamp;
+                        }
+
+                        return `
+                            <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50 space-y-2">
+                                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-1">
+                                    <h4 class="font-bold text-slate-900 text-xs sm:text-sm">${sIdx + 1}. ${sub.examTitle}</h4>
+                                    <span class="text-[11px] text-slate-500">${dateStr}</span>
+                                </div>
+                                <div class="grid grid-cols-3 gap-2 pt-1 text-center text-xs">
+                                    <div class="bg-white p-2 rounded-lg border border-slate-200">
+                                        <span class="text-slate-500 block text-[10px]">স্কোর</span>
+                                        <span class="font-bold text-indigo-600">${sub.score}</span>
+                                    </div>
+                                    <div class="bg-emerald-50 p-2 rounded-lg border border-emerald-100">
+                                        <span class="text-emerald-600 block text-[10px]">সঠিক</span>
+                                        <span class="font-bold text-emerald-700">${sub.correct}</span>
+                                    </div>
+                                    <div class="bg-rose-50 p-2 rounded-lg border border-rose-100">
+                                        <span class="text-rose-600 block text-[10px]">ভুল</span>
+                                        <span class="font-bold text-rose-700">${sub.incorrect}</span>
+                                    </div>
+                                </div>
+                                ${mistakesHtml}
+                            </div>
+                        `;
+                    }).join("");
+
+                }).catch(err => {
+                    console.error(err);
+                    document.getElementById("student-dash-exams-list").innerHTML = `<p class="text-xs text-rose-500 text-center py-4">ডেটা লোড করতে সমস্যা হয়েছে।</p>`;
+                });
+            }
+        }
+
+        function closeStudentDashboardModal() {
+            document.getElementById("student-dashboard-modal").classList.add("hidden");
+        }
+
+        function openLeaderboardModal(examKey) {
+            const key = examKey || activeExamKey;
+            const exam = appData.exams[key];
+            document.getElementById("lb-modal-title").innerHTML = `<i class="fa-solid fa-trophy text-amber-500 mr-2"></i> ${exam ? exam.title : 'লিডারবোর্ড'}`;
+            
+            const tbody = document.getElementById("leaderboard-table-body");
+            tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">ডেটা লোড হচ্ছে...</td></tr>`;
+
+            if (window.db && window.fbFS) {
+                window.fbFS.onSnapshot(window.fbFS.collection(window.db, "submissions"), (snapshot) => {
+                    let subs = [];
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        if (data.examKey === key) subs.push(data);
+                    });
+
+                    subs.sort((a, b) => b.score - a.score);
+
+                    if (subs.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">এখনো কোনো পরীক্ষার্থী অংশ নেয়নি।</td></tr>`;
+                    } else {
+                        tbody.innerHTML = subs.map((s, i) => `
+                            <tr class="border-b border-slate-100 hover:bg-slate-50 text-xs sm:text-sm">
+                                <td class="p-2.5 sm:p-3 text-center font-bold text-slate-500">${i + 1}</td>
+                                <td class="p-2.5 sm:p-3 font-semibold text-slate-800">${s.studentName}</td>
+                                <td class="p-2.5 sm:p-3 text-slate-600">${s.studentId}</td>
+                                <td class="p-2.5 sm:p-3 text-center text-slate-500 text-[11px] sm:text-xs">${s.timeSpent}</td>
+                                <td class="p-2.5 sm:p-3 text-right font-bold text-indigo-600">${s.score}</td>
+                            </tr>
+                        `).join("");
+                    }
+                }, (err) => {
+                    console.warn("Leaderboard error:", err);
+                    tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">ডেটা লোড করতে সমস্যা হয়েছে।</td></tr>`;
+                });
+            }
+
+            document.getElementById("leaderboard-modal").classList.remove("hidden");
+        }
+
+        function closeLeaderboardModal() {
+            document.getElementById("leaderboard-modal").classList.add("hidden");
+        }
+
         function openTeacherLoginModal() {
-            document.getElementById('teacher-login-modal').classList.remove('hidden');
+            document.getElementById("teacher-login-modal").classList.remove("hidden");
         }
 
         function closeTeacherLoginModal() {
-            document.getElementById('teacher-login-modal').classList.add('hidden');
+            document.getElementById("teacher-login-modal").classList.add("hidden");
         }
 
-        function handleTeacherLogin(e) {
+        function verifyTeacherPassword(e) {
             e.preventDefault();
-            const pass = document.getElementById('teacher-password-input').value;
-            if (pass === teacherPassword) {
+            const pass = document.getElementById("teacher-pass-input").value;
+            if (pass === appData.teacherPass) {
                 closeTeacherLoginModal();
-                document.getElementById('teacher-password-input').value = "";
-                renderTeacherPanel();
-                switchView('teacher');
+                switchView("teacher");
+                renderTeacherExamsTab();
+                renderTeacherSubjectsTab();
+                renderTeacherStudentIdsTab();
             } else {
-                showAlert("ভুল পাসওয়ার্ড", "শিক্ষক পাসওয়ার্ড সঠিক নয়। আবার চেষ্টা করুন।", "fa-lock", "text-rose-600");
+                showModal("ত্রুটি", "ভুল পাসওয়ার্ড! আবার চেষ্টা করুন।");
             }
         }
 
         function switchTeacherTab(tabName) {
-            ['exams', 'subjects', 'student-ids', 'add-question', 'submissions', 'security'].forEach(t => {
+            ["exams", "subjects", "student-ids", "add-question", "submissions", "security"].forEach(t => {
                 const tabEl = document.getElementById(`teacher-tab-${t}`);
-                const btnEl = document.getElementById(`tab-btn-${t}`);
-                if (tabEl) tabEl.classList.add('hidden');
-                if (btnEl) {
-                    btnEl.classList.remove('border-indigo-600', 'text-indigo-600', 'font-bold');
-                    btnEl.classList.add('border-transparent', 'text-slate-500', 'font-semibold');
+                if(tabEl) tabEl.classList.add("hidden");
+                const btn = document.getElementById(`tab-btn-${t}`);
+                if (btn) {
+                    btn.className = "py-2 px-3 sm:px-4 font-medium text-xs sm:text-sm text-slate-500 hover:text-slate-800 border-b-2 border-transparent whitespace-nowrap";
                 }
             });
-
-            const activeTabEl = document.getElementById(`teacher-tab-${tabName}`);
-            const activeBtnEl = document.getElementById(`tab-btn-${tabName}`);
-            if (activeTabEl) activeTabEl.classList.remove('hidden');
-            if (activeBtnEl) {
-                activeBtnEl.classList.add('border-indigo-600', 'text-indigo-600', 'font-bold');
-                activeBtnEl.classList.remove('border-transparent', 'text-slate-500');
+            const targetTab = document.getElementById(`teacher-tab-${tabName}`);
+            if(targetTab) targetTab.classList.remove("hidden");
+            const activeBtn = document.getElementById(`tab-btn-${tabName}`);
+            if (activeBtn) {
+                activeBtn.className = "py-2 px-3 sm:px-4 font-semibold text-xs sm:text-sm border-b-2 border-indigo-600 text-indigo-600 whitespace-nowrap";
             }
 
-            if (tabName === 'add-question') renderTeacherQuestionTab();
-            if (tabName === 'submissions') renderTeacherSubmissionsTab();
+            if (tabName === 'submissions') renderSubmissionsTab();
+            if (tabName === 'add-question') renderAddQuestionTab();
+            if (tabName === 'student-ids') renderTeacherStudentIdsTab();
         }
 
-        function renderTeacherPanel() {
-            renderTeacherSubjectOptions();
-            renderTeacherExamList();
-            renderTeacherSubjectsList();
-            renderTeacherAllowedIdsList();
-            switchTeacherTab('exams');
-        }
-
-        function renderTeacherSubjectOptions() {
-            const selectEl = document.getElementById('new-exam-subject-input');
-            selectEl.innerHTML = subjects.filter(s => s !== "সবগুলো").map(s => `
-                <option value="${s}">${s}</option>
-            `).join('');
-        }
-
-        function renderTeacherExamList() {
-            const container = document.getElementById('exam-sets-list-container');
-            container.innerHTML = Object.values(exams).map(e => `
-                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                    <div>
-                        <div class="flex items-center gap-2 mb-1">
-                            <span class="bg-indigo-100 text-indigo-700 text-xs font-bold px-2 py-0.5 rounded">${e.subject}</span>
-                            <span class="text-xs text-slate-500">${e.duration} মিনিট</span>
-                            ${e.isFree ? '<span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded">Free Exam</span>' : ''}
-                        </div>
-                        <h5 class="font-bold text-slate-800 text-sm">${e.title}</h5>
-                        <p class="text-xs text-slate-500 mt-1">প্রশ্ন সংখ্যা: ${e.questions ? e.questions.length : 0}টি</p>
-                    </div>
-                    <div class="flex items-center gap-2 w-full sm:w-auto">
-                        <button onclick="selectExamForQuestions('${e.key}')" class="flex-1 sm:flex-initial bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-3 py-1.5 rounded-xl text-xs font-semibold transition">
-                            <i class="fa-solid fa-plus-circle mr-1"></i> প্রশ্ন যোগ
-                        </button>
-                        <button onclick="deleteExamSet('${e.key}')" class="text-rose-600 hover:bg-rose-50 p-2 rounded-xl text-xs transition">
-                            <i class="fa-solid fa-trash-can"></i>
-                        </button>
-                    </div>
-                </div>
-            `).join('');
-
-            const shareInput = document.getElementById('share-link-input');
-            const currentUrl = window.location.origin + window.location.pathname;
-            shareInput.value = `${currentUrl}?exam=${activeExamKey}`;
+        function updateShareLink() {
+            const url = window.location.origin + window.location.pathname + `?exam=${activeExamKey}`;
+            const input = document.getElementById("share-link-input");
+            if (input) input.value = url;
         }
 
         function copyShareLink() {
-            const input = document.getElementById('share-link-input');
+            const input = document.getElementById("share-link-input");
             input.select();
-            document.execCommand('copy');
-            showAlert("লিংক কপি হয়েছে!", "পরীক্ষার সরাসরি শেয়ারিং লিংক আপনার ক্লিপবোর্ডে কপি করা হয়েছে।");
+            navigator.clipboard.writeText(input.value);
+            showModal("কপি হয়েছে", "পরীক্ষার লিংক ক্লিপবোর্ডে কপি করা হয়েছে!");
         }
 
         function handleCreateExam(e) {
             e.preventDefault();
-            const subject = document.getElementById('new-exam-subject-input').value;
-            const name = document.getElementById('new-exam-name-input').value.trim();
-            const duration = parseInt(document.getElementById('new-exam-timer-input').value) || 10;
-            const startTime = document.getElementById('new-exam-start-time').value;
-            const answerTime = document.getElementById('new-exam-answer-time').value;
-            const isFree = document.getElementById('new-exam-is-free').checked;
+            const subject = document.getElementById("new-exam-subject-input").value;
+            const name = document.getElementById("new-exam-name-input").value.trim();
+            const timer = parseInt(document.getElementById("new-exam-timer-input").value);
+            const isFree = document.getElementById("new-exam-is-free").checked;
+            
+            const startTime = document.getElementById("new-exam-start-time").value;
+            const answerTime = document.getElementById("new-exam-answer-time").value;
 
-            const examKey = "exam-" + Date.now();
-            const newExam = {
-                key: examKey,
+            const key = `exam-${Date.now()}`;
+            appData.exams[key] = {
+                id: key,
                 subject: subject,
-                title: name,
-                duration: duration,
+                title: `${subject} - ${name}`,
+                timerMinutes: timer,
                 isFree: isFree,
-                startTime: startTime,
-                answerTime: answerTime,
+                startTime: startTime || "",
+                answerReleaseTime: answerTime || "",
                 questions: []
             };
 
-            if (window.db && window.fbFS) {
-                window.fbFS.setDoc(window.fbFS.doc(window.db, "exams", examKey), newExam);
-            }
-
-            document.getElementById('new-exam-name-input').value = "";
-            showAlert("সফল!", "নতুন এক্সাম সেট সফলভাবে যুক্ত করা হয়েছে।");
+            saveDataToFirebase();
+            renderTeacherExamsTab();
+            renderHomeExamDropdown();
+            showModal("সফল", "নতুন এক্সাম তৈরি হয়েছে!");
         }
 
-        function deleteExamSet(key) {
-            showConfirm("এক্সাম মুছুন", "আপনি কি এই এক্সাম সেটটি মুছে ফেলতে চান?", () => {
-                if (window.db && window.fbFS) {
-                    window.fbFS.deleteDoc(window.fbFS.doc(window.db, "exams", key));
+        function renderTeacherExamsTab() {
+            const select = document.getElementById("new-exam-subject-input");
+            if(select) select.innerHTML = appData.subjects.map(s => `<option value="${s}">${s}</option>`).join("");
+
+            const container = document.getElementById("exam-sets-list-container");
+            if(!container) return;
+            const keys = Object.keys(appData.exams);
+            
+            container.innerHTML = keys.map(k => {
+                const ex = appData.exams[k];
+                const freeBadge = ex.isFree ? `<span class="text-[10px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded font-bold ml-1">ফ্রি</span>` : `<span class="text-[10px] bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded font-bold ml-1">${ex.subject}</span>`;
+                
+                let scheduleInfo = '';
+                if(ex.startTime || ex.answerReleaseTime) {
+                    scheduleInfo = `<div class="text-[11px] text-slate-500 mt-1 space-y-0.5">`;
+                    if(ex.startTime) scheduleInfo += `<div>⏰ শুরু: ${new Date(ex.startTime).toLocaleString('bn-BD')}</div>`;
+                    if(ex.answerReleaseTime) scheduleInfo += `<div>🔑 উত্তর প্রকাশ: ${new Date(ex.answerReleaseTime).toLocaleString('bn-BD')}</div>`;
+                    scheduleInfo += `</div>`;
                 }
-            });
-        }
 
-        function selectExamForQuestions(key) {
-            activeTeacherExamKey = key;
-            switchTeacherTab('add-question');
-        }
+                const qCount = ex.questions ? ex.questions.length : 0;
 
-        function renderTeacherQuestionTab() {
-            const exam = exams[activeTeacherExamKey] || exams[activeExamKey];
-            if (!exam) return;
-            activeTeacherExamKey = exam.key;
-
-            document.getElementById('current-active-exam-subject-badge').innerText = exam.subject;
-            document.getElementById('current-active-exam-badge-label').innerText = exam.title;
-
-            const qListEl = document.getElementById('teacher-question-list');
-            qListEl.innerHTML = (exam.questions || []).map((q, idx) => `
-                <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 text-xs space-y-1">
-                    <div class="flex justify-between items-start">
-                        <strong class="text-slate-800">${idx + 1}. ${q.q}</strong>
-                        <button onclick="deleteQuestion(${idx})" class="text-rose-600 hover:text-rose-800 text-xs">
-                            <i class="fa-solid fa-trash-can"></i>
-                        </button>
+                return `
+                    <div class="p-3.5 sm:p-4 rounded-2xl border border-slate-200 bg-white flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                        <div>
+                            <div>${freeBadge}</div>
+                            <h4 class="font-bold text-slate-800 text-xs sm:text-sm mt-1">${ex.title} (${qCount}টি প্রশ্ন, ${ex.timerMinutes} মি.)</h4>
+                            ${scheduleInfo}
+                        </div>
+                        <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+                            <button onclick="selectExamForQuestionAdd('${k}')" class="bg-amber-500 hover:bg-amber-600 text-white px-3 py-1.5 rounded-xl text-xs font-medium transition">প্রশ্ন যোগ/এডিট</button>
+                            <button onclick="deleteExam('${k}')" class="text-rose-600 hover:bg-rose-50 p-2 rounded-xl transition"><i class="fa-solid fa-trash"></i></button>
+                        </div>
                     </div>
-                    <p class="text-emerald-700 font-semibold">সঠিক উত্তর: ${q.options[q.correct]}</p>
-                </div>
-            `).join('');
+                `;
+            }).join("");
         }
 
-        function handleAddNewQuestion(e) {
-            e.preventDefault();
-            const exam = exams[activeTeacherExamKey];
-            if (!exam) return;
-
-            const qText = document.getElementById('new-q-text').value.trim();
-            const opt0 = document.getElementById('new-opt-0').value.trim();
-            const opt1 = document.getElementById('new-opt-1').value.trim();
-            const opt2 = document.getElementById('new-opt-2').value.trim();
-            const opt3 = document.getElementById('new-opt-3').value.trim();
-            const correctIdx = parseInt(document.getElementById('new-correct-idx').value);
-            const explanation = document.getElementById('new-explanation').value.trim();
-
-            const questions = exam.questions ? [...exam.questions] : [];
-            questions.push({
-                q: qText,
-                options: [opt0, opt1, opt2, opt3],
-                correct: correctIdx,
-                explanation: explanation
-            });
-
-            if (window.db && window.fbFS) {
-                window.fbFS.setDoc(window.fbFS.doc(window.db, "exams", exam.key), {
-                    ...exam,
-                    questions: questions
-                });
+        function deleteExam(key) {
+            if (confirm("সতর্কতা: আপনি কি সত্যিই এই এক্সাম সেটটি মুছে ফেলতে চান?")) {
+                if (confirm("চূড়ান্ত সতর্কতা: একবার মুছে ফেললে এই এক্সাম এবং এর সমস্ত প্রশ্ন স্থায়ীভাবে হারিয়ে যাবে। আপনি কি নিশ্চিত?")) {
+                    delete appData.exams[key];
+                    saveDataToFirebase();
+                    renderTeacherExamsTab();
+                    renderHomeExamDropdown();
+                    showModal("সফল", "এক্সাম সেটটি সফলভাবে মুছে ফেলা হয়েছে।");
+                }
             }
-
-            document.getElementById('add-q-form').reset();
-            showAlert("প্রশ্ন যোগ হয়েছে", "নতুন প্রশ্নটি এক্সাম সেটে যুক্ত করা হয়েছে।");
-        }
-
-        function deleteQuestion(qIdx) {
-            const exam = exams[activeTeacherExamKey];
-            if (!exam) return;
-
-            const questions = [...exam.questions];
-            questions.splice(qIdx, 1);
-
-            if (window.db && window.fbFS) {
-                window.fbFS.setDoc(window.fbFS.doc(window.db, "exams", exam.key), {
-                    ...exam,
-                    questions: questions
-                });
-            }
-        }
-
-        // Subjects Management
-        function renderTeacherSubjectsList() {
-            const container = document.getElementById('subjects-list-container');
-            container.innerHTML = subjects.filter(s => s !== "সবগুলো").map(s => `
-                <div class="flex justify-between items-center bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs font-semibold">
-                    <span>${s}</span>
-                    <button onclick="deleteSubject('${s}')" class="text-rose-600 hover:text-rose-800">
-                        <i class="fa-solid fa-trash-can"></i>
-                    </button>
-                </div>
-            `).join('');
         }
 
         function handleAddSubject(e) {
             e.preventDefault();
-            const name = document.getElementById('new-subject-name').value.trim();
-            if (name && !subjects.includes(name)) {
-                const updated = [...subjects, name];
-                if (window.db && window.fbFS) {
-                    window.fbFS.setDoc(window.fbFS.doc(window.db, "meta", "subjects"), { list: updated });
-                }
-                document.getElementById('new-subject-name').value = "";
+            const input = document.getElementById("new-subject-name");
+            const sub = input.value.trim();
+            if (sub && !appData.subjects.includes(sub)) {
+                appData.subjects.push(sub);
+                saveDataToFirebase();
+                input.value = "";
+                renderTeacherSubjectsTab();
+                renderHomeSubjectFilter();
             }
         }
 
-        function deleteSubject(subName) {
-            const updated = subjects.filter(s => s !== subName);
-            if (window.db && window.fbFS) {
-                window.fbFS.setDoc(window.fbFS.doc(window.db, "meta", "subjects"), { list: updated });
-            }
-        }
-
-        // Allowed Student IDs Management
-        function renderTeacherAllowedIdsList() {
-            const container = document.getElementById('allowed-ids-list-container');
-            container.innerHTML = allowedStudentIds.map(st => `
-                <div class="flex justify-between items-center bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs">
-                    <div>
-                        <strong class="font-mono text-indigo-700">${st.id}</strong> - ${st.name}
-                    </div>
-                    <button onclick="deleteStudentId('${st.id}')" class="text-rose-600 hover:text-rose-800">
-                        <i class="fa-solid fa-trash-can"></i>
-                    </button>
+        function renderTeacherSubjectsTab() {
+            const container = document.getElementById("subjects-list-container");
+            if(!container) return;
+            container.innerHTML = appData.subjects.map((s, idx) => `
+                <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 flex justify-between items-center text-xs sm:text-sm">
+                    <span class="font-medium text-slate-800">${s}</span>
+                    ${appData.subjects.length > 1 ? `<button onclick="deleteSubject(${idx})" class="text-rose-600 hover:text-rose-800 p-1"><i class="fa-solid fa-trash"></i></button>` : ''}
                 </div>
-            `).join('');
+            `).join("");
+        }
+
+        function deleteSubject(idx) {
+            if (confirm("সতর্কতা: আপনি কি এই সাবজেক্টটি মুছে ফেলতে চান?")) {
+                if (confirm("চূড়ান্ত সতর্কতা: এই সাবজেক্ট ডিলিট করার ফলে এর সাথে সম্পর্কিত ডেটাতে প্রভাব পড়তে পারে। আপনি কি ১০০% নিশ্চিত?")) {
+                    appData.subjects.splice(idx, 1);
+                    saveDataToFirebase();
+                    renderTeacherSubjectsTab();
+                    renderHomeSubjectFilter();
+                    showModal("সফল", "সাবজেক্টটি সফলভাবে মুছে ফেলা হয়েছে।");
+                }
+            }
         }
 
         function handleAddStudentId(e) {
             e.preventDefault();
-            const id = document.getElementById('new-student-id-input').value.trim();
-            const name = document.getElementById('new-student-name-input').value.trim();
+            const idInput = document.getElementById("new-student-id-input");
+            const nameInput = document.getElementById("new-student-name-input");
+            const idVal = idInput.value.trim();
+            const nameVal = nameInput.value.trim();
+            
+            if (!appData.allowedStudentIds) appData.allowedStudentIds = [];
 
-            if (id && window.db && window.fbFS) {
-                window.fbFS.setDoc(window.fbFS.doc(window.db, "allowed_students", id), { name });
-                document.getElementById('new-student-id-input').value = "";
-                document.getElementById('new-student-name-input').value = "";
+            const exists = appData.allowedStudentIds.some(item => String(item.id).trim() === idVal);
+
+            if (idVal && !exists) {
+                appData.allowedStudentIds.push({ id: idVal, name: nameVal });
+                saveDataToFirebase();
+                idInput.value = "";
+                nameInput.value = "";
+                renderTeacherStudentIdsTab();
+                showModal("সফল", "শিক্ষার্থী ও আইডি সফলভাবে যুক্ত করা হয়েছে!");
+            } else {
+                showModal("সতর্কতা", "এই আইডিটি ইতিমধ্যে তালিকায় রয়েছে অথবা ভুল।");
             }
         }
 
-        function deleteStudentId(id) {
-            if (window.db && window.fbFS) {
-                window.fbFS.deleteDoc(window.fbFS.doc(window.db, "allowed_students", id));
-            }
-        }
-
-        // Submissions List in Teacher Panel
-        function renderTeacherSubmissionsTab() {
-            document.getElementById('sub-count').innerText = submissions.length;
-            const tbody = document.getElementById('submissions-table-body');
-
-            if (submissions.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400 text-xs">কোনো জমা দেওয়া উত্তরপত্র নেই।</td></tr>`;
+        function renderTeacherStudentIdsTab() {
+            const container = document.getElementById("allowed-ids-list-container");
+            if(!container) return;
+            if (!appData.allowedStudentIds || appData.allowedStudentIds.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-400 text-center py-4">কোনো শিক্ষার্থী বা আইডি যুক্ত করা হয়নি।</p>`;
                 return;
             }
 
-            tbody.innerHTML = submissions.map(s => `
-                <tr class="hover:bg-slate-50 transition">
-                    <td class="p-3 font-semibold text-slate-800">${s.studentName}</td>
-                    <td class="p-3 font-mono text-indigo-600 text-xs">${s.studentId}</td>
-                    <td class="p-3 text-slate-600">${s.examTitle}</td>
-                    <td class="p-3 text-center text-slate-400 text-xs">${new Date(s.timestamp).toLocaleString('bn-BD')}</td>
-                    <td class="p-3 text-right font-bold text-indigo-700">${s.score}/${s.totalQuestions}</td>
-                </tr>
-            `).join('');
+            container.innerHTML = appData.allowedStudentIds.map((item, idx) => `
+                <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 flex justify-between items-center text-xs sm:text-sm">
+                    <div>
+                        <span class="font-bold text-slate-800">${item.name || 'নামহীন'}</span>
+                        <span class="text-slate-500 font-mono ml-2">(${item.id})</span>
+                    </div>
+                    <button onclick="deleteStudentId(${idx})" class="text-rose-600 hover:text-rose-800 p-1"><i class="fa-solid fa-trash"></i></button>
+                </div>
+            `).join("");
         }
 
-        function clearSubmissions() {
-            showConfirm("সকল রেকর্ড মুছুন", "আপনি কি সকল জমা পড়া পরীক্ষার রেকর্ড মুছে ফেলতে চান?", () => {
-                if (window.db && window.fbFS) {
-                    submissions.forEach(s => {
-                        window.fbFS.deleteDoc(window.fbFS.doc(window.db, "submissions", s.id));
-                    });
+        function deleteStudentId(idx) {
+            if (confirm("সতর্কতা: আপনি কি এই শিক্ষার্থী ও আইডিটি তালিকা থেকে সরাতে চান?")) {
+                if (confirm("চূড়ান্ত সতর্কতা: এই আইডি মুছে ফেললে সংশ্লিষ্ট শিক্ষার্থী আর পরীক্ষা দিতে পারবে না। আপনি কি নিশ্চিত?")) {
+                    appData.allowedStudentIds.splice(idx, 1);
+                    saveDataToFirebase();
+                    renderTeacherStudentIdsTab();
+                    showModal("সফল", "সফলভাবে মুছে ফেলা হয়েছে।");
                 }
-            });
+            }
         }
 
-        // Change Teacher Password
+        function selectExamForQuestionAdd(key) {
+            activeExamKey = key;
+            updateShareLink();
+            switchTeacherTab("add-question");
+        }
+
+        function renderAddQuestionTab() {
+            const exam = appData.exams[activeExamKey];
+            if (exam) {
+                document.getElementById("current-active-exam-subject-badge").innerText = exam.subject;
+                document.getElementById("current-active-exam-badge-label").innerText = exam.title;
+
+                const qContainer = document.getElementById("teacher-question-list");
+                const questions = exam.questions || [];
+                qContainer.innerHTML = questions.map((q, idx) => `
+                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 flex justify-between items-center text-xs sm:text-sm gap-2">
+                        <div class="overflow-hidden">
+                            <p class="font-medium text-slate-800 truncate">${idx + 1}. ${q.q}</p>
+                            <p class="text-[11px] text-emerald-600">সঠিক: ${q.opts[q.correct]}</p>
+                        </div>
+                        <div class="flex items-center gap-1 shrink-0">
+                            <button onclick="openEditQuestionModal(${idx})" class="text-indigo-600 hover:bg-indigo-50 p-2 rounded-xl transition" title="এডিট"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button onclick="deleteQuestion(${idx})" class="text-rose-600 hover:bg-rose-50 p-2 rounded-xl transition" title="মুছুন"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </div>
+                `).join("");
+            }
+        }
+
+        function handleAddNewQuestion(e) {
+            e.preventDefault();
+            const exam = appData.exams[activeExamKey];
+            if(!exam) return;
+
+            const qText = document.getElementById("new-q-text").value.trim();
+            const opts = [
+                document.getElementById("new-opt-0").value.trim(),
+                document.getElementById("new-opt-1").value.trim(),
+                document.getElementById("new-opt-2").value.trim(),
+                document.getElementById("new-opt-3").value.trim(),
+            ];
+            const correct = parseInt(document.getElementById("new-correct-idx").value);
+            const exp = document.getElementById("new-explanation").value.trim();
+
+            if (!exam.questions) exam.questions = [];
+            exam.questions.push({ q: qText, opts, correct, exp });
+            saveDataToFirebase();
+            document.getElementById("add-q-form").reset();
+            renderAddQuestionTab();
+            showModal("সফল", "প্রশ্ন যোগ করা হয়েছে!");
+        }
+
+        function openEditQuestionModal(idx) {
+            const exam = appData.exams[activeExamKey];
+            if (!exam || !exam.questions[idx]) return;
+
+            const q = exam.questions[idx];
+            document.getElementById("edit-q-index").value = idx;
+            document.getElementById("edit-q-text").value = q.q;
+            document.getElementById("edit-opt-0").value = q.opts[0];
+            document.getElementById("edit-opt-1").value = q.opts[1];
+            document.getElementById("edit-opt-2").value = q.opts[2];
+            document.getElementById("edit-opt-3").value = q.opts[3];
+            document.getElementById("edit-correct-idx").value = q.correct;
+            document.getElementById("edit-explanation").value = q.exp;
+
+            document.getElementById("edit-question-modal").classList.remove("hidden");
+        }
+
+        function closeEditQuestionModal() {
+            document.getElementById("edit-question-modal").classList.add("hidden");
+        }
+
+        function handleSaveEditedQuestion(e) {
+            e.preventDefault();
+            const exam = appData.exams[activeExamKey];
+            const idx = parseInt(document.getElementById("edit-q-index").value);
+
+            if (exam && exam.questions && exam.questions[idx] !== undefined) {
+                exam.questions[idx] = {
+                    q: document.getElementById("edit-q-text").value.trim(),
+                    opts: [
+                        document.getElementById("edit-opt-0").value.trim(),
+                        document.getElementById("edit-opt-1").value.trim(),
+                        document.getElementById("edit-opt-2").value.trim(),
+                        document.getElementById("edit-opt-3").value.trim()
+                    ],
+                    correct: parseInt(document.getElementById("edit-correct-idx").value),
+                    exp: document.getElementById("edit-explanation").value.trim()
+                };
+
+                saveDataToFirebase();
+                renderAddQuestionTab();
+                closeEditQuestionModal();
+                showModal("সফল", "প্রশ্ন আপডেট করা হয়েছে!");
+            }
+        }
+
+        function deleteQuestion(idx) {
+            const exam = appData.exams[activeExamKey];
+            if (exam && exam.questions) {
+                if (confirm("সতর্কতা: আপনি কি এই প্রশ্নটি মুছে ফেলতে চান?")) {
+                    if (confirm("চূড়ান্ত সতর্কতা: এই প্রশ্নটি তালিকা থেকে চিরতরে মুছে যাবে। আপনি কি নিশ্চিত?")) {
+                        exam.questions.splice(idx, 1);
+                        saveDataToFirebase();
+                        renderAddQuestionTab();
+                        showModal("সফল", "প্রশ্নটি সফলভাবে মুছে ফেলা হয়েছে।");
+                    }
+                }
+            }
+        }
+
+        function renderSubmissionsTab() {
+            const tbody = document.getElementById("submissions-table-body");
+            if(!tbody) return;
+            tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">ডেটা লোড হচ্ছে...</td></tr>`;
+
+            if (window.db && window.fbFS) {
+                window.fbFS.onSnapshot(window.fbFS.collection(window.db, "submissions"), (snapshot) => {
+                    let subs = [];
+                    snapshot.forEach(doc => {
+                        subs.push({ id: doc.id, ...doc.data() });
+                    });
+
+                    const countEl = document.getElementById("sub-count");
+                    if(countEl) countEl.innerText = subs.length;
+
+                    if (subs.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">কোনো জমা পড়া ফলাফল নেই।</td></tr>`;
+                    } else {
+                        tbody.innerHTML = subs.map(s => {
+                            const safeId = (s.studentId || '').replace(/'/g, "\\'");
+                            const safeName = (s.studentName || '').replace(/'/g, "\\'");
+                            return `
+                                <tr class="border-b border-slate-100 text-xs sm:text-sm hover:bg-slate-50 cursor-pointer" onclick="openStudentHistory('${safeId}', '${safeName}')">
+                                    <td class="p-2.5 font-medium text-slate-800">${s.studentName}</td>
+                                    <td class="p-2.5 text-indigo-600 font-bold underline font-mono">${s.studentId}</td>
+                                    <td class="p-2.5 text-slate-600">${s.examTitle}</td>
+                                    <td class="p-2.5 text-center text-[11px] text-slate-500">${s.timeSpent}</td>
+                                    <td class="p-2.5 text-right font-bold text-indigo-600">${s.score}</td>
+                                </tr>
+                            `;
+                        }).join("");
+                    }
+                }, (err) => {
+                    console.warn("Submissions error:", err);
+                    tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">ডেটা লোড করতে সমস্যা হয়েছে।</td></tr>`;
+                });
+            }
+        }
+
+        function openStudentHistory(studentId, studentName) {
+            document.getElementById("student-history-title").innerHTML = `<i class="fa-solid fa-user-clock text-indigo-600 mr-2"></i> ${studentName}`;
+            document.getElementById("student-history-subtitle").innerText = `স্টুডেন্ট আইডি: ${studentId} - এর সকল পরীক্ষার ফলাফল`;
+            
+            const tbody = document.getElementById("student-history-table-body");
+            tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-400">ডেটা লোড হচ্ছে...</td></tr>`;
+
+            if (window.db && window.fbFS) {
+                window.fbFS.getDocs(window.fbFS.collection(window.db, "submissions")).then((snapshot) => {
+                    let userSubs = [];
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        if (String(data.studentId).trim() === String(studentId).trim()) {
+                            userSubs.push(data);
+                        }
+                    });
+
+                    if (userSubs.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-400">এই আইডি দিয়ে কোনো পরীক্ষা দেওয়া হয়নি।</td></tr>`;
+                    } else {
+                        tbody.innerHTML = userSubs.map(s => {
+                            let dateStr = "";
+                            if (s.timestamp && s.timestamp.toDate) {
+                                dateStr = s.timestamp.toDate().toLocaleString("bn-BD");
+                            } else if (typeof s.timestamp === "string") {
+                                dateStr = s.timestamp;
+                            }
+                            return `
+                                <tr class="border-b border-slate-100 text-xs sm:text-sm">
+                                    <td class="p-2.5 font-medium text-slate-800">${s.examTitle}</td>
+                                    <td class="p-2.5 text-center text-[11px] text-slate-500">${s.timeSpent}</td>
+                                    <td class="p-2.5 text-right font-bold text-indigo-600">${s.score}</td>
+                                    <td class="p-2.5 text-right text-slate-400 text-[11px]">${dateStr}</td>
+                                </tr>
+                            `;
+                        }).join("");
+                    }
+                    document.getElementById("student-history-modal").classList.remove("hidden");
+                }).catch(err => {
+                    console.error(err);
+                    tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-rose-500">ডেটা আনতে সমস্যা হয়েছে।</td></tr>`;
+                });
+            } else {
+                document.getElementById("student-history-modal").classList.remove("hidden");
+            }
+        }
+
+        function closeStudentHistoryModal() {
+            document.getElementById("student-history-modal").classList.add("hidden");
+        }
+
+        async function clearSubmissions() {
+            if (confirm("আপনি কি নিশ্চিতভাবে সকল সাবমিশন হিস্ট্রি মুছে ফেলতে চান?")) {
+                if (confirm("চূড়ান্ত সতর্কতা: সকল ফলাফল চিরতরে মুছে যাবে!")) {
+                    try {
+                        if (window.db && window.fbFS) {
+                            const snapshot = await window.fbFS.getDocs(window.fbFS.collection(window.db, "submissions"));
+                            snapshot.forEach(async (docSnap) => {
+                                await window.fbFS.deleteDoc(window.fbFS.doc(window.db, "submissions", docSnap.id));
+                            });
+                        }
+                        showModal("সফল", "সকল ফলাফল মুছে ফেলা হয়েছে।");
+                        renderSubmissionsTab();
+                    } catch (e) {
+                        console.error(e);
+                        showModal("ত্রুটি", "ফলাফল মুছতে সমস্যা হয়েছে।");
+                    }
+                }
+            }
+        }
+
         function handleChangePassword(e) {
             e.preventDefault();
-            const curr = document.getElementById('curr-pass-input').value;
-            const newP = document.getElementById('new-pass-input').value;
+            const curr = document.getElementById("curr-pass-input").value;
+            const newP = document.getElementById("new-pass-input").value;
 
-            if (curr === teacherPassword) {
-                if (window.db && window.fbFS) {
-                    window.fbFS.setDoc(window.fbFS.doc(window.db, "meta", "security"), { password: newP });
+            if (curr === appData.teacherPass) {
+                if (newP.length < 4) {
+                    showModal("সতর্কতা", "পাসওয়ার্ড অন্তত ৪ অক্ষরের হতে হবে।");
+                    return;
                 }
-                document.getElementById('curr-pass-input').value = "";
-                document.getElementById('new-pass-input').value = "";
-                showAlert("সফল!", "পাসওয়ার্ড সফলভাবে পরিবর্তন করা হয়েছে।");
+                appData.teacherPass = newP;
+                saveDataToFirebase();
+                document.getElementById("curr-pass-input").value = "";
+                document.getElementById("new-pass-input").value = "";
+                showModal("সফল", "পাসওয়ার্ড সফলভাবে পরিবর্তন করা হয়েছে!");
             } else {
-                showAlert("ত্রুটি", "বর্তমান পাসওয়ার্ড ভুল দেওয়া হয়েছে।", "fa-circle-xmark", "text-rose-600");
+                showModal("ত্রুটি", "বর্তমান পাসওয়ার্ড ভুল!");
             }
         }
 
-        // Startup Initialization
+        window.addEventListener('firebase-initialized', () => {
+            initData();
+        });
+
         window.addEventListener('DOMContentLoaded', () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const paramExam = urlParams.get('exam');
-
-            if (paramExam) {
-                activeExamKey = paramExam;
+            if (window.db) {
+                initData();
             }
-
-            switchView('dashboard');
         });
     </script>
 </body>
