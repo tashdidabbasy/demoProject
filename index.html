@@ -102,7 +102,7 @@
 
     <main class="flex-grow max-w-5xl w-full mx-auto p-3 sm:p-5 md:p-6">
         
-        <!-- Beautiful Front Page / Dashboard View -->
+        <!-- Front Page / Dashboard View -->
         <div id="view-dashboard" class="space-y-8">
             <!-- Hero Banner -->
             <div class="bg-gradient-to-br from-indigo-900 via-indigo-800 to-violet-900 rounded-3xl p-6 sm:p-10 text-white shadow-2xl relative overflow-hidden border border-indigo-700/50">
@@ -152,6 +152,20 @@
                             </button>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <!-- 1. LIVE EXAM SECTION (নতুন ফিচার) -->
+            <div id="live-exam-container" class="space-y-4">
+                <div class="flex items-center gap-2">
+                    <span class="relative flex h-3 w-3">
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-3 w-3 bg-rose-500"></span>
+                    </span>
+                    <h3 class="text-lg font-bold text-slate-900">লাইভ এক্সাম (Live Exam)</h3>
+                </div>
+                <div id="live-exams-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Dynamic Live Exam Cards will appear here -->
                 </div>
             </div>
 
@@ -332,6 +346,7 @@
                 <button onclick="switchTeacherTab('student-ids')" id="tab-btn-student-ids" class="py-2 px-3 sm:px-4 font-medium text-xs sm:text-sm text-slate-500 hover:text-slate-800 border-b-2 border-transparent whitespace-nowrap">আইডি তালিকা</button>
                 <button onclick="switchTeacherTab('add-question')" id="tab-btn-add-question" class="py-2 px-3 sm:px-4 font-medium text-xs sm:text-sm text-slate-500 hover:text-slate-800 border-b-2 border-transparent whitespace-nowrap">প্রশ্ন যোগ</button>
                 <button onclick="switchTeacherTab('submissions')" id="tab-btn-submissions" class="py-2 px-3 sm:px-4 font-medium text-xs sm:text-sm text-slate-500 hover:text-slate-800 border-b-2 border-transparent whitespace-nowrap">ফলাফল (<span id="sub-count">0</span>)</button>
+                <button onclick="switchTeacherTab('drive-links')" id="tab-btn-drive-links" class="py-2 px-3 sm:px-4 font-medium text-xs sm:text-sm text-slate-500 hover:text-slate-800 border-b-2 border-transparent whitespace-nowrap">রুটিন ও সিলেবাস</button>
                 <button onclick="switchTeacherTab('security')" id="tab-btn-security" class="py-2 px-3 sm:px-4 font-medium text-xs sm:text-sm text-slate-500 hover:text-slate-800 border-b-2 border-transparent whitespace-nowrap">পাসওয়ার্ড</button>
             </div>
 
@@ -556,6 +571,26 @@
                 </div>
             </div>
 
+            <!-- TEACHER DRIVE LINKS MANAGEMENT (নতুন ফিচার) -->
+            <div id="teacher-tab-drive-links" class="hidden space-y-4">
+                <div class="max-w-md bg-slate-50 p-4 sm:p-5 rounded-2xl border border-slate-200 space-y-4">
+                    <h3 class="font-bold text-slate-800 text-xs sm:text-sm"><i class="fa-brands fa-google-drive text-emerald-600 mr-2"></i>গুগল ড্রাইভ লিংক সেটিংস (রুটিন ও সিলেবাস)</h3>
+                    <form onsubmit="handleSaveDriveLinks(event)" class="space-y-3">
+                        <div>
+                            <label class="block text-[11px] font-medium text-slate-600 mb-1">পরীক্ষার রুটিন (Google Drive URL)</label>
+                            <input type="url" id="drive-routine-url" placeholder="https://drive.google.com/file/d/..." class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-medium text-slate-600 mb-1">কোর্স সিলেবাস (Google Drive URL)</label>
+                            <input type="url" id="drive-syllabus-url" placeholder="https://drive.google.com/file/d/..." class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm">
+                        </div>
+                        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 rounded-xl text-xs sm:text-sm transition shadow">
+                            লিংক আপডেট করুন
+                        </button>
+                    </form>
+                </div>
+            </div>
+
             <div id="teacher-tab-security" class="hidden space-y-4">
                 <div class="max-w-md bg-slate-50 p-4 sm:p-5 rounded-2xl border border-slate-200 space-y-4">
                     <h3 class="font-bold text-slate-800 text-xs sm:text-sm">পাসওয়ার্ড পরিবর্তন করুন</h3>
@@ -702,6 +737,7 @@
         </div>
     </div>
 
+    <!-- 2. ROUTINE & SYLLABUS IN STUDENT DASHBOARD MODAL -->
     <div id="student-dashboard-modal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-3 sm:p-4 hidden">
         <div class="bg-white rounded-3xl max-w-3xl w-full p-4 sm:p-6 shadow-2xl transform transition-all max-h-[92vh] flex flex-col">
             <div class="flex justify-between items-center pb-3 border-b border-slate-100 mb-3">
@@ -720,6 +756,27 @@
             </div>
 
             <div class="overflow-y-auto flex-grow pr-1 space-y-4">
+                <!-- Google Drive Connected Section -->
+                <div class="bg-gradient-to-r from-emerald-50 to-teal-50 p-4 rounded-2xl border border-emerald-200 flex flex-col sm:flex-row justify-between items-center gap-3">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-emerald-600 text-white p-3 rounded-xl">
+                            <i class="fa-brands fa-google-drive text-xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-emerald-950 text-sm">রুটিন ও সিলেবাস ডাউনলোড</h4>
+                            <p class="text-[11px] text-emerald-700">গুগল ড্রাইভ থেকে আপডেটেড কোর্স সিলেবাস ও পরীক্ষার রুটিন পান</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-2 w-full sm:w-auto">
+                        <a id="btn-drive-routine" href="#" target="_blank" class="flex-1 sm:flex-none text-center bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-xl text-xs font-semibold transition shadow-sm flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-calendar-days"></i> রুটিন
+                        </a>
+                        <a id="btn-drive-syllabus" href="#" target="_blank" class="flex-1 sm:flex-none text-center bg-teal-600 hover:bg-teal-700 text-white px-3.5 py-2 rounded-xl text-xs font-semibold transition shadow-sm flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-file-pdf"></i> সিলেবাস
+                        </a>
+                    </div>
+                </div>
+
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                     <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200 text-center">
                         <span class="text-[10px] sm:text-xs text-slate-500 block">অংশগ্রহণকৃত এক্সাম</span>
@@ -890,6 +947,8 @@
         // --- DATA STRUCTURE & INITIALIZATION ---
         const defaultData = {
             teacherPass: "1234",
+            driveRoutineUrl: "https://drive.google.com",
+            driveSyllabusUrl: "https://drive.google.com",
             courses: ["সাধারণ কোর্স", "বিসিএস প্রিলি"],
             subjects: [
                 { name: "বাংলা", course: "সাধারণ কোর্স" }, 
@@ -934,8 +993,10 @@
 
         let appData = JSON.parse(localStorage.getItem("bcs_one_data")) || defaultData;
         
-        // Backward compatibility checks for existing structures
         if (!appData.courses) appData.courses = ["সাধারণ কোর্স"];
+        if (!appData.driveRoutineUrl) appData.driveRoutineUrl = "https://drive.google.com";
+        if (!appData.driveSyllabusUrl) appData.driveSyllabusUrl = "https://drive.google.com";
+
         if (appData.subjects && appData.subjects.length > 0 && typeof appData.subjects[0] === 'string') {
             appData.subjects = appData.subjects.map(s => ({ name: s, course: appData.courses[0] || "সাধারণ কোর্স" }));
         }
@@ -963,6 +1024,8 @@
                         if (docSnap.exists()) {
                             const data = docSnap.data();
                             if(data.courses) appData.courses = data.courses;
+                            if(data.driveRoutineUrl) appData.driveRoutineUrl = data.driveRoutineUrl;
+                            if(data.driveSyllabusUrl) appData.driveSyllabusUrl = data.driveSyllabusUrl;
                             if(data.subjects) {
                                 appData.subjects = data.subjects.map(item => {
                                     if (typeof item === 'string') return { name: item, course: appData.courses[0] || "সাধারণ কোর্স" };
@@ -987,7 +1050,7 @@
                         }
                         refreshUIState();
                     }, (err) => {
-                        console.warn("Firestore listener warning (using local data fallback):", err);
+                        console.warn("Firestore listener warning:", err);
                         refreshUIState();
                     });
                 } else {
@@ -1012,6 +1075,7 @@
             renderHomeCourseFilter();
             renderHomeSubjectFilter();
             renderHomeExamDropdown();
+            renderLiveExamsSection();
             updateDashboardStats();
             updateShareLink();
 
@@ -1022,6 +1086,7 @@
                 renderTeacherSubjectsTab();
                 renderTeacherStudentIdsTab();
                 renderAddQuestionTab();
+                renderDriveLinksTab();
             }
         }
 
@@ -1033,7 +1098,9 @@
                         subjects: appData.subjects,
                         exams: appData.exams,
                         allowedStudentIds: appData.allowedStudentIds,
-                        teacherPass: appData.teacherPass
+                        teacherPass: appData.teacherPass,
+                        driveRoutineUrl: appData.driveRoutineUrl || "https://drive.google.com",
+                        driveSyllabusUrl: appData.driveSyllabusUrl || "https://drive.google.com"
                     });
                 }
             } catch (e) {
@@ -1060,6 +1127,63 @@
 
         function closeModal() {
             document.getElementById("app-modal").classList.add("hidden");
+        }
+
+        // --- 1. LIVE EXAM LOGIC ---
+        function renderLiveExamsSection() {
+            const grid = document.getElementById("live-exams-grid");
+            const container = document.getElementById("live-exam-container");
+            if (!grid || !container) return;
+
+            const now = new Date();
+            const liveKeys = Object.keys(appData.exams).filter(k => {
+                const ex = appData.exams[k];
+                if (!ex.startTime) return false;
+                const startTime = new Date(ex.startTime);
+                
+                let isAnswerReleased = false;
+                if (ex.answerReleaseTime) {
+                    const ansTime = new Date(ex.answerReleaseTime);
+                    if (now >= ansTime) isAnswerReleased = true;
+                }
+
+                return (now >= startTime && !isAnswerReleased);
+            });
+
+            if (liveKeys.length === 0) {
+                container.classList.add("hidden");
+                return;
+            }
+
+            container.classList.remove("hidden");
+            grid.innerHTML = liveKeys.map(k => {
+                const ex = appData.exams[k];
+                return `
+                    <div class="bg-gradient-to-r from-rose-500/10 via-indigo-500/10 to-violet-500/10 border-2 border-rose-500/30 p-5 rounded-2xl shadow-sm flex flex-col justify-between space-y-3">
+                        <div>
+                            <div class="flex items-center justify-between gap-2 mb-2">
+                                <span class="bg-rose-500 text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded-full animate-pulse flex items-center gap-1">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-white"></span> Live Now
+                                </span>
+                                <span class="text-xs text-slate-500 font-medium">${ex.course} • ${ex.subject}</span>
+                            </div>
+                            <h4 class="font-bold text-slate-900 text-base sm:text-lg">${ex.title}</h4>
+                            <p class="text-xs text-slate-600 mt-1"><i class="fa-solid fa-clock text-rose-500 mr-1"></i> সময়সীমা: ${ex.timerMinutes} মিনিট</p>
+                        </div>
+                        <button onclick="startSpecificExam('${k}')" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-2.5 rounded-xl transition text-xs sm:text-sm shadow flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-bolt"></i> সরাসরি অংশ নিন
+                        </button>
+                    </div>
+                `;
+            }).join("");
+        }
+
+        function startSpecificExam(key) {
+            activeExamKey = key;
+            const examSelect = document.getElementById("home-exam-select");
+            if (examSelect) examSelect.value = key;
+            updateDashboardStats();
+            startExamFlow();
         }
 
         // --- DASHBOARD FUNCTIONS ---
@@ -1443,8 +1567,16 @@
             renderStudentDashboard(inputId);
         }
 
+        // --- 2. DRIVE LINKS IN STUDENT DASHBOARD ---
         function renderStudentDashboard(studentId) {
             document.getElementById("student-dash-subtitle").innerText = `স্টুডেন্ট আইডি: ${studentId}`;
+            
+            // Set Google Drive links
+            const routineBtn = document.getElementById("btn-drive-routine");
+            const syllabusBtn = document.getElementById("btn-drive-syllabus");
+            if (routineBtn) routineBtn.href = appData.driveRoutineUrl || "https://drive.google.com";
+            if (syllabusBtn) syllabusBtn.href = appData.driveSyllabusUrl || "https://drive.google.com";
+
             const listContainer = document.getElementById("student-dash-exams-list");
             listContainer.innerHTML = `<p class="text-xs text-slate-400 text-center py-4">পারফরম্যান্স লোড হচ্ছে...</p>`;
 
@@ -1696,7 +1828,7 @@
             document.getElementById("leaderboard-modal").classList.add("hidden");
         }
 
-        // --- TEACHER PANEL & MANAGEMENT FUNCTIONS ---
+        // --- TEACHER PANEL FUNCTIONS ---
         function openTeacherLoginModal() {
             document.getElementById("teacher-pass-input").value = "";
             document.getElementById("teacher-login-modal").classList.remove("hidden");
@@ -1719,7 +1851,7 @@
         }
 
         function switchTeacherTab(tabName) {
-            ["exams", "courses", "subjects", "student-ids", "add-question", "submissions", "security"].forEach(t => {
+            ["exams", "courses", "subjects", "student-ids", "add-question", "submissions", "drive-links", "security"].forEach(t => {
                 const el = document.getElementById(`teacher-tab-${t}`);
                 if (el) el.classList.add("hidden");
                 const btn = document.getElementById(`tab-btn-${t}`);
@@ -1742,6 +1874,20 @@
             if (tabName === "subjects") renderTeacherSubjectsTab();
             if (tabName === "student-ids") renderTeacherStudentIdsTab();
             if (tabName === "submissions") renderTeacherSubmissionsTab();
+            if (tabName === "drive-links") renderDriveLinksTab();
+        }
+
+        function renderDriveLinksTab() {
+            document.getElementById("drive-routine-url").value = appData.driveRoutineUrl || "";
+            document.getElementById("drive-syllabus-url").value = appData.driveSyllabusUrl || "";
+        }
+
+        async function handleSaveDriveLinks(e) {
+            e.preventDefault();
+            appData.driveRoutineUrl = document.getElementById("drive-routine-url").value.trim();
+            appData.driveSyllabusUrl = document.getElementById("drive-syllabus-url").value.trim();
+            await saveDataToFirebase();
+            showModal("সফল!", "রুটিন ও সিলেবাস লিংক সফলভাবে আপডেট করা হয়েছে।");
         }
 
         // --- COURSE & SUBJECT MANAGEMENT ---
@@ -1749,191 +1895,203 @@
             const container = document.getElementById("courses-list-container");
             if (!container) return;
 
-            container.innerHTML = appData.courses.map((course, idx) => `
+            container.innerHTML = appData.courses.map((course) => `
                 <div class="flex justify-between items-center p-3 rounded-xl border border-slate-200 bg-slate-50 text-xs sm:text-sm">
                     <span class="font-bold text-slate-800">${course}</span>
-                    <button onclick="handleDeleteCourse('${course}')" class="text-rose-600 hover:text-rose-800 text-xs font-semibold px-2 py-1 bg-rose-50 rounded-lg">মুছুন</button>
+                    <button onclick="handleDeleteCourse('${course}')" class="text-rose-600 hover:text-rose-800 font-semibold">মুছুন</button>
                 </div>
             `).join("");
         }
 
-        function handleAddCourse(e) {
+        async function handleAddCourse(e) {
             e.preventDefault();
-            const input = document.getElementById("new-course-name");
-            const name = input.value.trim();
-            if (!name) return;
-
-            if (appData.courses.includes(name)) {
-                showModal("সতর্কতা", "এই কোর্সটি ইতিমধ্যে বিদ্যমান রয়েছে।");
-                return;
+            const nameInput = document.getElementById("new-course-name");
+            const courseName = nameInput.value.trim();
+            if (courseName && !appData.courses.includes(courseName)) {
+                appData.courses.push(courseName);
+                nameInput.value = "";
+                await saveDataToFirebase();
+                renderTeacherCoursesTab();
+                refreshUIState();
             }
-
-            appData.courses.push(name);
-            input.value = "";
-            saveDataToFirebase();
-            renderTeacherCoursesTab();
-            showModal("সফল", "নতুন কোর্স সফলভাবে যুক্ত হয়েছে।");
         }
 
-        function handleDeleteCourse(courseName) {
-            if (appData.courses.length <= 1) {
-                showModal("সতর্কতা", "কমপক্ষে একটি কোর্স থাকা আবশ্যক।");
-                return;
-            }
-            if (confirm(`আপনি কি "${courseName}" কোর্সটি মুছে ফেলতে চান?`)) {
+        async function handleDeleteCourse(courseName) {
+            if (confirm(`আপনি কি নিশ্চিতভাবে "${courseName}" কোর্সটি মুছতে চান?`)) {
                 appData.courses = appData.courses.filter(c => c !== courseName);
-                appData.subjects = appData.subjects.filter(s => s.course !== courseName);
-                saveDataToFirebase();
+                await saveDataToFirebase();
                 renderTeacherCoursesTab();
-                renderTeacherSubjectsTab();
+                refreshUIState();
             }
         }
 
         function renderTeacherSubjectsTab() {
             const container = document.getElementById("subjects-list-container");
             const courseSelect = document.getElementById("new-subject-course-input");
-            if (courseSelect) {
-                courseSelect.innerHTML = appData.courses.map(c => `<option value="${c}">${c}</option>`).join("");
-            }
-            if (!container) return;
+            if (!container || !courseSelect) return;
 
-            container.innerHTML = appData.subjects.map((sub, idx) => `
+            courseSelect.innerHTML = appData.courses.map(c => `<option value="${c}">${c}</option>`).join('');
+
+            container.innerHTML = appData.subjects.map((s, idx) => `
                 <div class="flex justify-between items-center p-3 rounded-xl border border-slate-200 bg-slate-50 text-xs sm:text-sm">
                     <div>
-                        <span class="font-bold text-slate-800">${sub.name}</span>
-                        <span class="text-[10px] bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded ml-2">${sub.course}</span>
+                        <span class="font-bold text-slate-800">${s.name}</span>
+                        <span class="text-xs text-slate-500 ml-2">(${s.course})</span>
                     </div>
-                    <button onclick="handleDeleteSubject(${idx})" class="text-rose-600 hover:text-rose-800 text-xs font-semibold px-2 py-1 bg-rose-50 rounded-lg">মুছুন</button>
+                    <button onclick="handleDeleteSubject(${idx})" class="text-rose-600 hover:text-rose-800 font-semibold">মুছুন</button>
                 </div>
             `).join("");
         }
 
-        function handleAddSubject(e) {
+        async function handleAddSubject(e) {
             e.preventDefault();
-            const course = document.getElementById("new-subject-course-input").value;
-            const input = document.getElementById("new-subject-name");
-            const name = input.value.trim();
-            if (!name) return;
+            const courseName = document.getElementById("new-subject-course-input").value;
+            const nameInput = document.getElementById("new-subject-name");
+            const subjName = nameInput.value.trim();
 
-            if (appData.subjects.some(s => s.name === name && s.course === course)) {
-                showModal("সতর্কতা", "এই কোর্সে এই সাবজেক্টটি ইতিমধ্যে বিদ্যমান রয়েছে।");
-                return;
-            }
-
-            appData.subjects.push({ name, course });
-            input.value = "";
-            saveDataToFirebase();
-            renderTeacherSubjectsTab();
-            showModal("সফল", "নতুন সাবজেক্ট সফলভাবে যুক্ত হয়েছে।");
-        }
-
-        function handleDeleteSubject(index) {
-            if (appData.subjects.length <= 1) {
-                showModal("সতর্কতা", "কমপক্ষে একটি সাবজেক্ট থাকা আবশ্যক।");
-                return;
-            }
-            if (confirm("আপনি কি এই সাবজেক্টটি মুছে ফেলতে চান?")) {
-                appData.subjects.splice(index, 1);
-                saveDataToFirebase();
+            if (subjName) {
+                appData.subjects.push({ name: subjName, course: courseName });
+                nameInput.value = "";
+                await saveDataToFirebase();
                 renderTeacherSubjectsTab();
+                refreshUIState();
             }
         }
 
-        // --- EXAM SET MANAGEMENT ---
-        function renderTeacherExamsTab() {
-            const courseSelect = document.getElementById("new-exam-course-input");
-            if (courseSelect) {
-                courseSelect.innerHTML = appData.courses.map(c => `<option value="${c}">${c}</option>`).join("");
+        async function handleDeleteSubject(index) {
+            if (confirm("আপনি কি নিশ্চিতভাবে এই সাবজেক্টটি মুছতে চান?")) {
+                appData.subjects.splice(index, 1);
+                await saveDataToFirebase();
+                renderTeacherSubjectsTab();
+                refreshUIState();
             }
+        }
+
+        // --- STUDENT ID MANAGEMENT ---
+        function renderTeacherStudentIdsTab() {
+            const container = document.getElementById("allowed-ids-list-container");
+            if (!container) return;
+
+            container.innerHTML = appData.allowedStudentIds.map((item, idx) => `
+                <div class="flex justify-between items-center p-3 rounded-xl border border-slate-200 bg-slate-50 text-xs sm:text-sm">
+                    <div>
+                        <span class="font-bold text-slate-800">${item.name}</span>
+                        <span class="text-xs text-indigo-600 font-mono ml-2">(ID: ${item.id})</span>
+                    </div>
+                    <button onclick="handleDeleteStudentId(${idx})" class="text-rose-600 hover:text-rose-800 font-semibold">মুছুন</button>
+                </div>
+            `).join("");
+        }
+
+        async function handleAddStudentId(e) {
+            e.preventDefault();
+            const idInput = document.getElementById("new-student-id-input");
+            const nameInput = document.getElementById("new-student-name-input");
+            const id = idInput.value.trim();
+            const name = nameInput.value.trim();
+
+            if (id && name) {
+                appData.allowedStudentIds.push({ id, name });
+                idInput.value = "";
+                nameInput.value = "";
+                await saveDataToFirebase();
+                renderTeacherStudentIdsTab();
+            }
+        }
+
+        async function handleDeleteStudentId(index) {
+            if (confirm("আপনি কি নিশ্চিতভাবে এই শিক্ষার্থীকে মুছতে চান?")) {
+                appData.allowedStudentIds.splice(index, 1);
+                await saveDataToFirebase();
+                renderTeacherStudentIdsTab();
+            }
+        }
+
+        // --- EXAM MANAGEMENT ---
+        function renderTeacherExamsTab() {
+            const container = document.getElementById("exam-sets-list-container");
+            const courseSelect = document.getElementById("new-exam-course-input");
+            if (!container || !courseSelect) return;
+
+            courseSelect.innerHTML = appData.courses.map(c => `<option value="${c}">${c}</option>`).join('');
             updateTeacherExamSubjectDropdown();
 
-            const container = document.getElementById("exam-sets-list-container");
-            if(!container) return;
             const keys = Object.keys(appData.exams);
-
             container.innerHTML = keys.map(k => {
                 const ex = appData.exams[k];
                 const qCount = ex.questions ? ex.questions.length : 0;
-                const isSelected = activeExamKey === k;
                 return `
-                    <div class="p-3.5 rounded-2xl border ${isSelected ? 'border-indigo-600 bg-indigo-50/40' : 'border-slate-200 bg-slate-50'} flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                    <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50 flex flex-col sm:flex-row justify-between sm:items-center gap-3">
                         <div>
                             <div class="flex items-center gap-2">
-                                <h4 class="font-bold text-slate-800 text-xs sm:text-sm">${ex.title}</h4>
-                                <span class="text-[10px] bg-slate-200 text-slate-700 px-2 py-0.5 rounded font-bold">${ex.course || 'সাধারণ'} - ${ex.subject || 'বাংলা'}</span>
-                                ${ex.isFree ? '<span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded font-bold">ফ্রি</span>' : ''}
+                                <span class="bg-indigo-100 text-indigo-800 text-[10px] font-bold px-2 py-0.5 rounded">${ex.course}</span>
+                                <span class="bg-slate-200 text-slate-700 text-[10px] font-bold px-2 py-0.5 rounded">${ex.subject}</span>
                             </div>
-                            <p class="text-[11px] text-slate-500 mt-1">সময়: ${ex.timerMinutes} মিনিট | প্রশ্ন: ${qCount} টি | পাস মার্ক: ${ex.passMark || 1}</p>
+                            <h4 class="font-bold text-slate-800 text-sm mt-1">${ex.title}</h4>
+                            <p class="text-xs text-slate-500 mt-0.5">সময়: ${ex.timerMinutes} মিনিট | প্রশ্ন: ${qCount}টি | পাস মার্কস: ${ex.passMark || 0}</p>
                         </div>
-                        <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
-                            <button onclick="selectActiveExam('${k}')" class="text-xs px-3 py-1.5 rounded-lg ${isSelected ? 'bg-indigo-600 text-white font-bold' : 'bg-white border border-slate-300 text-slate-700 hover:bg-slate-100'} shadow-sm">
-                                ${isSelected ? 'সক্রিয় এক্সাম' : 'সিলেক্ট করুন'}
-                            </button>
-                            <button onclick="openEditExamModal('${k}')" class="text-xs px-2 py-1.5 bg-amber-50 border border-amber-200 text-amber-700 hover:bg-amber-100 rounded-lg font-medium">
-                                <i class="fa-solid fa-pen"></i>
-                            </button>
-                            <button onclick="handleDeleteExam('${k}')" class="text-xs px-2 py-1.5 bg-rose-50 border border-rose-200 text-rose-600 hover:bg-rose-100 rounded-lg font-medium">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
+                        <div class="flex flex-wrap gap-1.5">
+                            <button onclick="setActiveExamForQuestions('${k}')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold">প্রশ্ন যুক্ত</button>
+                            <button onclick="openEditExamModal('${k}')" class="bg-slate-200 hover:bg-slate-300 text-slate-800 px-3 py-1.5 rounded-lg text-xs font-semibold">এডিট</button>
+                            <button onclick="handleDeleteExam('${k}')" class="bg-rose-100 hover:bg-rose-200 text-rose-700 px-3 py-1.5 rounded-lg text-xs font-semibold">মুছুন</button>
                         </div>
                     </div>
                 `;
-            }).join("");
+            }).join('');
         }
 
         function updateTeacherExamSubjectDropdown() {
             const courseSelect = document.getElementById("new-exam-course-input");
-            const subjectSelect = document.getElementById("new-exam-subject-input");
-            if (!courseSelect || !subjectSelect) return;
+            const subjSelect = document.getElementById("new-exam-subject-input");
+            if (!courseSelect || !subjSelect) return;
 
             const selectedCourse = courseSelect.value;
-            const availableSubjects = appData.subjects.filter(s => s.course === selectedCourse);
+            const filteredSubjects = appData.subjects.filter(s => s.course === selectedCourse);
 
-            subjectSelect.innerHTML = availableSubjects.map(s => `<option value="${s.name}">${s.name}</option>`).join("");
+            subjSelect.innerHTML = filteredSubjects.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
         }
 
-        function handleCreateExam(e) {
+        async function handleCreateExam(e) {
             e.preventDefault();
             const course = document.getElementById("new-exam-course-input").value;
             const subject = document.getElementById("new-exam-subject-input").value;
             const title = document.getElementById("new-exam-name-input").value.trim();
-            const timer = parseInt(document.getElementById("new-exam-timer-input").value);
-            const isFree = document.getElementById("new-exam-is-free").checked;
-            const passMark = parseFloat(document.getElementById("new-exam-pass-mark").value) || 1;
+            const timerMinutes = parseInt(document.getElementById("new-exam-timer-input").value);
             const startTime = document.getElementById("new-exam-start-time").value;
             const answerReleaseTime = document.getElementById("new-exam-answer-time").value;
+            const passMark = parseFloat(document.getElementById("new-exam-pass-mark").value);
             const leaderboardStartTime = document.getElementById("new-exam-lb-start").value;
             const leaderboardEndTime = document.getElementById("new-exam-lb-end").value;
+            const isFree = document.getElementById("new-exam-is-free").checked;
 
-            if (!title) return;
-
-            const newKey = "exam_" + Date.now();
-            appData.exams[newKey] = {
+            const key = `exam_${Date.now()}`;
+            appData.exams[key] = {
                 course,
                 subject,
                 title,
-                timerMinutes: timer,
-                isFree,
-                passMark,
+                timerMinutes,
                 startTime,
                 answerReleaseTime,
+                passMark,
                 leaderboardStartTime,
                 leaderboardEndTime,
+                isFree,
                 questions: []
             };
 
-            activeExamKey = newKey;
-            saveDataToFirebase();
+            await saveDataToFirebase();
             renderTeacherExamsTab();
-            document.getElementById("new-exam-name-input").value = "";
-            showModal("সফল", "নতুন পরীক্ষা সফলভাবে তৈরি হয়েছে।");
+            refreshUIState();
+            showModal("সফল", "নতুন এক্সাম সেট সফলভাবে তৈরি হয়েছে।");
         }
 
-        function selectActiveExam(key) {
-            activeExamKey = key;
-            renderTeacherExamsTab();
-            updateShareLink();
-            showModal("সক্রিয় পরীক্ষা পরিবর্তন", `এখন থেকে "${appData.exams[key].title}" অ্যাক্টিভ পরীক্ষা হিসেবে সেট করা হয়েছে।`);
+        async function handleDeleteExam(key) {
+            if (confirm("আপনি কি নিশ্চিতভাবে এই এক্সাম সেটটি মুছে ফেলতে চান?")) {
+                delete appData.exams[key];
+                await saveDataToFirebase();
+                renderTeacherExamsTab();
+                refreshUIState();
+            }
         }
 
         function openEditExamModal(key) {
@@ -1944,11 +2102,11 @@
             document.getElementById("edit-exam-name").value = ex.title;
             document.getElementById("edit-exam-timer").value = ex.timerMinutes;
             document.getElementById("edit-exam-pass-mark").value = ex.passMark || 1;
-            document.getElementById("edit-exam-is-free").checked = !!ex.isFree;
             document.getElementById("edit-exam-start-time").value = ex.startTime || "";
             document.getElementById("edit-exam-answer-time").value = ex.answerReleaseTime || "";
             document.getElementById("edit-exam-lb-start").value = ex.leaderboardStartTime || "";
             document.getElementById("edit-exam-lb-end").value = ex.leaderboardEndTime || "";
+            document.getElementById("edit-exam-is-free").checked = !!ex.isFree;
 
             document.getElementById("edit-exam-modal").classList.remove("hidden");
         }
@@ -1957,7 +2115,7 @@
             document.getElementById("edit-exam-modal").classList.add("hidden");
         }
 
-        function handleUpdateExamSettings(e) {
+        async function handleUpdateExamSettings(e) {
             e.preventDefault();
             const key = document.getElementById("edit-exam-key").value;
             const ex = appData.exams[key];
@@ -1965,170 +2123,85 @@
 
             ex.title = document.getElementById("edit-exam-name").value.trim();
             ex.timerMinutes = parseInt(document.getElementById("edit-exam-timer").value);
-            ex.passMark = parseFloat(document.getElementById("edit-exam-pass-mark").value) || 1;
-            ex.isFree = document.getElementById("edit-exam-is-free").checked;
+            ex.passMark = parseFloat(document.getElementById("edit-exam-pass-mark").value);
             ex.startTime = document.getElementById("edit-exam-start-time").value;
             ex.answerReleaseTime = document.getElementById("edit-exam-answer-time").value;
             ex.leaderboardStartTime = document.getElementById("edit-exam-lb-start").value;
             ex.leaderboardEndTime = document.getElementById("edit-exam-lb-end").value;
+            ex.isFree = document.getElementById("edit-exam-is-free").checked;
 
-            saveDataToFirebase();
+            await saveDataToFirebase();
             closeEditExamModal();
             renderTeacherExamsTab();
             refreshUIState();
-            showModal("সফল", "পরীক্ষার সেটিংস সফলভাবে আপডেট হয়েছে।");
-        }
-
-        function handleDeleteExam(key) {
-            if (Object.keys(appData.exams).length <= 1) {
-                showModal("সতর্কতা", "কমপক্ষে একটি পরীক্ষা থাকা আবশ্যক।");
-                return;
-            }
-            if (confirm("আপনি কি এই পরীক্ষাটি পুরোপুরি মুছে ফেলতে চান?")) {
-                delete appData.exams[key];
-                activeExamKey = Object.keys(appData.exams)[0];
-                saveDataToFirebase();
-                renderTeacherExamsTab();
-                refreshUIState();
-            }
-        }
-
-        function updateShareLink() {
-            const shareInput = document.getElementById("share-link-input");
-            if (!shareInput) return;
-            const baseUrl = window.location.origin + window.location.pathname;
-            shareInput.value = `${baseUrl}?exam=${activeExamKey}`;
-        }
-
-        function copyShareLink() {
-            const shareInput = document.getElementById("share-link-input");
-            if (!shareInput) return;
-            shareInput.select();
-            document.execCommand("copy");
-            showModal("কপি হয়েছে!", "পরীক্ষার লিংকটি আপনার ক্লিপবোর্ডে কপি হয়েছে।");
-        }
-
-        // --- STUDENT ID MANAGEMENT ---
-        function renderTeacherStudentIdsTab() {
-            const container = document.getElementById("allowed-ids-list-container");
-            if (!container) return;
-
-            if (!appData.allowedStudentIds || appData.allowedStudentIds.length === 0) {
-                container.innerHTML = `<p class="text-xs text-slate-400">কোনো অনুমোদিত আইডি তালিকাভুক্ত নেই।</p>`;
-                return;
-            }
-
-            container.innerHTML = appData.allowedStudentIds.map((item, idx) => `
-                <div class="flex justify-between items-center p-2.5 rounded-xl border border-slate-200 bg-slate-50 text-xs">
-                    <div>
-                        <span class="font-bold text-slate-800 font-mono">${item.id}</span>
-                        <span class="text-slate-600 font-medium ml-2">(${item.name})</span>
-                    </div>
-                    <button onclick="handleDeleteStudentId(${idx})" class="text-rose-600 hover:text-rose-800 text-xs font-semibold px-2 py-0.5 bg-rose-50 rounded">মুছুন</button>
-                </div>
-            `).join("");
-        }
-
-        function handleAddStudentId(e) {
-            e.preventDefault();
-            const idInput = document.getElementById("new-student-id-input");
-            const nameInput = document.getElementById("new-student-name-input");
-            const idVal = idInput.value.trim();
-            const nameVal = nameInput.value.trim();
-
-            if (!idVal || !nameVal) return;
-
-            if (!appData.allowedStudentIds) appData.allowedStudentIds = [];
-
-            if (appData.allowedStudentIds.some(item => String(item.id) === String(idVal))) {
-                showModal("সতর্কতা", "এই স্টুডেন্ট আইডিটি ইতিমধ্যে তালিকায় আছে।");
-                return;
-            }
-
-            appData.allowedStudentIds.push({ id: idVal, name: nameVal });
-            idInput.value = "";
-            nameInput.value = "";
-            saveDataToFirebase();
-            renderTeacherStudentIdsTab();
-            showModal("সফল", "শিক্ষার্থী আইডি সফলভাবে তালিকাভুক্ত হয়েছে।");
-        }
-
-        function handleDeleteStudentId(index) {
-            if (confirm("আপনি কি এই আইডিটি মুছে ফেলতে চান?")) {
-                appData.allowedStudentIds.splice(index, 1);
-                saveDataToFirebase();
-                renderTeacherStudentIdsTab();
-            }
         }
 
         // --- QUESTION MANAGEMENT ---
+        function setActiveExamForQuestions(key) {
+            activeExamKey = key;
+            switchTeacherTab('add-question');
+            renderAddQuestionTab();
+        }
+
         function renderAddQuestionTab() {
             const ex = appData.exams[activeExamKey];
             if (!ex) return;
 
-            document.getElementById("current-active-exam-subject-badge").innerText = `${ex.course} - ${ex.subject}`;
+            document.getElementById("current-active-exam-subject-badge").innerText = `${ex.course} • ${ex.subject}`;
             document.getElementById("current-active-exam-badge-label").innerText = ex.title;
 
-            const qContainer = document.getElementById("teacher-question-list");
-            if (!qContainer) return;
-
-            if (!ex.questions || ex.questions.length === 0) {
-                qContainer.innerHTML = `<p class="text-xs text-slate-400">এই পরীক্ষায় এখনো কোনো প্রশ্ন যুক্ত করা হয়নি।</p>`;
-                return;
-            }
-
-            qContainer.innerHTML = ex.questions.map((q, idx) => `
-                <div class="p-3 rounded-xl border border-slate-200 bg-slate-50 text-xs flex justify-between items-start gap-2">
-                    <div class="space-y-1">
-                        <p class="font-bold text-slate-800">${idx + 1}. ${q.q}</p>
-                        <p class="text-emerald-700"><strong>সঠিক উত্তর:</strong> ${q.opts[q.correct]}</p>
+            const list = document.getElementById("teacher-question-list");
+            list.innerHTML = (ex.questions || []).map((q, idx) => `
+                <div class="p-3 rounded-xl border border-slate-200 bg-slate-50 flex justify-between items-start gap-2 text-xs sm:text-sm">
+                    <div>
+                        <h5 class="font-bold text-slate-800">${idx + 1}. ${q.q}</h5>
+                        <p class="text-emerald-700 text-xs font-medium mt-0.5">সঠিক: ${q.opts[q.correct]}</p>
                     </div>
-                    <div class="flex items-center gap-1 shrink-0">
-                        <button onclick="openEditQuestionModal(${idx})" class="p-1.5 bg-amber-50 text-amber-700 rounded hover:bg-amber-100">
-                            <i class="fa-solid fa-pen"></i>
-                        </button>
-                        <button onclick="handleDeleteQuestion(${idx})" class="p-1.5 bg-rose-50 text-rose-600 rounded hover:bg-rose-100">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
+                    <div class="flex gap-1 shrink-0">
+                        <button onclick="openEditQuestionModal(${idx})" class="text-indigo-600 hover:text-indigo-800 font-semibold px-2 py-1">এডিট</button>
+                        <button onclick="handleDeleteQuestion(${idx})" class="text-rose-600 hover:text-rose-800 font-semibold px-2 py-1">মুছুন</button>
                     </div>
                 </div>
-            `).join("");
+            `).join('');
         }
 
-        function handleAddNewQuestion(e) {
+        async function handleAddNewQuestion(e) {
             e.preventDefault();
             const ex = appData.exams[activeExamKey];
             if (!ex) return;
 
             const qText = document.getElementById("new-q-text").value.trim();
-            const opt0 = document.getElementById("new-opt-0").value.trim();
-            const opt1 = document.getElementById("new-opt-1").value.trim();
-            const opt2 = document.getElementById("new-opt-2").value.trim();
-            const opt3 = document.getElementById("new-opt-3").value.trim();
-            const correctIdx = parseInt(document.getElementById("new-correct-idx").value);
+            const opts = [
+                document.getElementById("new-opt-0").value.trim(),
+                document.getElementById("new-opt-1").value.trim(),
+                document.getElementById("new-opt-2").value.trim(),
+                document.getElementById("new-opt-3").value.trim()
+            ];
+            const correct = parseInt(document.getElementById("new-correct-idx").value);
             const exp = document.getElementById("new-explanation").value.trim();
 
-            if (!qText || !opt0 || !opt1 || !opt2 || !opt3 || !exp) return;
-
             if (!ex.questions) ex.questions = [];
+            ex.questions.push({ q: qText, opts, correct, exp });
 
-            ex.questions.push({
-                q: qText,
-                opts: [opt0, opt1, opt2, opt3],
-                correct: correctIdx,
-                exp: exp
-            });
-
-            saveDataToFirebase();
             document.getElementById("add-q-form").reset();
+            await saveDataToFirebase();
             renderAddQuestionTab();
             refreshUIState();
-            showModal("সফল", "প্রশ্ন সফলভাবে যুক্ত করা হয়েছে।");
+        }
+
+        async function handleDeleteQuestion(index) {
+            const ex = appData.exams[activeExamKey];
+            if (ex && confirm("আপনি কি প্রশ্নটি মুছতে চান?")) {
+                ex.questions.splice(index, 1);
+                await saveDataToFirebase();
+                renderAddQuestionTab();
+                refreshUIState();
+            }
         }
 
         function openEditQuestionModal(index) {
             const ex = appData.exams[activeExamKey];
-            if (!ex || !ex.questions || !ex.questions[index]) return;
+            if (!ex || !ex.questions[index]) return;
 
             const q = ex.questions[index];
             document.getElementById("edit-q-index").value = index;
@@ -2147,11 +2220,11 @@
             document.getElementById("edit-question-modal").classList.add("hidden");
         }
 
-        function handleUpdateQuestion(e) {
+        async function handleUpdateQuestion(e) {
             e.preventDefault();
             const index = parseInt(document.getElementById("edit-q-index").value);
             const ex = appData.exams[activeExamKey];
-            if (!ex || !ex.questions || !ex.questions[index]) return;
+            if (!ex || !ex.questions[index]) return;
 
             ex.questions[index] = {
                 q: document.getElementById("edit-q-text").value.trim(),
@@ -2165,155 +2238,90 @@
                 exp: document.getElementById("edit-explanation").value.trim()
             };
 
-            saveDataToFirebase();
+            await saveDataToFirebase();
             closeEditQuestionModal();
             renderAddQuestionTab();
             refreshUIState();
-            showModal("সফল", "প্রশ্ন সফলভাবে আপডেট হয়েছে।");
         }
 
-        function handleDeleteQuestion(index) {
-            const ex = appData.exams[activeExamKey];
-            if (!ex || !ex.questions) return;
-
-            if (confirm("আপনি কি এই প্রশ্নটি মুছে ফেলতে চান?")) {
-                ex.questions.splice(index, 1);
-                saveDataToFirebase();
-                renderAddQuestionTab();
-                refreshUIState();
-            }
-        }
-
-        // --- SUBMISSIONS MANAGEMENT ---
+        // --- SUBMISSIONS & SECURITY ---
         function renderTeacherSubmissionsTab() {
             const tbody = document.getElementById("submissions-table-body");
-            const countLabel = document.getElementById("sub-count");
-            if (!tbody) return;
-
-            tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">ফলাফল লোড হচ্ছে...</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">ডেটা লোড হচ্ছে...</td></tr>`;
 
             if (window.db && window.fbFS) {
                 window.fbFS.getDocs(window.fbFS.collection(window.db, "submissions")).then(snapshot => {
                     let subs = [];
-                    snapshot.forEach(doc => {
-                        subs.push({ id: doc.id, ...doc.data() });
-                    });
-
-                    countLabel.innerText = subs.length;
+                    snapshot.forEach(doc => subs.push({ id: doc.id, ...doc.data() }));
+                    document.getElementById("sub-count").innerText = subs.length;
 
                     if (subs.length === 0) {
-                        tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">কোনো পরীক্ষার সাবমিশন পাওয়া যায়নি।</td></tr>`;
-                        return;
+                        tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">কোনো ফলাফল জমা পড়েনি।</td></tr>`;
+                    } else {
+                        tbody.innerHTML = subs.map(s => `
+                            <tr class="border-b border-slate-100 hover:bg-slate-50">
+                                <td class="p-2.5 font-bold text-slate-800">${s.studentName}</td>
+                                <td class="p-2.5 font-mono text-xs text-slate-500">${s.studentId}</td>
+                                <td class="p-2.5 text-xs text-slate-600">${s.examTitle}</td>
+                                <td class="p-2.5 text-center font-mono text-xs text-slate-500">${s.timeSpent || '-'}</td>
+                                <td class="p-2.5 text-right font-black text-indigo-700 font-mono">${s.score}</td>
+                            </tr>
+                        `).join('');
                     }
-
-                    tbody.innerHTML = subs.map(s => `
-                        <tr class="border-b border-slate-100 hover:bg-slate-50">
-                            <td class="p-2.5 font-bold text-slate-800">${s.studentName || 'নামহীন'}</td>
-                            <td class="p-2.5 font-mono text-slate-500">${s.studentId || '-'}</td>
-                            <td class="p-2.5 text-slate-600">${s.examTitle || '-'}</td>
-                            <td class="p-2.5 text-center font-mono text-slate-500">${s.timeSpent || '-'}</td>
-                            <td class="p-2.5 text-right font-black text-indigo-700 font-mono">${s.score}</td>
-                        </tr>
-                    `).join("");
-                }).catch(err => {
-                    console.error(err);
-                    tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-rose-500">ডেটা লোড করতে ব্যর্থ হয়েছে।</td></tr>`;
                 });
             }
         }
 
         async function clearSubmissions() {
-            if (!confirm("আপনি কি সকল পরীক্ষার্থীর জমা দেওয়া রেজাল্ট ও ডেটা মুছে ফেলতে চান?")) return;
-
-            if (window.db && window.fbFS) {
-                try {
+            if (confirm("আপনি কি সমস্ত পরীক্ষার জমা পড়া ডেটা মুছে ফেলতে চান?")) {
+                if (window.db && window.fbFS) {
                     const snapshot = await window.fbFS.getDocs(window.fbFS.collection(window.db, "submissions"));
-                    const deletePromises = [];
-                    snapshot.forEach(docSnap => {
-                        deletePromises.push(window.fbFS.deleteDoc(window.fbFS.doc(window.db, "submissions", docSnap.id)));
+                    snapshot.forEach(async (docSnap) => {
+                        await window.fbFS.deleteDoc(window.fbFS.doc(window.db, "submissions", docSnap.id));
                     });
-                    await Promise.all(deletePromises);
                     renderTeacherSubmissionsTab();
-                    showModal("সফল", "সকল ফলাফল মুছে ফেলা হয়েছে।");
-                } catch (e) {
-                    console.error("Clear Submissions Error:", e);
-                    showModal("ত্রুটি", "ফলাফল মুছতে গিয়ে সমস্যা হয়েছে।");
                 }
             }
         }
 
-        // --- SECURITY MANAGEMENT ---
-        function handleChangePassword(e) {
+        async function handleChangePassword(e) {
             e.preventDefault();
             const curr = document.getElementById("curr-pass-input").value;
-            const newPass = document.getElementById("new-pass-input").value;
+            const newP = document.getElementById("new-pass-input").value;
 
-            if (curr !== appData.teacherPass) {
-                showModal("ত্রুটি", "বর্তমান পাসওয়ার্ড ভুল দেওয়া হয়েছে।");
-                return;
+            if (curr === appData.teacherPass) {
+                appData.teacherPass = newP;
+                await saveDataToFirebase();
+                showModal("সফল", "শিক্ষক প্যানেল পাসওয়ার্ড আপডেট হয়েছে।");
+                document.getElementById("curr-pass-input").value = "";
+                document.getElementById("new-pass-input").value = "";
+            } else {
+                showModal("ত্রুটি", "বর্তমান পাসওয়ার্ড ভুল।");
             }
-
-            if (!newPass) return;
-
-            appData.teacherPass = newPass;
-            saveDataToFirebase();
-            document.getElementById("curr-pass-input").value = "";
-            document.getElementById("new-pass-input").value = "";
-            showModal("সফল", "পাসওয়ার্ড সফলভাবে পরিবর্তিত হয়েছে।");
         }
 
-        // --- GLOBAL WINDOW BINDINGS FOR INLINE HTML LISTENERS ---
-        window.switchView = switchView;
-        window.onHomeCourseFilterChange = onHomeCourseFilterChange;
-        window.onHomeSubjectFilterChange = onHomeSubjectFilterChange;
-        window.onHomeExamChange = onHomeExamChange;
-        window.startExamFlow = startExamFlow;
-        window.beginQuiz = beginQuiz;
-        window.selectOption = selectOption;
-        window.confirmFinishQuiz = confirmFinishQuiz;
-        window.toggleReviewSection = toggleReviewSection;
-        window.openStudentPortalModal = openStudentPortalModal;
-        window.closeStudentPortalModal = closeStudentPortalModal;
-        window.verifyStudentPortalLogin = verifyStudentPortalLogin;
-        window.closeStudentDashboardModal = closeStudentDashboardModal;
-        window.openExamDetailPopupByIndex = openExamDetailPopupByIndex;
-        window.closeExamDetailPopup = closeExamDetailPopup;
-        window.openLeaderboardModal = openLeaderboardModal;
-        window.closeLeaderboardModal = closeLeaderboardModal;
-        window.openTeacherLoginModal = openTeacherLoginModal;
-        window.closeTeacherLoginModal = closeTeacherLoginModal;
-        window.verifyTeacherPassword = verifyTeacherPassword;
-        window.switchTeacherTab = switchTeacherTab;
-        window.handleAddCourse = handleAddCourse;
-        window.handleDeleteCourse = handleDeleteCourse;
-        window.handleAddSubject = handleAddSubject;
-        window.handleDeleteSubject = handleDeleteSubject;
-        window.updateTeacherExamSubjectDropdown = updateTeacherExamSubjectDropdown;
-        window.handleCreateExam = handleCreateExam;
-        window.selectActiveExam = selectActiveExam;
-        window.openEditExamModal = openEditExamModal;
-        window.closeEditExamModal = closeEditExamModal;
-        window.handleUpdateExamSettings = handleUpdateExamSettings;
-        window.handleDeleteExam = handleDeleteExam;
-        window.copyShareLink = copyShareLink;
-        window.handleAddStudentId = handleAddStudentId;
-        window.handleDeleteStudentId = handleDeleteStudentId;
-        window.handleAddNewQuestion = handleAddNewQuestion;
-        window.openEditQuestionModal = openEditQuestionModal;
-        window.closeEditQuestionModal = closeEditQuestionModal;
-        window.handleUpdateQuestion = handleUpdateQuestion;
-        window.handleDeleteQuestion = handleDeleteQuestion;
-        window.clearSubmissions = clearSubmissions;
-        window.handleChangePassword = handleChangePassword;
-        window.closeModal = closeModal;
+        function updateShareLink() {
+            const input = document.getElementById("share-link-input");
+            if (input) {
+                const url = new URL(window.location.href);
+                url.searchParams.set("exam", activeExamKey);
+                input.value = url.href;
+            }
+        }
 
-        // Initialize App Event Listeners
+        function copyShareLink() {
+            const input = document.getElementById("share-link-input");
+            input.select();
+            document.execCommand("copy");
+            showModal("কপি হয়েছে", "পরীক্ষার লিংকটি ক্লিপবোর্ডে কপি করা হয়েছে।");
+        }
+
         window.addEventListener('firebase-initialized', () => {
             initData();
         });
 
-        document.addEventListener("DOMContentLoaded", () => {
-            initData();
+        window.addEventListener('DOMContentLoaded', () => {
+            if (!window.db) initData();
         });
     </script>
 </body>
