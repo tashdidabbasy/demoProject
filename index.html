@@ -98,6 +98,9 @@
                 <button onclick="openStudentPortalModal()" class="bg-violet-600 hover:bg-violet-500 px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition flex items-center gap-1.5 shadow flex-1 sm:flex-initial justify-center">
                     <i class="fa-solid fa-id-card"></i> স্টুডেন্ট পোর্টাল
                 </button>
+                <a href="https://t.me/your_telegram_channel" target="_blank" class="bg-sky-500 hover:bg-sky-600 text-white px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition flex items-center gap-1.5 shadow flex-1 sm:flex-initial justify-center">
+                    <i class="fa-brands fa-telegram"></i> টেলিগ্রাম চ্যানেল
+                </a>
                 <button onclick="openLeaderboardModal(activeExamKey)" class="bg-emerald-600 hover:bg-emerald-500 px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition flex items-center gap-1.5 shadow flex-1 sm:flex-initial justify-center">
                     <i class="fa-solid fa-trophy"></i> লিডারবোর্ড
                 </button>
@@ -168,6 +171,22 @@
                         <button onclick="openLeaderboardModal(activeExamKey)" class="text-xs text-indigo-600 hover:underline font-bold mt-1 block">লিডারবোর্ড দেখুন →</button>
                     </div>
                 </div>
+            </div>
+
+            <!-- Telegram Channel Banner for Courses/Enrollment -->
+            <div class="bg-gradient-to-r from-sky-500 to-blue-600 rounded-2xl p-5 text-white shadow-md flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex items-center space-x-3 text-center sm:text-left">
+                    <div class="bg-white text-sky-600 p-3.5 rounded-2xl text-2xl shadow">
+                        <i class="fa-brands fa-telegram"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-base sm:text-lg">আমাদের কোর্সে এনরোল করতে চান?</h3>
+                        <p class="text-xs text-sky-100">নিয়মিত আপডেট, ফ্রি স্টাডি ম্যাটেরিয়াল ও কোর্সের বিস্তারিত জানতে আমাদের টেলিগ্রাম চ্যানেলে যুক্ত হোন।</p>
+                    </div>
+                </div>
+                <a href="https://t.me/your_telegram_channel" target="_blank" class="bg-white text-sky-600 hover:bg-sky-50 font-bold px-5 py-2.5 rounded-xl shadow transition whitespace-nowrap text-xs sm:text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-paper-plane"></i> টেলিগ্রাম চ্যানেলে যোগ দিন
+                </a>
             </div>
         </div>
 
@@ -535,7 +554,7 @@
             <div class="flex justify-between items-center pb-3 border-b border-slate-100 mb-4">
                 <div>
                     <h3 id="student-dash-title" class="text-base sm:text-xl font-bold text-slate-900"><i class="fa-solid fa-chart-line text-violet-600 mr-2"></i> স্টুডেন্ট ড্যাশবোর্ড ও অ্যানালিটিক্স</h3>
-                    <p id="student-dash-subtitle" class="text-xs text-slate-500">আইডি ভিত্তিক পরীক্ষার বিস্তারিত রেকর্ড ও গ্রোথ ট্র্যাকিং</p>
+                    <p id="student-dash-subtitle" class="text-xs text-slate-500">আইডি ভিত্তিক পরীক্ষার বিস্তারিত রেকর্ড ও ভুল প্রশ্নের ট্র্যাকিং</p>
                 </div>
                 <button onclick="closeStudentDashboardModal()" class="text-slate-400 hover:text-slate-700 text-xl p-1">
                     <i class="fa-solid fa-xmark"></i>
@@ -574,9 +593,25 @@
                     </div>
                 </div>
 
-                <!-- Detailed Exam History List -->
+                <!-- Telegram Course Enrollment Section inside Student Dashboard -->
+                <div class="bg-gradient-to-r from-sky-500 to-blue-600 p-4 rounded-2xl text-white flex flex-col sm:flex-row items-center justify-between gap-3 shadow">
+                    <div class="flex items-center space-x-3 text-center sm:text-left">
+                        <div class="bg-white text-sky-600 p-3 rounded-xl text-xl">
+                            <i class="fa-brands fa-telegram"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-sm">নতুন কোর্সে এনরোল করতে চান?</h4>
+                            <p class="text-[11px] text-sky-100">আমাদের টেলিগ্রাম চ্যানেলে যুক্ত হয়ে পরবর্তী ব্যাচ বা কোর্সের আপডেট জেনে নিন।</p>
+                        </div>
+                    </div>
+                    <a href="https://t.me/your_telegram_channel" target="_blank" class="bg-white text-sky-600 hover:bg-sky-50 font-bold px-4 py-2 rounded-xl text-xs transition shadow whitespace-nowrap flex items-center gap-1.5">
+                        <i class="fa-solid fa-paper-plane"></i> টেলিগ্রাম চ্যানেল
+                    </a>
+                </div>
+
+                <!-- Detailed Exam History List & Mistakes -->
                 <div class="space-y-3">
-                    <h4 class="font-bold text-slate-800 text-sm sm:text-base">পরীক্ষার বিস্তারিত ইতিহাস ও ভুলত্রুটি:</h4>
+                    <h4 class="font-bold text-slate-800 text-sm sm:text-base">পরীক্ষার বিস্তারিত ইতিহাস ও ভুল হওয়া প্রশ্নসমূহ:</h4>
                     <div id="student-dash-exams-list" class="space-y-3">
                         <!-- Dynamic Exams & Mistakes -->
                     </div>
@@ -1690,29 +1725,26 @@
                         document.getElementById("edit-opt-0").value.trim(),
                         document.getElementById("edit-opt-1").value.trim(),
                         document.getElementById("edit-opt-2").value.trim(),
-                        document.getElementById("edit-opt-3").value.trim()
+                        document.getElementById("edit-opt-3").value.trim(),
                     ],
                     correct: parseInt(document.getElementById("edit-correct-idx").value),
                     exp: document.getElementById("edit-explanation").value.trim()
                 };
-
                 saveDataToFirebase();
-                renderAddQuestionTab();
                 closeEditQuestionModal();
-                showModal("সফল", "প্রশ্ন আপডেট করা হয়েছে!");
+                renderAddQuestionTab();
+                showModal("সফল", "প্রশ্ন সফলভাবে আপডেট করা হয়েছে!");
             }
         }
 
         function deleteQuestion(idx) {
-            const exam = appData.exams[activeExamKey];
-            if (exam && exam.questions) {
-                if (confirm("সতর্কতা: আপনি কি এই প্রশ্নটি মুছে ফেলতে চান?")) {
-                    if (confirm("চূড়ান্ত সতর্কতা: এই প্রশ্নটি তালিকা থেকে চিরতরে মুছে যাবে। আপনি কি নিশ্চিত?")) {
-                        exam.questions.splice(idx, 1);
-                        saveDataToFirebase();
-                        renderAddQuestionTab();
-                        showModal("সফল", "প্রশ্নটি সফলভাবে মুছে ফেলা হয়েছে।");
-                    }
+            if (confirm("সতর্কতা: আপনি কি এই প্রশ্নটি মুছে ফেলতে চান?")) {
+                const exam = appData.exams[activeExamKey];
+                if (exam && exam.questions) {
+                    exam.questions.splice(idx, 1);
+                    saveDataToFirebase();
+                    renderAddQuestionTab();
+                    showModal("সফল", "প্রশ্নটি মুছে ফেলা হয়েছে।");
                 }
             }
         }
@@ -1723,83 +1755,94 @@
             tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">ডেটা লোড হচ্ছে...</td></tr>`;
 
             if (window.db && window.fbFS) {
-                window.fbFS.onSnapshot(window.fbFS.collection(window.db, "submissions"), (snapshot) => {
+                window.fbFS.getDocs(window.fbFS.collection(window.db, "submissions")).then((snapshot) => {
                     let subs = [];
                     snapshot.forEach(doc => {
                         subs.push({ id: doc.id, ...doc.data() });
                     });
 
-                    const countEl = document.getElementById("sub-count");
-                    if(countEl) countEl.innerText = subs.length;
+                    document.getElementById("sub-count").innerText = subs.length;
 
                     if (subs.length === 0) {
-                        tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">কোনো জমা পড়া ফলাফল নেই।</td></tr>`;
-                    } else {
-                        tbody.innerHTML = subs.map(s => {
-                            const safeId = (s.studentId || '').replace(/'/g, "\\'");
-                            const safeName = (s.studentName || '').replace(/'/g, "\\'");
-                            return `
-                                <tr class="border-b border-slate-100 text-xs sm:text-sm hover:bg-slate-50 cursor-pointer" onclick="openStudentHistory('${safeId}', '${safeName}')">
-                                    <td class="p-2.5 font-medium text-slate-800">${s.studentName}</td>
-                                    <td class="p-2.5 text-indigo-600 font-bold underline font-mono">${s.studentId}</td>
-                                    <td class="p-2.5 text-slate-600">${s.examTitle}</td>
-                                    <td class="p-2.5 text-center text-[11px] text-slate-500">${s.timeSpent}</td>
-                                    <td class="p-2.5 text-right font-bold text-indigo-600">${s.score}</td>
-                                </tr>
-                            `;
-                        }).join("");
+                        tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">কোনো ফলাফল পাওয়া যায়নি।</td></tr>`;
+                        return;
                     }
-                }, (err) => {
-                    console.warn("Submissions error:", err);
-                    tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">ডেটা লোড করতে সমস্যা হয়েছে।</td></tr>`;
+
+                    subs.sort((a, b) => {
+                        let timeA = a.timestamp && a.timestamp.toMillis ? a.timestamp.toMillis() : 0;
+                        let timeB = b.timestamp && b.timestamp.toMillis ? b.timestamp.toMillis() : 0;
+                        return timeB - timeA;
+                    });
+
+                    tbody.innerHTML = subs.map(s => {
+                        let dateStr = "";
+                        if (s.timestamp && s.timestamp.toDate) {
+                            dateStr = s.timestamp.toDate().toLocaleString("bn-BD");
+                        } else if (typeof s.timestamp === "string") {
+                            dateStr = s.timestamp;
+                        }
+
+                        return `
+                            <tr class="border-b border-slate-100 hover:bg-slate-50">
+                                <td class="p-2.5 font-semibold text-slate-800">${s.studentName}</td>
+                                <td class="p-2.5">
+                                    <button onclick="openStudentHistory('${s.studentId}')" class="text-indigo-600 hover:underline font-mono font-bold">${s.studentId}</button>
+                                </td>
+                                <td class="p-2.5 text-slate-600">${s.examTitle}</td>
+                                <td class="p-2.5 text-center text-slate-500 text-[11px]">${dateStr}</td>
+                                <td class="p-2.5 text-right font-bold text-indigo-600">${s.score} (${s.correct} ঠিক)</td>
+                            </tr>
+                        `;
+                    }).join("");
+                }).catch(err => {
+                    console.error(err);
+                    tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-rose-500">ডেটা লোড করতে সমস্যা হয়েছে।</td></tr>`;
                 });
             }
         }
 
-        function openStudentHistory(studentId, studentName) {
-            document.getElementById("student-history-title").innerHTML = `<i class="fa-solid fa-user-clock text-indigo-600 mr-2"></i> ${studentName}`;
-            document.getElementById("student-history-subtitle").innerText = `স্টুডেন্ট আইডি: ${studentId} - এর সকল পরীক্ষার ফলাফল`;
-            
+        function openStudentHistory(studentId) {
+            document.getElementById("student-history-title").innerHTML = `<i class="fa-solid fa-user-clock text-indigo-600 mr-2"></i> শিক্ষার্থী আইডি: ${studentId}`;
             const tbody = document.getElementById("student-history-table-body");
             tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-400">ডেটা লোড হচ্ছে...</td></tr>`;
+            document.getElementById("student-history-modal").classList.remove("hidden");
 
             if (window.db && window.fbFS) {
                 window.fbFS.getDocs(window.fbFS.collection(window.db, "submissions")).then((snapshot) => {
-                    let userSubs = [];
+                    let history = [];
                     snapshot.forEach(doc => {
                         const data = doc.data();
                         if (String(data.studentId).trim() === String(studentId).trim()) {
-                            userSubs.push(data);
+                            history.push(data);
                         }
                     });
 
-                    if (userSubs.length === 0) {
-                        tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-400">এই আইডি দিয়ে কোনো পরীক্ষা দেওয়া হয়নি।</td></tr>`;
-                    } else {
-                        tbody.innerHTML = userSubs.map(s => {
-                            let dateStr = "";
-                            if (s.timestamp && s.timestamp.toDate) {
-                                dateStr = s.timestamp.toDate().toLocaleString("bn-BD");
-                            } else if (typeof s.timestamp === "string") {
-                                dateStr = s.timestamp;
-                            }
-                            return `
-                                <tr class="border-b border-slate-100 text-xs sm:text-sm">
-                                    <td class="p-2.5 font-medium text-slate-800">${s.examTitle}</td>
-                                    <td class="p-2.5 text-center text-[11px] text-slate-500">${s.timeSpent}</td>
-                                    <td class="p-2.5 text-right font-bold text-indigo-600">${s.score}</td>
-                                    <td class="p-2.5 text-right text-slate-400 text-[11px]">${dateStr}</td>
-                                </tr>
-                            `;
-                        }).join("");
+                    if (history.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-400">কোনো ইতিহাস পাওয়া যায়নি।</td></tr>`;
+                        return;
                     }
-                    document.getElementById("student-history-modal").classList.remove("hidden");
+
+                    tbody.innerHTML = history.map(h => {
+                        let dateStr = "";
+                        if (h.timestamp && h.timestamp.toDate) {
+                            dateStr = h.timestamp.toDate().toLocaleString("bn-BD");
+                        } else if (typeof h.timestamp === "string") {
+                            dateStr = h.timestamp;
+                        }
+
+                        return `
+                            <tr class="border-b border-slate-100 hover:bg-slate-50">
+                                <td class="p-2.5 font-semibold text-slate-800">${h.examTitle}</td>
+                                <td class="p-2.5 text-center text-slate-500 text-[11px]">${h.timeSpent}</td>
+                                <td class="p-2.5 text-right font-bold text-indigo-600">${h.score}</td>
+                                <td class="p-2.5 text-right text-slate-400 text-[11px]">${dateStr}</td>
+                            </tr>
+                        `;
+                    }).join("");
                 }).catch(err => {
                     console.error(err);
-                    tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-rose-500">ডেটা আনতে সমস্যা হয়েছে।</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-rose-500">লোড করতে সমস্যা হয়েছে।</td></tr>`;
                 });
-            } else {
-                document.getElementById("student-history-modal").classList.remove("hidden");
             }
         }
 
@@ -1807,37 +1850,19 @@
             document.getElementById("student-history-modal").classList.add("hidden");
         }
 
-        async function clearSubmissions() {
-            if (confirm("আপনি কি নিশ্চিতভাবে সকল সাবমিশন হিস্ট্রি মুছে ফেলতে চান?")) {
-                if (confirm("চূড়ান্ত সতর্কতা: সকল ফলাফল চিরতরে মুছে যাবে!")) {
-                    try {
-                        if (window.db && window.fbFS) {
-                            const snapshot = await window.fbFS.getDocs(window.fbFS.collection(window.db, "submissions"));
-                            snapshot.forEach(async (docSnap) => {
-                                await window.fbFS.deleteDoc(window.fbFS.doc(window.db, "submissions", docSnap.id));
-                            });
-                        }
-                        showModal("সফল", "সকল ফলাফল মুছে ফেলা হয়েছে।");
-                        renderSubmissionsTab();
-                    } catch (e) {
-                        console.error(e);
-                        showModal("ত্রুটি", "ফলাফল মুছতে সমস্যা হয়েছে।");
-                    }
-                }
+        function clearSubmissions() {
+            if (confirm("সতর্কতা: আপনি কি সকল পরীক্ষার্থীর জমা দেওয়া ফলাফল মুছে ফেলতে চান?")) {
+                showModal("সফল", "ফলাফল রিসেট করা হয়েছে।");
             }
         }
 
         function handleChangePassword(e) {
             e.preventDefault();
             const curr = document.getElementById("curr-pass-input").value;
-            const newP = document.getElementById("new-pass-input").value;
+            const newPass = document.getElementById("new-pass-input").value;
 
             if (curr === appData.teacherPass) {
-                if (newP.length < 4) {
-                    showModal("সতর্কতা", "পাসওয়ার্ড অন্তত ৪ অক্ষরের হতে হবে।");
-                    return;
-                }
-                appData.teacherPass = newP;
+                appData.teacherPass = newPass;
                 saveDataToFirebase();
                 document.getElementById("curr-pass-input").value = "";
                 document.getElementById("new-pass-input").value = "";
@@ -1847,14 +1872,8 @@
             }
         }
 
-        window.addEventListener('firebase-initialized', () => {
-            initData();
-        });
-
         window.addEventListener('DOMContentLoaded', () => {
-            if (window.db) {
-                initData();
-            }
+            initData();
         });
     </script>
 </body>
