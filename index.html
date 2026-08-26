@@ -1017,6 +1017,8 @@
         let timeRemaining = 0;
         let activeStudentPortalId = null;
         let globalStudentSubmissions = [];
+        // ২. পরীক্ষা চলাকালীন শাফল করা প্রশ্ন রাখার ভ্যারিয়েবল
+        let currentExamQuestions = [];
 
         function isAnswerTimeReached(examKey) {
             const exam = appData.exams[examKey];
@@ -1356,7 +1358,9 @@
                 id: rawId || "ফ্রি-ইউজার"
             };
 
-            studentAnswers = new Array(exam.questions.length).fill(null);
+            // ৩. পরীক্ষার প্রশ্নসমূহ এলোমেলো (Shuffle) করা
+            currentExamQuestions = shuffleArray(exam.questions);
+            studentAnswers = new Array(currentExamQuestions.length).fill(null);
 
             document.getElementById("quiz-exam-heading").innerText = `${exam.title} (${exam.course} - ${exam.subject})`;
             timeRemaining = exam.timerMinutes * 60;
@@ -1385,10 +1389,11 @@
         }
 
         function renderAllQuestions() {
-            const exam = appData.exams[activeExamKey];
             const container = document.getElementById("all-questions-container");
 
-            container.innerHTML = exam.questions.map((q, qIdx) => {
+            // ৪. exam.questions এর জায়গায় currentExamQuestions দিয়ে ম্যাপিং
+            container.innerHTML = currentExamQuestions.map((q, qIdx) => {
+            // ... বাকী অংশ অপরিবর্তিত থাকবে ...
                 const hasAnswered = studentAnswers[qIdx] !== null;
                 return `
                     <div class="bg-slate-50 p-4 sm:p-5 rounded-2xl border border-slate-200 space-y-3 shadow-sm">
@@ -1445,7 +1450,8 @@
             let detailedReview = [];
 
             studentAnswers.forEach((ans, idx) => {
-                const questionObj = exam.questions[idx];
+        // ৫. exam.questions[idx] এর জায়গায় currentExamQuestions[idx]
+                const questionObj = currentExamQuestions[idx];
                 const isCorrect = (ans !== null && ans === questionObj.correct);
                 if (ans !== null) {
                     if (isCorrect) {
@@ -2440,6 +2446,15 @@ async function updateStudentId(currentId) {
             </div>
         `;
     }).join("");
+}
+        // ১. প্রশ্ন এলোমেলো করার জন্য Fisher-Yates Shuffle ফাংশন
+function shuffleArray(array) {
+    let shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
 }
     </script>
 </body>
