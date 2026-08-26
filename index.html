@@ -2536,29 +2536,36 @@ function shuffleArray(array) {
         async function finishQuiz() {
     clearInterval(timerInterval);
     const exam = appData.exams[activeExamKey];
-
     let correct = 0, incorrect = 0;
     let detailedReview = [];
 
     studentAnswers.forEach((ans, idx) => {
         const questionObj = currentExamQuestions[idx];
-        const isCorrect = (ans !== null && ans === questionObj.correct);
+        
+        // কেবল যদি শিক্ষার্থী উত্তর নির্বাচন/দাগিয়ে থাকে
         if (ans !== null) {
-            if (isCorrect) correct++;
-            else incorrect++;
-        } else {
-            incorrect++;
-        }
+            const isCorrect = (ans === questionObj.correct);
+            if (isCorrect) {
+                correct++;
+            } else {
+                incorrect++; // শুধু ভুল উত্তরের ক্ষেত্রেই কেবল ০.৫ নেগেটিভের জন্য গণনা হবে
+            }
+        } 
+        // উত্তর স্কিপ করলে (ans === null) correct বা incorrect কোনোটাই বাড়বে না
+
         detailedReview.push({
             question: questionObj.q,
             yourAnswer: ans !== null ? questionObj.opts[ans] : "উত্তর দেওয়া হয়নি",
             correctAnswer: questionObj.opts[questionObj.correct],
-            isCorrect: isCorrect,
+            isCorrect: ans !== null && ans === questionObj.correct,
             explanation: questionObj.exp
         });
     });
 
+    // নেগেটিভ মার্কিং হিসাব (প্রতি ভুল উত্তরের জন্য ০.৫ কাটা যাবে, স্কিপ করলে ০ কাটা যাবে)
     const score = Math.max(0, correct - (incorrect * 0.5));
+    
+    // ... বাকী অংশ অপরিবর্তিত থাকবে ...
     const timeTakenSecs = (exam.timerMinutes * 60) - timeRemaining;
     const mins = Math.floor(timeTakenSecs / 60);
     const secs = timeTakenSecs % 60;
