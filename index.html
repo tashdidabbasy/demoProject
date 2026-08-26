@@ -1444,82 +1444,73 @@
         }
 
         async function finishQuiz() {
-            clearInterval(timerInterval);
-            const exam = appData.exams[activeExamKey];
-            let correct = 0, incorrect = 0;
-            let detailedReview = [];
+    clearInterval(timerInterval);
+    const exam = appData.exams[activeExamKey];
+    let correct = 0, incorrect = 0;
+    let detailedReview = [];
 
-            studentAnswers.forEach((ans, idx) => {
-        // ৫. exam.questions[idx] এর জায়গায় currentExamQuestions[idx]
-                const questionObj = currentExamQuestions[idx];
-                const isCorrect = (ans !== null && ans === questionObj.correct);
-                if (ans !== null) {
-                    if (isCorrect) {
-                        correct++;
-                    } else {
-                        incorrect++;
-                    }
-                } else {
-                    incorrect++;
-                }
-                detailedReview.push({
-                    question: questionObj.q,
-                    yourAnswer: ans !== null ? questionObj.opts[ans] : "উত্তর দেওয়া হয়নি",
-                    correctAnswer: questionObj.opts[questionObj.correct],
-                    isCorrect: isCorrect,
-                    explanation: questionObj.exp
-                });
-            });
-
-            const score = Math.max(0, correct - (incorrect * 0.5));
-            const timeTakenSecs = (exam.timerMinutes * 60) - timeRemaining;
-            const mins = Math.floor(timeTakenSecs / 60);
-            const secs = timeTakenSecs % 60;
-            const timeFormatted = `${mins} মি. ${secs} সে.`;
-
-            const submission = {
-                studentName: currentStudent.name,
-                studentId: currentStudent.id,
-                examKey: activeExamKey,
-                examTitle: exam.title,
-                score: score,
-                correct: correct,
-                incorrect: incorrect,
-                totalQuestions: exam.questions.length,
-                timeSpent: timeFormatted,
-                answers: studentAnswers,
-                timestamp: window.fbFS ? window.fbFS.serverTimestamp() : new Date().toISOString(),
-                submittedAtISO: new Date().toISOString()
-            };
-
-            try {
-                if (window.db && window.fbFS) {
-                    await window.fbFS.addDoc(window.fbFS.collection(window.db, "submissions"), submission);
-                }
-            } catch (e) {
-                console.error("Submission Save Error:", e);
-            }
-
-            document.getElementById("result-student-info").innerText = 
-                `শিক্ষার্থী: ${currentStudent.name} (${currentStudent.id}) | পরীক্ষা: ${exam.title}`;
-            document.getElementById("res-total").innerText = exam.questions.length;
-
-            const canShow = isAnswerTimeReached(activeExamKey);
-            if (canShow) {
-                document.getElementById("res-correct").innerText = correct;
-                document.getElementById("res-incorrect").innerText = incorrect;
-                document.getElementById("res-score").innerText = score;
+    studentAnswers.forEach((ans, idx) => {
+        const questionObj = currentExamQuestions[idx];
+        
+        if (ans !== null) {
+            // উত্তর দাগানো হলে চেক করবে সঠিক নাকি ভুল
+            const isCorrect = (ans === questionObj.correct);
+            if (isCorrect) {
+                correct++;
             } else {
-                document.getElementById("res-correct").innerText = "নির্ধারিত সময়ের পর";
-                document.getElementById("res-incorrect").innerText = "নির্ধারিত সময়ের পর";
-                document.getElementById("res-score").innerText = "নির্ধারিত সময়ের পর";
-                const dateStr = exam.answerReleaseTime ? new Date(exam.answerReleaseTime).toLocaleString('bn-BD', { dateStyle: 'full', timeStyle: 'short' }) : "নির্ধারিত সময়";
-                showModal("পরীক্ষা সম্পন্ন!", `আপনার পরীক্ষা সফলভাবে জমা হয়েছে। শিক্ষক কর্তৃক সঠিক উত্তর ও ফলাফল প্রকাশের নির্ধারিত সময় (${dateStr}) পার হলে সমস্ত মার্ক্স ও উত্তর দেখতে পাবেন।`);
+                incorrect++;
             }
+        } 
+        // ans === null হলে (না দাগালে) correct বা incorrect কিছুই বাড়বে না
 
-            document.getElementById("review-container").classList.add("hidden");
-            switchView("result");
+        detailedReview.push({
+            question: questionObj.q,
+            yourAnswer: ans !== null ? questionObj.opts[ans] : "উত্তর দেওয়া হয়নি",
+            correctAnswer: questionObj.opts[questionObj.correct],
+            isCorrect: ans !== null && ans === questionObj.correct,
+            explanation: questionObj.exp
+        });
+    });
+
+    // নেগেটিভ মার্কিং সহ নম্বর হিসাব (ভুল উত্তরের জন্য ০.৫ কাটা যাবে)
+    const score = Math.max(0, correct - (incorrect * 0.5));
+    const timeTakenSecs = (exam.timerMinutes * 60) - timeRemaining;
+    const mins = Math.floor(timeTakenSecs / 60);
+    const secs = timeTakenSecs % 60;
+    const timeFormatted = `${mins} মি. ${secs} সে.`;
+
+    const submission = {
+        studentName: currentStudent.name,
+        studentId: currentStudent.id,
+        examKey: activeExamKey,
+        examTitle: exam.title,
+        score: score,
+        correct: correct,
+        incorrect: incorrect,
+        totalQuestions: exam.questions.length,
+        timeSpent: timeFormatted,
+        answers: studentAnswers,
+        timestamp: window.fbFS ? window.fbFS.serverTimestamp() : new Date().toISOString(),
+        submittedAtISO: new Date().toISOString()
+    };
+
+    try {
+        if (window.db && window.fbFS) {
+            await window.fbFS.addDoc(window.fbFS.collection(window.db, "submissions"), submission);
         }
+    } catch (e) {
+        console.error("Submission Save Error:", e);
+    }
+
+    document.getElementById("result-student-info").innerText = `শিক্ষার্থী: ${currentStudent.name} (${currentStudent.id}) | পরীক্ষা: ${exam.title}`;
+    document.getElementById("res-total").innerText = exam.questions.length;
+    document.getElementById("res-correct").innerText = correct;
+    document.getElementById("res-incorrect").innerText = incorrect;
+    document.getElementById("res-score").innerText = score;
+
+    renderReviewList();
+    switchView("result");
+}
 
         function toggleReviewSection() {
             const canShow = isAnswerTimeReached(activeExamKey);
