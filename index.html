@@ -2332,6 +2332,115 @@
         window.addEventListener('DOMContentLoaded', () => {
             if (!window.db) initData();
         });
+
+        // স্টুডেন্ট আইডি এবং নাম পরিবর্তন/সম্পাদনা করার ফাংশন
+async function updateStudentId(currentId) {
+    // ১. আগের শিক্ষার্থী খুঁজে বের করা
+    const studentIndex = appData.allowedStudentIds.findIndex(s => String(s.id).trim() === String(currentId).trim());
+    if (studentIndex === -1) {
+        showModal("ত্রুটি", "শিক্ষার্থী পাওয়া যায়নি!");
+        return;
+    }
+
+    const currentStudent = appData.allowedStudentIds[studentIndex];
+
+    // ২. নতুন আইডি ইনপুট নেওয়া
+    const newId = prompt("নতুন স্টুডেন্ট আইডি প্রদান করুন:", currentStudent.id);
+    if (newId === null) return; // বাতিল করা হলে
+    const trimmedNewId = newId.trim();
+
+    if (!trimmedNewId) {
+        showModal("সতর্কতা", "স্টুডেন্ট আইডি খালি রাখা যাবে না।");
+        return;
+    }
+
+    // ৩. নতুন আইডি অন্য কোনো স্টুডেন্টের সাথে মিলে যাচ্ছে কি না তা পরীক্ষা করা
+    if (trimmedNewId !== currentStudent.id) {
+        const isDuplicate = appData.allowedStudentIds.some(s => String(s.id).trim() === trimmedNewId);
+        if (isDuplicate) {
+            showModal("সতর্কতা", "এই স্টুডেন্ট আইডিটি ইতোমধ্যে অন্য একজন শিক্ষার্থীর জন্য ব্যবহৃত হচ্ছে।");
+            return;
+        }
+    }
+
+    // ৪. নাম ইনপুট নেওয়া (ঐচ্ছিক/পরিবর্তনযোগ্য)
+    const newName = prompt("শিক্ষার্থীর নাম প্রদান করুন:", currentStudent.name || "");
+    if (newName === null) return;
+    const trimmedNewName = newName.trim() || currentStudent.name;
+
+    const oldId = currentStudent.id;
+
+    // ৫. appData তে আপডেট করা
+    appData.allowedStudentIds[studentIndex] = {
+        id: trimmedNewId,
+        name: trimmedNewName
+    };
+
+    // ৬. Firestore-এ স্টুডেন্ট কনফিগ ডাটা সেভ করা
+    await saveDataToFirebase();
+
+    // ৭. পূর্বে দেওয়া সকল পরীক্ষার ডাটাবেজ (Submissions) রেকর্ড আপডেট করা
+    try {
+        if (window.db && window.fbFS) {
+            // Firestore থেকে ওই স্টুডেন্টের আগের সকল সাবমিশন খোঁজা
+            const snapshot = await window.fbFS.getDocs(window.fbFS.collection(window.db, "submissions"));
+            const updatePromises = [];
+
+            snapshot.forEach(docSnap => {
+                const subData = docSnap.data();
+                if (String(subData.studentId).trim() === String(oldId).trim()) {
+                    const docRef = window.fbFS.doc(window.db, "submissions", docSnap.id);
+                    // পুরনো ID সরিয়ে নতুন ID এবং Name দিয়ে আপডেট করা
+                    updatePromises.push(window.fbFS.setDoc(docRef, {
+                        ...subData,
+                        studentId: trimmedNewId,
+                        studentName: trimmedNewName
+                    }));
+                }
+            });
+
+            await Promise.all(updatePromises);
+        }
+        showModal("সফল!", `আইডি সফলভাবে আপডেট করা হয়েছে। আগের সকল পরীক্ষার ডাটাও নতুন আইডিতে যুক্ত হয়েছে।`);
+    } catch (err) {
+        console.error("ডাটাবেজ আপডেট করতে সমস্যা হয়েছে:", err);
+        showModal("আংশিক সফল", "আইডি আপডেট হয়েছে তবে আগের পরীক্ষার ডাটা আপডেটে সমস্যা হতে পারে।");
+    }
+
+    // ৮. ইন্টারফেস রিফ্রেশ করা
+    renderTeacherStudentIdsTab();
+}
+        function renderTeacherStudentIdsTab() {
+    const container = document.getElementById("allowed-ids-list-container");
+    if (!container) return;
+
+    if (!appData.allowedStudentIds || appData.allowedStudentIds.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-400 py-3 text-center">কোনো অনুমোদিত আইডি পাওয়া যায়নি।</p>`;
+        return;
+    }
+
+    container.innerHTML = appData.allowedStudentIds.map((student, idx) => {
+        return `
+            <div class="flex items-center justify-between p-3 bg-white rounded-xl border border-slate-200 shadow-sm">
+                <div class="flex items-center space-x-3">
+                    <span class="text-xs font-bold text-slate-400 w-6">${idx + 1}.</span>
+                    <div>
+                        <h4 class="font-bold text-xs sm:text-sm text-slate-800">${student.name}</h4>
+                        <p class="text-[11px] text-indigo-600 font-mono">আইডি: ${student.id}</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="updateStudentId('${student.id}')" class="px-2.5 py-1 text-xs bg-amber-100 text-amber-700 hover:bg-amber-200 rounded-lg font-semibold transition-colors flex items-center gap-1 cursor-pointer">
+                        <i class="fa-solid fa-pen-to-square"></i> আইডি চেঞ্জ
+                    </button>
+                    <button onclick="deleteStudentId('${student.id}')" class="px-2.5 py-1 text-xs bg-rose-100 text-rose-700 hover:bg-rose-200 rounded-lg font-semibold transition-colors flex items-center gap-1 cursor-pointer">
+                        <i class="fa-solid fa-trash"></i> মুছুন
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join("");
+}
     </script>
 </body>
 </html>
