@@ -159,6 +159,48 @@
                             <button onclick="startExamFlow()" class="w-full sm:w-auto bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-950 font-black px-7 py-3.5 rounded-xl shadow-lg hover:shadow-amber-500/20 transition duration-200 flex items-center justify-center gap-2 whitespace-nowrap text-xs sm:text-sm cursor-pointer">
                                 <i class="fa-solid fa-circle-play text-base"></i> পরীক্ষা শুরু করুন
                             </button>
+
+                            <!-- এনরোলমেন্ট বাটন ও পপআপ মডাল ট্রিগার -->
+<div class="mt-4">
+    <button onclick="openEnrollmentModal()" class="w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold py-3.5 px-4 rounded-xl shadow-md transition flex items-center justify-center gap-2 text-xs sm:text-sm cursor-pointer">
+        <i class="fa-solid fa-file-invoice-dollar text-amber-300"></i> এনরোলমেন্ট করুন (পেমেন্ট ভেরিফিকেশন)
+    </button>
+</div>
+
+<!-- এনরোলমেন্ট পপআপ স্ক্রিন (Modal) -->
+<div id="enrollment-modal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
+        <div class="flex justify-between items-center pb-2 border-b border-slate-100">
+            <h3 class="font-bold text-slate-900 text-base sm:text-lg flex items-center gap-2">
+                <i class="fa-solid fa-shield-halved text-indigo-600"></i> কোর্স এনরোলমেন্ট ফর্ম
+            </h3>
+            <button onclick="closeEnrollmentModal()" class="text-slate-400 hover:text-slate-700 text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        
+        <p class="text-xs text-slate-600">বিকাশ/নগদ পেমেন্ট সম্পন্ন করার পর আপনার সঠিক মোবাইল নম্বর এবং ট্রান্সেকশন আইডি (TrxID) নিচে প্রদান করুন।</p>
+        
+        <form onsubmit="submitEnrollmentRequest(event)" class="space-y-3">
+            <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">আপনার নাম</label>
+                <input type="text" id="popup-enroll-name" required placeholder="পূর্ণ নাম লিখুন" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs sm:text-sm">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">মোবাইল নম্বর</label>
+                <input type="text" id="popup-enroll-mobile" required placeholder="যেমন: 01700000000" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs sm:text-sm">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">ট্রান্সেকশন আইডি (TrxID)</label>
+                <input type="text" id="popup-enroll-trxid" required placeholder="যেমন: 9H8G7F6E" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs sm:text-sm uppercase">
+            </div>
+            <div class="flex gap-2 pt-2">
+                <button type="button" onclick="closeEnrollmentModal()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2.5 rounded-xl text-xs sm:text-sm transition">বাতিল</button>
+                <button type="submit" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 rounded-xl text-xs sm:text-sm shadow transition">জমা দিন</button>
+            </div>
+        </form>
+    </div>
+</div>
                         </div>
                     </div>
                 </div>
