@@ -2447,6 +2447,181 @@ function shuffleArray(array) {
     }
     return shuffled;
 }
+
+        async function beginQuiz(e) {
+    e.preventDefault();
+    const rawName = document.getElementById("student-name").value.trim();
+    const rawId = document.getElementById("student-id").value.trim();
+
+    const exam = appData.exams[activeExamKey];
+    if(!exam || !exam.questions || exam.questions.length === 0) {
+        showModal("ত্রুটি", "এই পরীক্ষায় কোনো প্রশ্ন নেই!");
+        return;
+    }
+
+    // --- ফায়ারবেস থেকে সাবমিশন চেক করা (লোক্যাল স্টোরেজ ছাড়া) ---
+    if (!exam.isFree && rawId) {
+        const canShowResults = isAnswerTimeReached(activeExamKey);
+        
+        // ফলাফল প্রকাশের সময় না হয়ে থাকলে ফায়ারবেসে চেক করবো ইতিমধ্যে সাবমিট করা হয়েছে কি না
+        if (!canShowResults && window.db && window.fbFS) {
+            try {
+                const snapshot = await window.fbFS.getDocs(window.fbFS.collection(window.db, "submissions"));
+                let alreadySubmitted = false;
+                
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    if (String(data.studentId).trim() === String(rawId).trim() && data.examKey === activeExamKey) {
+                        alreadySubmitted = true;
+                    }
+                });
+
+                if (alreadySubmitted) {
+                    showModal("সতর্কতা", "আপনি ইতিমধ্যে এই লাইভ পরীক্ষায় অংশগ্রহণ করে সাবমিট করেছেন। ফলাফল প্রকাশের আগে পুনরায় পরীক্ষা দেওয়ার সুযোগ নেই।");
+                    return;
+                }
+            } catch (err) {
+                console.error("Firebase submission check error:", err);
+            }
+        }
+    }
+    // -------------------------------------------------------------
+
+    let matchedStudent = null;
+    if (!exam.isFree) {
+        if (!appData.allowedStudentIds || appData.allowedStudentIds.length === 0) {
+            showModal("সতর্কতা", "শিক্ষক প্যানেলে কোনো অনুমোদিত স্টুডেন্ট আইডি যুক্ত করা হয়নি।");
+            return;
+        }
+        matchedStudent = appData.allowedStudentIds.find(item => String(item.id).trim() === String(rawId).trim());
+        if (!matchedStudent) {
+            showModal("অনুমতি নেই", "আপনার স্টুডেন্ট আইডিটি এই পরীক্ষার জন্য অনুমোদিত নয়। সঠিক আইডি দিয়ে চেষ্টা করুন।");
+            return;
+        }
+    }
+
+    let foundStudentName = rawName;
+    if (matchedStudent && matchedStudent.name) {
+        foundStudentName = matchedStudent.name;
+    } else if (!foundStudentName) {
+        foundStudentName = rawId ? `আইডি: ${rawId}` : "পরীক্ষার্থী";
+    }
+
+    currentStudent = {
+        name: foundStudentName,
+        id: rawId || "ফ্রি-ইউজার"
+    };
+
+    currentExamQuestions = shuffleArray(exam.questions);
+    studentAnswers = new Array(currentExamQuestions.length).fill(null);
+
+    document.getElementById("quiz-exam-heading").innerText = `${exam.title} (${exam.course} - ${exam.subject})`;
+    timeRemaining = exam.timerMinutes * 60;
+    updateTimerDisplay();
+
+    clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+        timeRemaining--;
+        updateTimerDisplay();
+        if (timeRemaining <= 0) {
+            clearInterval(timerInterval);
+            showModal("সময় শেষ!", "আপনার পরীক্ষার জন্য নির্ধারিত সময় শেষ হয়ে গেছে। এখন উত্তরপত্র স্বয়ংক্রিয়ভাবে জমা হবে।");
+            finishQuiz();
+        }
+    }, 1000);
+
+    renderAllQuestions();
+    switchView("exam");
+}
+        async function finishQuiz() {
+    clearInterval(timerInterval);
+    const exam = appData.exams[activeExamKey];
+
+    let correct = 0, incorrect = 0;
+    let detailedReview = [];
+
+    studentAnswers.forEach((ans, idx) => {
+        const questionObj = currentExamQuestions[idx];
+        const isCorrect = (ans !== null && ans === questionObj.correct);
+        if (ans !== null) {
+            if (isCorrect) correct++;
+            else incorrect++;
+        } else {
+            incorrect++;
+        }
+        detailedReview.push({
+            question: questionObj.q,
+            yourAnswer: ans !== null ? questionObj.opts[ans] : "উত্তর দেওয়া হয়নি",
+            correctAnswer: questionObj.opts[questionObj.correct],
+            isCorrect: isCorrect,
+            explanation: questionObj.exp
+        });
+    });
+
+    const score = Math.max(0, correct - (incorrect * 0.5));
+    const timeTakenSecs = (exam.timerMinutes * 60) - timeRemaining;
+    const mins = Math.floor(timeTakenSecs / 60);
+    const secs = timeTakenSecs % 60;
+    const timeFormatted = `${mins} মি. ${secs} সে.`;
+
+    const submission = {
+        studentName: currentStudent.name,
+        studentId: currentStudent.id,
+        examKey: activeExamKey,
+        examTitle: exam.title,
+        score: score,
+        correct: correct,
+        incorrect: incorrect,
+        totalQuestions: exam.questions.length,
+        timeSpent: timeFormatted,
+        answers: studentAnswers,
+        timestamp: window.fbFS ? window.fbFS.serverTimestamp() : new Date().toISOString(),
+        submittedAtISO: new Date().toISOString() // সর্বশেষ সাব미শন ট্র্যাক করার জন্য সুনির্দিষ্ট সময়
+    };
+
+    // ফায়ারবেসে সাবমিশন সেভ করা (যতবার ইচ্ছা দিতে পারবে, সব সেভ হবে)
+    try {
+        if (window.db && window.fbFS) {
+            await window.fbFS.addDoc(window.fbFS.collection(window.db, "submissions"), submission);
+        }
+    } catch (e) {
+        console.error("Submission Save Error:", e);
+    }
+
+    document.getElementById("result-student-info").innerText = 
+        `শিক্ষার্থী: ${currentStudent.name} (${currentStudent.id}) | পরীক্ষা: ${exam.title}`;
+    document.getElementById("res-total").innerText = exam.questions.length;
+
+    const canShow = isAnswerTimeReached(activeExamKey);
+    if (canShow) {
+        document.getElementById("res-correct").innerText = correct;
+        document.getElementById("res-incorrect").innerText = incorrect;
+        document.getElementById("res-score").innerText = score;
+    } else {
+        document.getElementById("res-correct").innerText = "নির্ধারিত সময়ের পর";
+        document.getElementById("res-incorrect").innerText = "নির্ধারিত সময়ের পর";
+        document.getElementById("res-score").innerText = "নির্ধারিত সময়ের পর";
+        const dateStr = exam.answerReleaseTime ? new Date(exam.answerReleaseTime).toLocaleString('bn-BD', { dateStyle: 'full', timeStyle: 'short' }) : "নির্ধারিত সময়";
+        showModal("পরীক্ষা সম্পন্ন!", `আপনার পরীক্ষা সফলভাবে জমা হয়েছে। ফলাফল প্রকাশের নির্ধারিত সময় (${dateStr}) পার হলে সমস্ত মার্ক্স দেখতে পাবেন।`);
+    }
+
+    document.getElementById("review-container").classList.add("hidden");
+    switchView("result");
+}
+        // ফায়ারবেস থেকে সব সাবমিশন আনার পর প্রসেস করার উদাহরণ:
+function getLatestSubmissionsForStudent(allSubmissions, targetStudentId) {
+    let studentSubs = allSubmissions.filter(sub => String(sub.studentId).trim() === String(targetStudentId).trim());
+    
+    let latestMap = {};
+    studentSubs.forEach(sub => {
+        // যদি ইতিমধ্যে ঐ examKey এর সাবমিশন থাকে, তবে ডেট তুলনা করে লেটেস্টটি রাখব
+        if (!latestMap[sub.examKey] || new Date(sub.submittedAtISO) > new Date(latestMap[sub.examKey].submittedAtISO)) {
+            latestMap[sub.examKey] = sub;
+        }
+    });
+
+    return Object.values(latestMap); // এটি শুধু প্রতি পরীক্ষার সর্বশেষ সাবমিশনগুলোর অ্যারে রিটার্ন করবে
+}
     </script>
 </body>
 </html>
