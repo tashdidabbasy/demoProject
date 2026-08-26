@@ -569,7 +569,7 @@
                         <thead>
                             <tr class="bg-slate-50 text-slate-600 border-b border-slate-200">
                                 <th class="p-2.5 font-semibold">শিক্ষার্থী</th>
-                                <th class="p-2.5 font-semibold">আইডি</th>
+                               <!-- <th class="p-2.5 font-semibold">আইডি</th> -->
                                 <th class="p-2.5 font-semibold">পরীক্ষা</th>
                                 <th class="p-2.5 font-semibold text-center">সময়</th>
                                 <th class="p-2.5 font-semibold text-right">স্কোর</th>
@@ -919,7 +919,7 @@
                         <tr class="bg-slate-50 text-slate-600 border-b border-slate-200">
                             <th class="p-2 sm:p-3 font-semibold rounded-l-xl w-10 sm:w-12 text-center">#</th>
                             <th class="p-2 sm:p-3 font-semibold">শিক্ষার্থীর নাম</th>
-                            <th class="p-2 sm:p-3 font-semibold">আইডি</th>
+                            <!-- <th class="p-2 sm:p-3 font-semibold">আইডি</th> -->
                             <th class="p-2 sm:p-3 font-semibold text-center">স্ট্যাটাস</th>
                             <th class="p-2 sm:p-3 font-semibold text-center">সময়</th>
                             <th class="p-2 sm:p-3 font-semibold text-right rounded-r-xl">স্কোর</th>
@@ -1816,7 +1816,7 @@
                                 <tr class="border-b border-slate-100 hover:bg-slate-50 text-xs sm:text-sm">
                                     <td class="p-2.5 text-center font-bold text-slate-600">${i + 1}</td>
                                     <td class="p-2.5 font-semibold text-slate-800">${s.studentName}</td>
-                                    <td class="p-2.5 font-mono text-slate-500 text-xs">${s.studentId}</td>
+                                    
                                     <td class="p-2.5 text-center">${statusBadge}</td>
                                     <td class="p-2.5 text-center text-slate-500 text-xs font-mono">${s.timeSpent || '-'}</td>
                                     <td class="p-2.5 text-right font-black text-indigo-700 font-mono">${s.score}</td>
@@ -2270,7 +2270,7 @@
                         tbody.innerHTML = subs.map(s => `
                             <tr class="border-b border-slate-100 hover:bg-slate-50">
                                 <td class="p-2.5 font-bold text-slate-800">${s.studentName}</td>
-                                <td class="p-2.5 font-mono text-xs text-slate-500">${s.studentId}</td>
+                                
                                 <td class="p-2.5 text-xs text-slate-600">${s.examTitle}</td>
                                 <td class="p-2.5 text-center font-mono text-xs text-slate-500">${s.timeSpent || '-'}</td>
                                 <td class="p-2.5 text-right font-black text-indigo-700 font-mono">${s.score}</td>
