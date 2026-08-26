@@ -2724,8 +2724,7 @@ document.addEventListener("DOMContentLoaded", () => {
     updateDashboardTotalExaminees();
 });
 
-        // ফ্রী পরীক্ষা বাটনে ক্লিক করার লজিক
-// ফ্রী পরীক্ষা বাটনে ক্লিক করলে মোবাইল নাম্বার চাওয়ার মডাল দেখাবে
+        // ফ্রী পরীক্ষা বাটনে ক্লিক করলে সবার আগে চেক করবে আইডি লাগবে কি না
 function handleFreeExamClick() {
     if (!activeExamKey || !appData.exams[activeExamKey]) {
         showModal("ত্রুটি", "অনুগ্রহ করে সঠিক পরীক্ষা নির্বাচন করুন।");
@@ -2733,6 +2732,19 @@ function handleFreeExamClick() {
     }
     
     const exam = appData.exams[activeExamKey];
+
+    // চেক করা হচ্ছে পরীক্ষাটিতে আইডি লাগবে কি না 
+    // (যদি exam.isFree বা exam.requiresId সত্য না হয়, অর্থাৎ আইডি লাগে)
+    // আপনার প্রজেক্টের ডেটা স্ট্রাকচার অনুযায়ী পেইড পরীক্ষায় আইডি লাগলে শর্তটি এভাবে কাজ করবে:
+    const requiresId = exam.requiresId !== false && !exam.isFree; // এখানে আপনার সিস্টেম অনুযায়ী প্রজেক্টের ফিল্ড ম্যাচ করবেন
+
+    if (requiresId) {
+        // যদি আইডি লাগে, তবে পপআপ দেখাবে যে এই পরীক্ষায় অংশ নেওয়া যাবে না
+        showModal("অপারেশন ব্যর্থ", "এই পরীক্ষাটিতে অংশগ্রহণ করতে হলে স্টুডেন্ট আইডি প্রয়োজন। এটায় ফ্রী পরীক্ষা দেওয়া যাবে না।");
+        return; // এখানেই থেমে যাবে, মোবাইল নাম্বারের পপআপ আর আসবে না
+    }
+
+    // যদি আইডি না লাগে (সম্পূর্ণ ফ্রী পরীক্ষা হয়), তবেই মোবাইল নাম্বারের পপআপ দেখাবে
     showFreeUserPhoneModal(exam);
 }
 
