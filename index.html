@@ -2780,9 +2780,18 @@ function startExamProcessAfterValidation(exam) {
 
 
 
+// ফ্রী পরীক্ষা বাটনে ক্লিক করলে মোবাইল নাম্বার চাওয়ার মডাল দেখাবে
+function handleFreeExamClick() {
+    if (!activeExamKey || !appData.exams[activeExamKey]) {
+        showModal("ত্রুটি", "অনুগ্রহ করে সঠিক পরীক্ষা নির্বাচন করুন।");
+        return;
+    }
+    
+    const exam = appData.exams[activeExamKey];
+    showFreeUserPhoneModal(exam);
+}
 
-
-        // শুধু মোবাইল নাম্বার ইনপুটের জন্য পপআপ মডাল
+// শুধু মোবাইল নাম্বার ইনপুটের জন্য পপআপ মডাল
 function showFreeUserPhoneModal(exam) {
     let modalContainer = document.getElementById("custom-dynamic-modal");
     if (!modalContainer) {
@@ -2817,29 +2826,7 @@ function closeFreeUserModal() {
     const modalContainer = document.getElementById("custom-dynamic-modal");
     if (modalContainer) modalContainer.style.display = "none";
 }
-        function submitFreeUserPhone(examKey) {
-    const phoneInput = document.getElementById("free-user-phone-input").value.trim();
 
-    if (!phoneInput || phoneInput.length < 11) {
-        alert("দয়া করে একটি সঠিক ১১ ডিজিটের মোবাইল নাম্বার দিন।");
-        return;
-    }
-
-    // মোবাইল নাম্বারটাই হবে স্টুডেন্ট আইডি
-    currentStudent = {
-        name: `ف্রী পরীক্ষার্থী (${phoneInput})`,
-        id: phoneInput, // মোবাইল নাম্বারই আইডি
-        phone: phoneInput,
-        isFreeUser: true
-    };
-
-    // মডাল বন্ধ করা
-    closeFreeUserModal();
-
-    // পরীক্ষা শুরু করা
-    const exam = appData.exams[examKey];
-    startExamProcessAfterValidation(exam);
-}
         
     </script>
 </body>
