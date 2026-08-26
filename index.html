@@ -2846,33 +2846,73 @@ function showFreeUserPhoneModal(exam) {
     modalContainer.style.display = "flex";
 }
 
-function closeFreeUserModal() {
-    const modalContainer = document.getElementById("custom-dynamic-modal");
-    if (modalContainer) modalContainer.style.display = "none";
-}
+function submitFreeUserPhone(examKey) {
+    const phoneInputField = document.getElementById("free-user-phone-input");
+    if (!phoneInputField) return;
+    
+    const phoneInput = phoneInputField.value.trim();
 
-        function submitFreeUserPhone(examKey) {
-    const phoneInput = document.getElementById("free-user-phone-input").value.trim();
-
-    if (!phoneInput || phoneInput.length < 11) {
-        alert("দয়া করে একটি সঠিক ১১ ডিজিটের মোবাইল নাম্বার দিন।");
+    // ১. মোবাইল নাম্বার অবশ্যই ১১ ডিজিট এবং সংখ্যা হতে হবে কি না তার চেক
+    if (phoneInput.length !== 11 || isNaN(phoneInput)) {
+        alert("মোবাইল নাম্বার অবশ্যই সঠিক ১১ ডিজিটের হতে হবে!");
         return;
     }
 
-    // মোবাইল নাম্বারটাই হবে স্টুডেন্ট আইডি
-    currentStudent = {
-        name: `ف্রী পরীক্ষার্থী (${phoneInput})`,
-        id: phoneInput, // মোবাইল নাম্বারই আইডি
-        phone: phoneInput,
-        isFreeUser: true
+    // ২. সাবমিটের আগে রিমাইন্ডার (যাতে ভুল থাকলে ঠিক করে নিতে পারে)
+    if (!confirm(`আপনার মোবাইল নাম্বারটি হলো: ${phoneInput}\nসাবমিট করার আগে মোবাইল নাম্বারটি আরেকবার মিলিয়ে নিন। ঠিক আছে?`)) {
+        return;
+    }
+
+    // ৩. স্টুডেন্ট আইডি সেট করা (মোবাইল নাম্বারই আইডি)
+    currentStudent = { 
+        name: `ফ্রী পরীক্ষার্থী (${phoneInput})`, 
+        id: phoneInput, 
+        phone: phoneInput, 
+        isFreeUser: true 
     };
 
-    // মডাল বন্ধ করা
+    // ৪. মডাল বন্ধ করা
     closeFreeUserModal();
-
-    // পরীক্ষা শুরু করা
+    
+    // ৫. পরীক্ষা শুরু করার লজিক
+    activeExamKey = examKey;
     const exam = appData.exams[examKey];
-    startExamProcessAfterValidation(exam);
+    
+    if (exam && typeof switchView === 'function') {
+        if (typeof currentExamQuestions !== 'undefined') {
+            currentExamQuestions = typeof shuffleArray === 'function' ? shuffleArray(exam.questions) : exam.questions;
+        }
+        
+        // হেডিং আপডেট
+        const headingEl = document.getElementById("quiz-exam-heading");
+        if (headingEl) {
+            headingEl.innerText = `${exam.title} (${exam.course} - ${exam.subject})`;
+        }
+
+        // টাইমার সেটআপ
+        if (typeof timeRemaining !== 'undefined' && typeof exam.timerMinutes !== 'undefined') {
+            timeRemaining = exam.timerMinutes * 60;
+            if (typeof updateTimerDisplay === 'function') updateTimerDisplay();
+            
+            if (typeof timerInterval !== 'undefined') {
+                clearInterval(timerInterval);
+                timerInterval = setInterval(() => {
+                    timeRemaining--;
+                    if (typeof updateTimerDisplay === 'function') updateTimerDisplay();
+                    if (timeRemaining <= 0) {
+                        clearInterval(timerInterval);
+                        if (typeof finishQuiz === 'function') finishQuiz();
+                    }
+                }, 1000);
+            }
+        }
+
+        if (typeof renderAllQuestions === 'function') {
+            renderAllQuestions();
+        }
+        
+        switchView("exam");
+    }
 }
         
     </script>
