@@ -343,6 +343,18 @@
                     <h2 class="text-base sm:text-xl font-bold text-slate-900"><i class="fa-solid fa-chalkboard-user text-indigo-600 mr-2"></i> শিক্ষক প্যানেল</h2>
                     <p class="text-xs text-slate-500">পরীক্ষা, কোর্স, সাবজেক্ট এবং ফলাফল নিয়ন্ত্রণ করুন</p>
                 </div>
+
+<div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-4">
+    <div class="bg-violet-50 text-violet-600 p-4 rounded-2xl text-2xl font-bold">
+        <i class="fa-solid fa-users"></i>
+    </div>
+    <div>
+        <h4 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">মোট পরীক্ষার্থী</h4>
+        <!-- এখানে মোট পরীক্ষার্থীর সংখ্যা রিয়েল-টাইমে দেখাবে -->
+        <p id="total-examinees-display" class="text-lg sm:text-xl font-bold text-slate-900">০</p>
+    </div>
+</div>
+                
                 <button onclick="switchView('dashboard')" class="text-slate-500 hover:text-slate-800 text-sm font-medium p-1">
                     <i class="fa-solid fa-xmark text-lg"></i>
                 </button>
@@ -2671,6 +2683,39 @@ function getLatestSubmissionsForStudent(allSubmissions, targetStudentId) {
 
     return Object.values(latestMap); // এটি শুধু প্রতি পরীক্ষার সর্বশেষ সাবমিশনগুলোর অ্যারে রিটার্ন করবে
 }
+
+// ওয়েবসাইটে মোট কতজন পরীক্ষা দিয়েছে তা গণনা ও প্রদর্শনের ফাংশন
+function updateDashboardTotalExaminees() {
+    // এখানে "submissions" এর জায়গায় আপনার ডেটাবেসের আসল কালেকশন নামটি বসান
+    const collectionName = "submissions"; 
+
+    if (window.db && window.fbFS) {
+        window.fbFS.getDocs(window.fbFS.collection(window.db, collectionName))
+            .then(snapshot => {
+                let totalExaminees = snapshot.size;
+                console.log("Total Examinees Found: ", totalExaminees); // কনসোলে সংখ্যাটি প্রিন্ট করবে
+
+                const displayEl = document.getElementById("total-examinees-display");
+                if (displayEl) {
+                    displayEl.innerText = totalExaminees;
+                }
+            }).catch(err => {
+                console.error("Firebase Read Error: ", err); // কোনো সমস্যা থাকলে এখানে দেখাবে
+            });
+    } else {
+        console.warn("Firebase db or fbFS is not initialized globally.");
+    }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    setTimeout(updateDashboardTotalExaminees, 1000); // পেজ পুরোপুরি লোড হওয়ার ১ সেকেন্ড পর ডাটা ফেচ করবে
+});
+
+// পেজ লোড হওয়ার পর বা রিফ্রেশ হলে ফাংশনটি কল করুন
+document.addEventListener("DOMContentLoaded", () => {
+    updateDashboardTotalExaminees();
+});
+        
     </script>
 </body>
 </html>
